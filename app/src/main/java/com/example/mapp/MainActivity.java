@@ -1,5 +1,7 @@
 package com.example.mapp;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -7,6 +9,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import android.view.View;
 
+import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -40,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(myToolBar);
         myToolBar.setTitleTextColor(Color.parseColor("#FFFFFF"));
         myToolBar.setTitle("Mapp");
+        //myToolBar.setOverflowIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_search));
+
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -58,6 +64,14 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        /*SearchView searchView =
+                (SearchView) menu.findItem(R.id.search_button).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));*/
+
         return true;
     }
 
