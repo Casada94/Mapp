@@ -10,4 +10,11 @@
         android:name="com.example.mapp.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/secondHome"
+        android:name="com.example.mapp.HomeFragmentSecond"
+        android:label="second Home"
+        tools:layout="@layout/second_home"/>
+
+
 </navigation>
