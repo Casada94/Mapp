@@ -42,35 +42,6 @@
         android:text="Its a Me, Mario!"
         />
 
-    <Button
-        android:id="@+id/signUp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sign Up"
-        android:background="@color/colorWhite"
-        android:textColor="@color/colorPrimaryDark"
-        app:layout_constraintTop_toTopOf="@+id/imageView"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView"
-        app:layout_constraintLeft_toRightOf="@+id/imageView"
-        app:layout_constraintRight_toLeftOf="@+id/login"
-        app:layout_constraintVertical_bias="0.75"
-        app:layout_constraintHorizontal_bias=".25"
-        />
-
-    <Button
-        android:id="@+id/login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="login"
-        android:background="@color/colorWhite"
-        android:textColor="@color/colorPrimaryDark"
-        app:layout_constraintStart_toEndOf="@+id/signUp"
-        app:layout_constraintTop_toTopOf="@+id/imageView"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias=".75"
-        />
-
     <TextView
         android:id="@+id/temp"
         android:layout_width="match_parent"

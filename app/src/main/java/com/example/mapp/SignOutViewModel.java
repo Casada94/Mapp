@@ -4,13 +4,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class homeSecondViewModel extends ViewModel {
+public class SignOutViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public homeSecondViewModel() {
+    public SignOutViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is the second home fragment");
+        mText.setValue("This is the Sign Out fragment");
     }
 
     public LiveData<String> getText() {

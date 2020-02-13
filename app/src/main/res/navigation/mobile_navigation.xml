@@ -11,10 +11,26 @@
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
     <fragment
-        android:id="@+id/secondHome"
-        android:name="com.example.mapp.HomeFragmentSecond"
-        android:label="second Home"
-        tools:layout="@layout/second_home" />
+        android:id="@+id/schedule_frag"
+        android:name="com.example.mapp.ScheduleFragment"
+        android:label="My Schedule"
+        tools:layout="@layout/fragment_schedule" />
+    <fragment
+        android:id="@+id/login_frag"
+        android:name="com.example.mapp.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login"/>
+    <fragment
+        android:id="@+id/signup_frag"
+        android:name="com.example.mapp.SignUpFragment"
+        android:label="Sign Up"
+        tools:layout="@layout/fragment_signup"/>
+    <fragment
+        android:id="@+id/signout_frag"
+        android:name="com.example.mapp.SignOutFragment"
+        android:label="Sign out"
+        tools:layout="@layout/fragment_signout"/>
+
 
 
 </navigation>
