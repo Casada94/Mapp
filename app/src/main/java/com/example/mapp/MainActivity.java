@@ -42,7 +42,7 @@ import com.google.android.material.navigation.NavigationView;
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-    private boolean loggedIn = true;
+    private boolean loggedIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +87,6 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-
 
 
         if(!loggedIn){
