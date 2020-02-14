@@ -25,12 +25,5 @@
         android:name="com.example.mapp.SignUpFragment"
         android:label="Sign Up"
         tools:layout="@layout/fragment_signup"/>
-    <fragment
-        android:id="@+id/signout_frag"
-        android:name="com.example.mapp.SignOutFragment"
-        android:label="Sign out"
-        tools:layout="@layout/fragment_signout"/>
-
-
 
 </navigation>

@@ -6,15 +6,19 @@ import android.content.Context;
 import android.os.Bundle;
 
 
-
-
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 
 import androidx.appcompat.widget.SearchView;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainer;
+import androidx.fragment.app.FragmentContainerView;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -28,6 +32,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         myToolBar.setTitleTextColor(Color.parseColor("#FFFFFF"));
         myToolBar.setTitle("Mapp");
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
@@ -59,7 +64,9 @@ public class MainActivity extends AppCompatActivity {
                 .setDrawerLayout(drawer)
                 .build();
 
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        final NavController navController = navHostFragment.getNavController();
+
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView,navController);
 
@@ -72,7 +79,14 @@ public class MainActivity extends AppCompatActivity {
         MenuItem signup = menu.findItem(R.id.signup_frag);
         MenuItem signout = menu.findItem(R.id.signout_frag);
 
-
+        signout.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                drawer.closeDrawer(Gravity.LEFT, true);
+                navController.navigate(R.id.nav_home);
+                return false;
+            }
+        });
 
 
 
@@ -120,19 +134,6 @@ public class MainActivity extends AppCompatActivity {
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
 
-       /* menu.findItem(R.id.signout_frag).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
-
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                //Some signout function
-                //signout();
-                System.out.println("i was clicked");
-               //Toast toast = Toast.makeText(this,"ooo",Toast.LENGTH_LONG).show();
-
-
-                return true;
-            }
-        });*/
 
         return true;
     }
