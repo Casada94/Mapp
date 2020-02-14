@@ -3,6 +3,7 @@ package com.example.mapp;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 
@@ -42,12 +43,17 @@ import com.google.android.material.navigation.NavigationView;
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-    private boolean loggedIn = false;
+    private boolean loggedIn = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        Intent loginStatus = getIntent();
+        if(loginStatus.hasExtra("loggedIn"))
+            loggedIn = loginStatus.getExtras().getBoolean("loggedIn");
 
 
 
@@ -84,6 +90,10 @@ public class MainActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 drawer.closeDrawer(Gravity.LEFT, true);
                 navController.navigate(R.id.nav_home);
+                loggedIn = false;
+                Intent reStart = new Intent(getApplicationContext(), MainActivity.class);
+                reStart.putExtra("loggedIn", false);
+                startActivity(reStart);
                 return false;
             }
         });
@@ -135,6 +145,8 @@ public class MainActivity extends AppCompatActivity {
 
         return true;
     }
+
+
 
     @Override
     public boolean onSupportNavigateUp() {

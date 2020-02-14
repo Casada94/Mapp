@@ -8,7 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="12sp"
-        android:text="Username"
+        android:text="Email"
         app:layout_constraintStart_toStartOf="@+id/userName"
         app:layout_constraintBottom_toTopOf="@+id/userName"/>
 
