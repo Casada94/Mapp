@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,9 +40,12 @@ public class LoginFragment extends Fragment {
                 String user = username.getText().toString();
                 String pass = password.getText().toString();
 
+
                 if(Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user) && user.contains("@csulb")){
                     username.clearComposingText();
                     password.clearComposingText();
+                    username.onEditorAction(EditorInfo.IME_ACTION_DONE);
+                    password.onEditorAction(EditorInfo.IME_ACTION_DONE);
                     Toast.makeText(getContext(), "good job", Toast.LENGTH_LONG).show();
                 }
                 else{
