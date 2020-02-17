@@ -10,9 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import java.util.regex.Pattern;
@@ -42,7 +40,7 @@ public class LoginFragment extends Fragment {
                 String user = username.getText().toString();
                 String pass = password.getText().toString();
 
-                /* Simple regex check for the formating of the email**/
+                /* Simple regex check for the formatting of the email**/
                 if(Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user) && user.contains("@csulb")){
                     username.clearComposingText();
                     password.clearComposingText();
