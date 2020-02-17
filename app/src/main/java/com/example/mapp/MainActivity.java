@@ -50,36 +50,36 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /** Checks if this activity was launched from a previous activity. for login status purposes**/
+        /* Checks if this activity was launched from a previous activity. for login status purposes**/
         Intent loginStatus = getIntent();
         if(loginStatus.hasExtra("loggedIn"))
             loggedIn = loginStatus.getExtras().getBoolean("loggedIn");
 
 
-        /** connects the tool bar to the java code and some of its view attributes**/
+        /* connects the tool bar to the java code and some of its view attributes**/
         Toolbar myToolBar = (Toolbar) findViewById(R.id.toolBar);
         setSupportActionBar(myToolBar);
         myToolBar.setTitleTextColor(Color.parseColor("#FFFFFF"));
         myToolBar.setTitle("Mapp");
 
-        /** connects the drawer layout XML to the code**/
+        /* connects the drawer layout XML to the code**/
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
 
-        /** sets up the drawer layout**/
+        /* sets up the drawer layout**/
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.schedule_frag, R.id.login_frag, R.id.signup_frag)
                 .setDrawerLayout(drawer)
                 .build();
 
-        /** sets up the navigation controller
-         * used to change fragments**/
+        /* sets up the navigation controller
+          used to change fragments**/
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         final NavController navController = navHostFragment.getNavController();
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView,navController);
 
-        /** connects all the XML elements to the java code**/
+        /* connects all the XML elements to the java code**/
         TextView userInNav = (TextView) navigationView.getHeaderView(0).findViewById(R.id.whoIsIt);
         TextView home = (TextView) navigationView.getHeaderView(0).findViewById(R.id.nav_home);
         Menu menu = (Menu) navigationView.getMenu();
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         MenuItem signup = menu.findItem(R.id.signup_frag);
         MenuItem signout = menu.findItem(R.id.signout_frag);
 
-        /** sets the click functionality of the sign out button**/
+        /* sets the click functionality of the sign out button**/
         signout.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /** determines what is shown in the drawer layout (navigation menu; top left)**/
+        /* determines what is shown in the drawer layout (navigation menu; top left)**/
         if(!loggedIn){
             userInNav.setTextSize(18);
             userInNav.setText("Hey, who are you!?");

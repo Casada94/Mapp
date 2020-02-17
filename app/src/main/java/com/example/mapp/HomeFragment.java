@@ -23,8 +23,8 @@ public class HomeFragment extends Fragment {
         final View root = inflater.inflate(R.layout.fragment_home, container, false);
         final TextView textView = root.findViewById(R.id.text_home);
 
-        /** Honestly I dont know the purpose of this section. It isnt needed so idk if it a
-         * convention that we should follow or what**/
+        /* Honestly I dont know the purpose of this section. It isnt needed so idk if it a
+          convention that we should follow or what**/
         homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {

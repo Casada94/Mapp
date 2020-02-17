@@ -29,7 +29,7 @@ public class ScheduleFragment extends Fragment {
                 ViewModelProviders.of(this).get(ScheduleViewModel.class);
         View root = inflater.inflate(R.layout.fragment_schedule, container, false);
 
-        /** set up for the list view of classes in user's schedule**/
+        /* set up for the list view of classes in user's schedule**/
         currSchedule = root.findViewById(R.id.currentSchedule);
         currSchedule.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(root.getContext());
@@ -37,14 +37,14 @@ public class ScheduleFragment extends Fragment {
         mAdapter = new MyAdapter(tempData);
         currSchedule.setAdapter(mAdapter);
 
-        /** connects framelayout in XML to java code and hides its visibility**/
+        /* connects framelayout in XML to java code and hides its visibility**/
         final FrameLayout addClass = root.findViewById(R.id.addClassView);
         addClass.setVisibility(View.INVISIBLE);
 
-        /** connects button from XML with java code**/
+        /* connects button from XML with java code**/
         Button add = root.findViewById(R.id.addClass);
 
-        /** Sets functionality for add button **/
+        /* Sets functionality for add button **/
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

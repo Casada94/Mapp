@@ -1,6 +1,5 @@
 package com.example.mapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,26 +11,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 
 import java.util.regex.Pattern;
 
 public class SignUpFragment extends Fragment {
 
     private SignUpViewModel signUpViewModel;
-    EditText email;
-    EditText password;
-    EditText rePassword;
-    Button signUp;
-    TextView emailTxt;
-    TextView passwordTxt;
-    TextView rePasswordTxt;
+    private EditText email;
+    private EditText password;
+    private EditText rePassword;
+    private Button signUp;
+    private TextView emailTxt;
+    private TextView passwordTxt;
+    private TextView rePasswordTxt;
 
 
 
@@ -39,9 +35,10 @@ public class SignUpFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         signUpViewModel =
                 ViewModelProviders.of(this).get(SignUpViewModel.class);
+
         View root = inflater.inflate(R.layout.fragment_signup, container, false);
 
-        /** Connect the XML elements to the java code **/
+        /* Connect the XML elements to the java code **/
         email = root.findViewById(R.id.email);
         emailTxt = root. findViewById(R.id.emailTxt);
         password = root.findViewById(R.id.PasswordSignUp);
@@ -49,35 +46,35 @@ public class SignUpFragment extends Fragment {
         rePasswordTxt = root.findViewById(R.id.rePasswordTxt);
         signUp = root.findViewById(R.id.loginBtn);
 
-        /** set functionality of the sign up button **/
+        /* set functionality of the sign up button **/
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                /** Gets the text typed in the edit text fields **/
+                /* Gets the text typed in the edit text fields **/
                 String user = email.getText().toString();
                 String pass = password.getText().toString();
                 String rePass = rePassword.getText().toString();
 
-                /** Simple regex check of the email entered by user and the passwords entered **/
+                /* Simple regex check of the email entered by user and the passwords entered **/
                 if(Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user) && user.contains("@csulb") && pass.equals(rePass)){
                     email.clearComposingText();
                     password.clearComposingText();
 
-                    /** closes the keyboard **/
+                    /* closes the keyboard **/
                     password.onEditorAction(EditorInfo.IME_ACTION_DONE);
                     Toast.makeText(getContext(), "good job", Toast.LENGTH_LONG).show();
 
-                    /**
-                     *
-                     * SOME DATABASE STUFF WILL HAPPEN HERE
-                     * TO CHECK IF EMAIL IS ALREADY IN USE
-                     * AND TO ADD NEW USER TO DATABASE
-                     *
-                     * **/
+                    /*
+
+                      SOME DATABASE STUFF WILL HAPPEN HERE
+                      TO CHECK IF EMAIL IS ALREADY IN USE
+                      AND TO ADD NEW USER TO DATABASE
+
+                      **/
 
 
-                    /**Uses the activity's navigation controller to change fragments to the login fragment**/
+                    /*Uses the activity's navigation controller to change fragments to the login fragment**/
                     NavController navController = Navigation.findNavController(((MainActivity)getActivity()).findViewById(R.id.nav_host_fragment));
                     navController.navigate(R.id.login_frag);
 
