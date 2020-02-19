@@ -24,6 +24,16 @@
         android:id="@+id/signup_frag"
         android:name="com.example.mapp.SignUpFragment"
         android:label="Sign Up"
-        tools:layout="@layout/fragment_signup"/>
+        tools:layout="@layout/fragment_signup">
+
+        <action
+            android:id="@+id/action_signUp_to_login"
+            app:destination="@+id/login_frag"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/nav_home"
+            app:popUpToInclusive="true"/>
+
+
+    </fragment>
 
 </navigation>

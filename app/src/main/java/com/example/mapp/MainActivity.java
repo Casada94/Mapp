@@ -1,17 +1,28 @@
 package com.example.mapp;
 
 
+import android.Manifest;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 
 
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.location.LocationManagerCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -26,15 +37,67 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private AppBarConfiguration mAppBarConfiguration;
     private boolean loggedIn = true;
+    //private FusedLocationProviderClient fusedLocationProviderClient;
+    private GoogleMap mMap;
+    final int x = 0;
+    private GoogleApiClient client;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        if (ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED) {
+            buildGoogleApiClient();
+            Task location = mFusedLocationProviderClient.getLastLocation();
+            location.addOnCompleteListener(new OnCompleteListener() {
+                @Override
+                public void onComplete(@NonNull Task task) {
+                    if (task.isSuccessful()) {
+                        Location currentLocation = (Location) task.getResult();
+                        //CameraUpdateFactory.newLatLngZoom(
+                        Toast.makeText(MainActivity.this, "Getting Current Location", Toast.LENGTH_SHORT).show();
+                        //LatLng check = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(check,DEFAULT_ZOOM));
+
+                    } else {
+                        Toast.makeText(MainActivity.this, "unable to get current location", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            Toast.makeText(MainActivity.this, "getting restaurant", Toast.LENGTH_LONG).show();
+            //mMap.setMyLocationEnabled(true);
+        }
+        else{
+            buildGoogleApiClient();
+            //mMap.setMyLocationEnabled(true);
+        }
+
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView,navController);
 
+
+
         /* connects all the XML elements to the java code**/
         TextView userInNav = (TextView) navigationView.getHeaderView(0).findViewById(R.id.whoIsIt);
         TextView home = (TextView) navigationView.getHeaderView(0).findViewById(R.id.nav_home);
@@ -89,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent reStart = new Intent(getApplicationContext(), MainActivity.class);
                 reStart.putExtra("loggedIn", false);
                 startActivity(reStart);
+                MainActivity.this.finish();
                 return false;
             }
         });
@@ -102,15 +168,16 @@ public class MainActivity extends AppCompatActivity {
             signup.setVisible(true);
             signout.setVisible(false);
         }
-        else{
+        else {
             userInNav.setText("Its a Me, Mario!");
             userInNav.setVisibility(View.VISIBLE);
             schedule.setVisible(true);
             login.setVisible(false);
             signup.setVisible(false);
             signout.setVisible(true);
-
         }
+
+        checkLocationPermission();
 
 
     }
@@ -119,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
     /** sets up the options in the toolbar and the rest of its visual aspects**/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         // Associate searchable configuration with the SearchView
@@ -140,4 +208,50 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
+
+
+
+
+
+    public boolean checkLocationPermission(){
+        if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)){
+                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},x);
+            }
+            else{
+                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},x);
+            }
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[]grantResults){
+        switch (requestCode){
+            case x: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        if (client == null) {
+                            buildGoogleApiClient();
+                        }
+                        //mMap.setMyLocationEnabled(true);
+                    }
+                } else {
+
+                }
+
+            }
+        }
+    }
+
+    protected synchronized void buildGoogleApiClient(){
+        client = new GoogleApiClient.Builder(this).addApi(LocationServices.API).build();
+        client.connect();
+
+    }
+
 }

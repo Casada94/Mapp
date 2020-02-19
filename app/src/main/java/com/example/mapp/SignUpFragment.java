@@ -11,9 +11,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import java.util.regex.Pattern;
@@ -76,7 +79,7 @@ public class SignUpFragment extends Fragment {
 
                     /*Uses the activity's navigation controller to change fragments to the login fragment**/
                     NavController navController = Navigation.findNavController(((MainActivity)getActivity()).findViewById(R.id.nav_host_fragment));
-                    navController.navigate(R.id.login_frag);
+                    navController.navigate(R.id.action_signUp_to_login);
 
                 }
                 else{
