@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.FloatMath;
 import android.view.GestureDetector;
@@ -28,6 +29,7 @@ public class HomeFragment extends Fragment {
     private HomeViewModel homeViewModel;
 
     private ScaleGestureDetector mScaleGestureDetector;
+    private GestureDetector mGestureDetector;
 
     private float mScaleFactor = 1.0f;
     private ImageView map;
@@ -36,12 +38,13 @@ public class HomeFragment extends Fragment {
     Matrix savedMatrix = new Matrix();
     PointF startPoint = new PointF();
     PointF midPoint = new PointF();
-    float oldDist = 1f;
+    float oldDist = 1.0f;
     static final int NONE = 0;
     static final int DRAG = 1;
     static final int ZOOM = 2;
     int mode = NONE;
 
+    @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
@@ -60,15 +63,14 @@ public class HomeFragment extends Fragment {
 
         map = root.findViewById(R.id.map);
 
-        mScaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
+        //mScaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
 
         map.setOnTouchListener(new View.OnTouchListener(){
             @Override
             public boolean onTouch(View v, MotionEvent event){
-                mScaleGestureDetector.onTouchEvent(event);
-
-                /*ImageView view = (ImageView) v;
-                System.out.println("matrix=" + savedMatrix.toString());
+                //mScaleGestureDetector.onTouchEvent(event);
+                ImageView view = (ImageView) v;
+                //System.out.println("matrix=" + savedMatrix.toString());
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
 
@@ -99,22 +101,39 @@ public class HomeFragment extends Fragment {
                         if (mode == DRAG) {
                             matrix.set(savedMatrix);
                             matrix.postTranslate(event.getX() - startPoint.x, event.getY() - startPoint.y);
+
+
+
                         } else if (mode == ZOOM) {
                             float newDist = spacing(event);
-
+                            float[] f = new float[9];
                             if (newDist > 10f) {
                                 matrix.set(savedMatrix);
                                 float scale = newDist / oldDist;
                                 matrix.postScale(scale, scale, midPoint.x, midPoint.y);
                             }
+
+                            matrix.getValues(f);
+                            float scaleX = f[Matrix.MSCALE_X];
+                            float scaleY = f[Matrix.MSCALE_Y];
+
+                            if(scaleX <= 0.3f){
+                                matrix.postScale((0.3f)/scaleX, (0.3f)/scaleY, midPoint.x, midPoint.y);
+                            }else if(scaleX >= 3.0f){
+                                matrix.postScale((3.0f)/scaleX, (3.0f)/scaleY, midPoint.x, midPoint.y);
+                            }
                         }
                         break;
+                        default:
+
+
                 }
-                view.setImageMatrix(matrix);*/
+
+                view.setImageMatrix(matrix);
 
                 return true;
             }
-/*
+
             @SuppressLint("FloatMath")
             private float spacing(MotionEvent event) {
                 float x = event.getX(0) - event.getX(1);
@@ -126,28 +145,13 @@ public class HomeFragment extends Fragment {
                 float x = event.getX(0) + event.getX(1);
                 float y = event.getY(0) + event.getY(1);
                 point.set(x / 2, y / 2);
-            }*/
+            }
         });
-
-
-        //mScaleGestureDetector = new ScaleGestureDetector(map.getContext(), new ScaleListener());
 
 
 
         return root;
     }
-
-private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener{
-        @Override
-    public boolean onScale(ScaleGestureDetector scaleGestureDetector){
-            mScaleFactor *= scaleGestureDetector.getScaleFactor();
-            mScaleFactor = Math.max(0.1f,
-                    Math.min(mScaleFactor, 10.0f));
-            map.setScaleX(mScaleFactor);
-            map.setScaleY(mScaleFactor);
-            return true;
-        }
-}
 
 }
 
