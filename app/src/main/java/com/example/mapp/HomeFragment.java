@@ -63,18 +63,15 @@ public class HomeFragment extends Fragment {
 
         map = root.findViewById(R.id.map);
 
-        //mScaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
 
         map.setOnTouchListener(new View.OnTouchListener(){
             @Override
             public boolean onTouch(View v, MotionEvent event){
-                //mScaleGestureDetector.onTouchEvent(event);
+
                 ImageView view = (ImageView) v;
-                Rect bounds = ((ImageView) v).getDrawable().getBounds();
-                int viewWidth = getResources().getDisplayMetrics().widthPixels;
-                int viewHieght = getResources().getDisplayMetrics().heightPixels;
+
                 float[] f = new float[9];
-                //System.out.println("matrix=" + savedMatrix.toString());
+
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
 
@@ -84,7 +81,6 @@ public class HomeFragment extends Fragment {
                         break;
 
                     case MotionEvent.ACTION_POINTER_DOWN:
-
                         oldDist = spacing(event);
 
                         if (oldDist > 10f) {
@@ -178,30 +174,9 @@ public class HomeFragment extends Fragment {
                         break;
                         default:
 
-
                 }
-
-               /* matrix.getValues(f);
-
-                float transX = f[Matrix.MTRANS_X];
-                float transY = f[Matrix.MTRANS_Y];
-                float newPosX = transX + (event.getX() - startPoint.x);
-                float newPosY = transY + (event.getY() - startPoint.y);
-                float moveXby = event.getX() - startPoint.x;
-                float moveYby = event.getY() - startPoint.y;
-
-
-                if(newPosX > 10){
-                    moveXby = -f[Matrix.MTRANS_X] + 10;
-                }
-                if(newPosY > 10){
-                    moveYby = -f[Matrix.MTRANS_Y] + 40;
-                }
-                matrix.postTranslate(moveXby, moveYby);
-*/
 
                 view.setImageMatrix(matrix);
-
                 return true;
             }
 
