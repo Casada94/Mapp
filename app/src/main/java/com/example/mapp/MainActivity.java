@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private AppBarConfiguration mAppBarConfiguration;
     private boolean loggedIn = true;
-    //private FusedLocationProviderClient fusedLocationProviderClient;
     private GoogleMap mMap;
     final int x = 0;
     private GoogleApiClient client;
@@ -78,22 +77,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public void onComplete(@NonNull Task task) {
                     if (task.isSuccessful()) {
                         Location currentLocation = (Location) task.getResult();
-                        //CameraUpdateFactory.newLatLngZoom(
-                        Toast.makeText(MainActivity.this, "Getting Current Location", Toast.LENGTH_SHORT).show();
-                        //LatLng check = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-                        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(check,DEFAULT_ZOOM));
+                        Toast.makeText(MainActivity.this, "Getting Current Location", Toast.LENGTH_SHORT).show();;
 
                     } else {
                         Toast.makeText(MainActivity.this, "unable to get current location", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
-            Toast.makeText(MainActivity.this, "getting restaurant", Toast.LENGTH_LONG).show();
-            //mMap.setMyLocationEnabled(true);
+
         }
         else{
             buildGoogleApiClient();
-            //mMap.setMyLocationEnabled(true);
         }
 
     }
@@ -189,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
         // Associate searchable configuration with the SearchView
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -208,10 +203,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
-
-
-
-
 
 
     public boolean checkLocationPermission(){

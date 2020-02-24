@@ -69,7 +69,6 @@ public class LoginFragment extends Fragment {
     }
 
 
-
     public boolean checkCredentials(String username, String password){
         return true;
     }

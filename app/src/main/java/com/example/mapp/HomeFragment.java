@@ -2,24 +2,17 @@ package com.example.mapp;
 
 
 import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.FloatMath;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatCallback;
-import androidx.core.graphics.BitmapCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -28,21 +21,17 @@ public class HomeFragment extends Fragment {
 
     private HomeViewModel homeViewModel;
 
-    private ScaleGestureDetector mScaleGestureDetector;
-    private GestureDetector mGestureDetector;
-
-    private float mScaleFactor = 1.0f;
     private ImageView map;
 
-    Matrix matrix = new Matrix();
-    Matrix savedMatrix = new Matrix();
-    PointF startPoint = new PointF();
-    PointF midPoint = new PointF();
-    float oldDist = 1.0f;
-    static final int NONE = 0;
-    static final int DRAG = 1;
-    static final int ZOOM = 2;
-    int mode = NONE;
+    private Matrix matrix = new Matrix();
+    private Matrix savedMatrix = new Matrix();
+    private PointF startPoint = new PointF();
+    private PointF midPoint = new PointF();
+    private float oldDist = 1.0f;
+    private static final int NONE = 0;
+    private static final int DRAG = 1;
+    private static final int ZOOM = 2;
+    private int mode = NONE;
 
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -193,8 +182,6 @@ public class HomeFragment extends Fragment {
                 point.set(x / 2, y / 2);
             }
         });
-
-
 
         return root;
     }
