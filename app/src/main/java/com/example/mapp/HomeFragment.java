@@ -117,19 +117,19 @@ public class HomeFragment extends Fragment {
                             if(newPosX > 10){
                                 moveXby = -f[Matrix.MTRANS_X] + 10;
                             }
-                            //if(newPosX < (-3100 * f[Matrix.MSCALE_X]))
-                              //  moveXby = -f[Matrix.MTRANS_X];
-
+                            if(newPosX < (-4115*f[0] + 1074)) {
+                                moveXby = (-4115*f[0] + 1074) - f[Matrix.MTRANS_X];
+                            }
                             if(newPosY > 10){
                                 moveYby = -f[Matrix.MTRANS_Y] + 40;
                             }
-
-                            System.out.println(f[0]);
-                            System.out.println(moveXby);
+                            if(newPosY < (-4189*f[0] + 1296)){
+                                moveYby = (-4189*f[0] + 1296) - f[Matrix.MTRANS_Y];
+                            }
 
                             matrix.postTranslate(moveXby, moveYby);
 
-                            //matrix.postTranslate(event.getX() - startPoint.x, event.getY() - startPoint.y);
+
                             System.out.println(matrix.toString());
 
                         } else if (mode == ZOOM) {
@@ -162,9 +162,16 @@ public class HomeFragment extends Fragment {
                             if(newPosX > 10){
                                 moveXby = -f[Matrix.MTRANS_X] + 10;
                             }
+                            if(newPosX < (-4115*f[0] + 1074)) {
+                                moveXby = (-4115*f[0] + 1074) - f[Matrix.MTRANS_X];
+                            }
                             if(newPosY > 10){
                                 moveYby = -f[Matrix.MTRANS_Y] + 40;
                             }
+                            if(newPosY < (-4189*f[0] + 1296)){
+                                moveYby = (-4189*f[0] + 1296) - f[Matrix.MTRANS_Y];
+                            }
+
                             matrix.postTranslate(moveXby, moveYby);
 
                         }
