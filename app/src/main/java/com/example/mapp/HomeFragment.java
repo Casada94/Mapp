@@ -70,6 +70,10 @@ public class HomeFragment extends Fragment {
             public boolean onTouch(View v, MotionEvent event){
                 //mScaleGestureDetector.onTouchEvent(event);
                 ImageView view = (ImageView) v;
+                Rect bounds = ((ImageView) v).getDrawable().getBounds();
+                int viewWidth = getResources().getDisplayMetrics().widthPixels;
+                int viewHieght = getResources().getDisplayMetrics().heightPixels;
+                float[] f = new float[9];
                 //System.out.println("matrix=" + savedMatrix.toString());
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
@@ -100,13 +104,37 @@ public class HomeFragment extends Fragment {
                     case MotionEvent.ACTION_MOVE:
                         if (mode == DRAG) {
                             matrix.set(savedMatrix);
-                            matrix.postTranslate(event.getX() - startPoint.x, event.getY() - startPoint.y);
+                            matrix.getValues(f);
+
+                            float transX = f[Matrix.MTRANS_X];
+                            float transY = f[Matrix.MTRANS_Y];
+                            float newPosX = transX + (event.getX() - startPoint.x);
+                            float newPosY = transY + (event.getY() - startPoint.y);
+                            float moveXby = event.getX() - startPoint.x;
+                            float moveYby = event.getY() - startPoint.y;
 
 
+                            if(newPosX > 10){
+                                moveXby = -f[Matrix.MTRANS_X] + 10;
+                            }
+                            //if(newPosX < (-3100 * f[Matrix.MSCALE_X]))
+                              //  moveXby = -f[Matrix.MTRANS_X];
+
+                            if(newPosY > 10){
+                                moveYby = -f[Matrix.MTRANS_Y] + 40;
+                            }
+
+                            System.out.println(f[0]);
+                            System.out.println(moveXby);
+
+                            matrix.postTranslate(moveXby, moveYby);
+
+                            //matrix.postTranslate(event.getX() - startPoint.x, event.getY() - startPoint.y);
+                            System.out.println(matrix.toString());
 
                         } else if (mode == ZOOM) {
                             float newDist = spacing(event);
-                            float[] f = new float[9];
+
                             if (newDist > 10f) {
                                 matrix.set(savedMatrix);
                                 float scale = newDist / oldDist;
@@ -122,12 +150,48 @@ public class HomeFragment extends Fragment {
                             }else if(scaleX >= 3.0f){
                                 matrix.postScale((3.0f)/scaleX, (3.0f)/scaleY, midPoint.x, midPoint.y);
                             }
+
+                            float transX = f[Matrix.MTRANS_X];
+                            float transY = f[Matrix.MTRANS_Y];
+                            float newPosX = transX + (event.getX() - startPoint.x);
+                            float newPosY = transY + (event.getY() - startPoint.y);
+                            float moveXby = event.getX() - startPoint.x;
+                            float moveYby = event.getY() - startPoint.y;
+
+
+                            if(newPosX > 10){
+                                moveXby = -f[Matrix.MTRANS_X] + 10;
+                            }
+                            if(newPosY > 10){
+                                moveYby = -f[Matrix.MTRANS_Y] + 40;
+                            }
+                            matrix.postTranslate(moveXby, moveYby);
+
                         }
                         break;
                         default:
 
 
                 }
+
+               /* matrix.getValues(f);
+
+                float transX = f[Matrix.MTRANS_X];
+                float transY = f[Matrix.MTRANS_Y];
+                float newPosX = transX + (event.getX() - startPoint.x);
+                float newPosY = transY + (event.getY() - startPoint.y);
+                float moveXby = event.getX() - startPoint.x;
+                float moveYby = event.getY() - startPoint.y;
+
+
+                if(newPosX > 10){
+                    moveXby = -f[Matrix.MTRANS_X] + 10;
+                }
+                if(newPosY > 10){
+                    moveYby = -f[Matrix.MTRANS_Y] + 40;
+                }
+                matrix.postTranslate(moveXby, moveYby);
+*/
 
                 view.setImageMatrix(matrix);
 
