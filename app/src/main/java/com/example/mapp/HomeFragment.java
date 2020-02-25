@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -16,6 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 public class HomeFragment extends Fragment {
 
@@ -52,6 +55,14 @@ public class HomeFragment extends Fragment {
 
         map = root.findViewById(R.id.map);
 
+        Button temp = root.findViewById(R.id.temp);
+        temp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NavController navController = Navigation.findNavController(getActivity().findViewById(R.id.nav_host_fragment));
+                navController.navigate(R.id.panoramaview);
+            }
+        });
 
         map.setOnTouchListener(new View.OnTouchListener(){
             @Override
