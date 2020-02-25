@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleApiClient client;
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
-
+    /* Set up for getting user location and user permissions */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -173,7 +173,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         checkLocationPermission();
 
-
     }
 
 
@@ -192,7 +191,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
 
-
         return true;
     }
 
@@ -204,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 || super.onSupportNavigateUp();
     }
 
-
+    /* Checks and gets user permission for location */
     public boolean checkLocationPermission(){
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
             if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)){
@@ -220,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /* Sets up builds google API client if permission granted */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[]grantResults){
         switch (requestCode){

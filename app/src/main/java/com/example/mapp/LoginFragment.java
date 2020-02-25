@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -57,18 +56,16 @@ public class LoginFragment extends Fragment {
                     }
                 }
                 else{
-
-                    Toast.makeText(getContext(),"Username/Password are incorrect", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(),"Username incorrect format", Toast.LENGTH_LONG).show();
+                    password.clearComposingText();
                 }
             }
         });
 
-
-
         return root;
     }
 
-
+    /* Checks the user input against DB login info */
     public boolean checkCredentials(String username, String password){
         return true;
     }

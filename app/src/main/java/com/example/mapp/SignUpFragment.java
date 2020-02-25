@@ -43,16 +43,22 @@ public class SignUpFragment extends Fragment {
 
         /* Connect the XML elements to the java code **/
         email = root.findViewById(R.id.email);
-        emailTxt = root. findViewById(R.id.emailTxt);
+        emailTxt = root.findViewById(R.id.emailTxt);
         password = root.findViewById(R.id.PasswordSignUp);
+        passwordTxt = root.findViewById(R.id.passwordTxt);
         rePassword = root.findViewById(R.id.rePassword);
         rePasswordTxt = root.findViewById(R.id.rePasswordTxt);
         signUp = root.findViewById(R.id.loginBtn);
+
 
         /* set functionality of the sign up button **/
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                boolean goodToSubmit = true;
+                String error = new String();
+                int errorCount = 0;
 
                 /* Gets the text typed in the edit text fields **/
                 String user = email.getText().toString();
@@ -60,7 +66,33 @@ public class SignUpFragment extends Fragment {
                 String rePass = rePassword.getText().toString();
 
                 /* Simple regex check of the email entered by user and the passwords entered **/
-                if(Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user) && user.contains("@csulb") && pass.equals(rePass)){
+                if(!Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user)) {
+                    emailTxt.setTextColor(Integer.parseInt("@colors/red"));
+                    goodToSubmit = false;
+                    errorCount++;
+                    error = "Email format incorrect";
+                }
+                if(!(user.contains("@csulb.edu") || user.contains("@csulb.student.edu"))) {
+                    emailTxt.setTextColor(Integer.parseInt("@colors/red"));
+                    goodToSubmit = false;
+                    errorCount++;
+                    error = "Email must be a CSULB email";
+                }
+                if(!pass.equals(rePass)){
+                    passwordTxt.setTextColor(Integer.parseInt("@colors/red"));
+                    goodToSubmit = false;
+                    errorCount++;
+                    error = "Passwords do not match";
+                }
+
+                if(errorCount == 1) {
+                    Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
+
+                }else {
+                    Toast.makeText(getContext(), "Correct red feilds", Toast.LENGTH_LONG).show();
+                }
+
+                if(goodToSubmit){
                     email.clearComposingText();
                     password.clearComposingText();
 
@@ -69,18 +101,14 @@ public class SignUpFragment extends Fragment {
                     Toast.makeText(getContext(), "good job", Toast.LENGTH_LONG).show();
 
                     /*
-
                       SOME DATABASE STUFF WILL HAPPEN HERE
                       TO CHECK IF EMAIL IS ALREADY IN USE
                       AND TO ADD NEW USER TO DATABASE
-
-                      **/
-
+                    */
 
                     /*Uses the activity's navigation controller to change fragments to the login fragment**/
-                    NavController navController = Navigation.findNavController(((MainActivity)getActivity()).findViewById(R.id.nav_host_fragment));
+                    NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
                     navController.navigate(R.id.action_signUp_to_login);
-
                 }
                 else{
                     Toast.makeText(getContext(),"ooo no good", Toast.LENGTH_LONG).show();

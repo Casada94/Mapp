@@ -28,7 +28,7 @@ public abstract class Facility{
 	public boolean isOpen()
 	{
 		boolean ret = false;
-		if(availability == true)
+		if(availability)
 		{
 			LocalTime now = LocalTime.now();
 			if(now.isAfter(openTime) && now.isBefore(closeTime))

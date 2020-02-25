@@ -52,10 +52,6 @@ public class ScheduleFragment extends Fragment {
             }
         });
 
-
-
-
-
         return root;
     }
 }

@@ -55,6 +55,7 @@ public class HomeFragment extends Fragment {
 
         map = root.findViewById(R.id.map);
 
+        /* TEMP BUTTON FOR 360 PANORAMA VIEW */
         Button temp = root.findViewById(R.id.temp);
         temp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,6 +65,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        /* Touch motion controls for map */
         map.setOnTouchListener(new View.OnTouchListener(){
             @Override
             public boolean onTouch(View v, MotionEvent event){
@@ -74,7 +76,6 @@ public class HomeFragment extends Fragment {
 
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
-
                         savedMatrix.set(matrix);
                         startPoint.set(event.getX(), event.getY());
                         mode = DRAG;
@@ -82,7 +83,6 @@ public class HomeFragment extends Fragment {
 
                     case MotionEvent.ACTION_POINTER_DOWN:
                         oldDist = spacing(event);
-
                         if (oldDist > 10f) {
                             savedMatrix.set(matrix);
                             midPoint(midPoint, event);
@@ -94,7 +94,6 @@ public class HomeFragment extends Fragment {
 
                     case MotionEvent.ACTION_POINTER_UP:
                         mode = NONE;
-
                         break;
 
                     case MotionEvent.ACTION_MOVE:
@@ -110,6 +109,7 @@ public class HomeFragment extends Fragment {
                             float moveYby = event.getY() - startPoint.y;
 
 
+                            /* Prevents the map from moving too far off of screen */
                             if(newPosX > 10){
                                 moveXby = -f[Matrix.MTRANS_X] + 10;
                             }
@@ -130,7 +130,6 @@ public class HomeFragment extends Fragment {
 
                         } else if (mode == ZOOM) {
                             float newDist = spacing(event);
-
                             if (newDist > 10f) {
                                 matrix.set(savedMatrix);
                                 float scale = newDist / oldDist;
@@ -141,6 +140,7 @@ public class HomeFragment extends Fragment {
                             float scaleX = f[Matrix.MSCALE_X];
                             float scaleY = f[Matrix.MSCALE_Y];
 
+                            /* Limits Zoom in and Zoom out */
                             if(scaleX <= 0.3f){
                                 matrix.postScale((0.3f)/scaleX, (0.3f)/scaleY, midPoint.x, midPoint.y);
                             }else if(scaleX >= 3.0f){
@@ -154,7 +154,7 @@ public class HomeFragment extends Fragment {
                             float moveXby = event.getX() - startPoint.x;
                             float moveYby = event.getY() - startPoint.y;
 
-
+                            /* Limits panning during zooming */
                             if(newPosX > 10){
                                 moveXby = -f[Matrix.MTRANS_X] + 10;
                             }
