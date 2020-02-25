@@ -66,7 +66,7 @@ public class LoginFragment extends Fragment {
     }
 
     /* Checks the user input against DB login info */
-    public boolean checkCredentials(String username, String password){
+    private boolean checkCredentials(String username, String password){
         return true;
     }
 
