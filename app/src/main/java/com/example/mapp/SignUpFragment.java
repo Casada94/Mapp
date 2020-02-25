@@ -1,5 +1,6 @@
 package com.example.mapp;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,21 +66,25 @@ public class SignUpFragment extends Fragment {
                 String pass = password.getText().toString();
                 String rePass = rePassword.getText().toString();
 
+                emailTxt.setTextColor(Color.BLACK);
+                passwordTxt.setTextColor(Color.BLACK);
+                rePasswordTxt.setTextColor(Color.BLACK);
+
                 /* Simple regex check of the email entered by user and the passwords entered **/
                 if(!Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user)) {
-                    emailTxt.setTextColor(Integer.parseInt("@colors/red"));
+                    emailTxt.setTextColor(Color.RED);
                     goodToSubmit = false;
                     errorCount++;
                     error = "Email format incorrect";
                 }
                 if(!(user.contains("@csulb.edu") || user.contains("@csulb.student.edu"))) {
-                    emailTxt.setTextColor(Integer.parseInt("@colors/red"));
+                    emailTxt.setTextColor(Color.RED);
                     goodToSubmit = false;
                     errorCount++;
                     error = "Email must be a CSULB email";
                 }
                 if(!pass.equals(rePass)){
-                    passwordTxt.setTextColor(Integer.parseInt("@colors/red"));
+                    passwordTxt.setTextColor(Color.RED);
                     goodToSubmit = false;
                     errorCount++;
                     error = "Passwords do not match";
@@ -89,7 +94,7 @@ public class SignUpFragment extends Fragment {
                     Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
 
                 }else {
-                    Toast.makeText(getContext(), "Correct red feilds", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Correct red fields", Toast.LENGTH_LONG).show();
                 }
 
                 if(goodToSubmit){
@@ -109,9 +114,6 @@ public class SignUpFragment extends Fragment {
                     /*Uses the activity's navigation controller to change fragments to the login fragment**/
                     NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
                     navController.navigate(R.id.action_signUp_to_login);
-                }
-                else{
-                    Toast.makeText(getContext(),"ooo no good", Toast.LENGTH_LONG).show();
                 }
             }
         });
