@@ -20,6 +20,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+
 import java.util.regex.Pattern;
 
 public class SignUpFragment extends Fragment {
@@ -41,6 +48,8 @@ public class SignUpFragment extends Fragment {
                 ViewModelProviders.of(this).get(SignUpViewModel.class);
 
         View root = inflater.inflate(R.layout.fragment_signup, container, false);
+
+        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
         /* Connect the XML elements to the java code **/
         email = root.findViewById(R.id.email);
@@ -93,27 +102,32 @@ public class SignUpFragment extends Fragment {
                 if(errorCount == 1) {
                     Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
 
-                }else {
+                }else if(errorCount > 1) {
                     Toast.makeText(getContext(), "Correct red fields", Toast.LENGTH_LONG).show();
                 }
 
                 if(goodToSubmit){
-                    email.clearComposingText();
-                    password.clearComposingText();
-
                     /* closes the keyboard **/
                     password.onEditorAction(EditorInfo.IME_ACTION_DONE);
-                    Toast.makeText(getContext(), "good job", Toast.LENGTH_LONG).show();
 
-                    /*
-                      SOME DATABASE STUFF WILL HAPPEN HERE
-                      TO CHECK IF EMAIL IS ALREADY IN USE
-                      AND TO ADD NEW USER TO DATABASE
-                    */
-
-                    /*Uses the activity's navigation controller to change fragments to the login fragment**/
-                    NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
-                    navController.navigate(R.id.action_signUp_to_login);
+                    /* SOME DATABASE STUFF */
+                    mAuth.createUserWithEmailAndPassword(user,pass).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if(task.isSuccessful()){
+                                /*Uses the activity's navigation controller to change fragments to the login fragment**/
+                                email.clearComposingText();
+                                password.clearComposingText();
+                                NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
+                                navController.navigate(R.id.action_signUp_to_login);
+                            }else{
+                                if(task.getException() instanceof FirebaseAuthUserCollisionException)
+                                    Toast.makeText(getContext(), "Email Already In Use", Toast.LENGTH_LONG).show();
+                                else
+                                    Toast.makeText(getContext(), "Sign Up failed, Try Again!", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
                 }
             }
         });

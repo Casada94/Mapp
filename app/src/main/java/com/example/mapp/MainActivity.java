@@ -52,6 +52,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     final int x = 0;
     private GoogleApiClient client;
     private FusedLocationProviderClient mFusedLocationProviderClient;
+    private FirebaseAuth mAuth;
 
     /* Set up for getting user location and user permissions */
     @Override
@@ -97,6 +100,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mAuth = FirebaseAuth.getInstance();
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
 
         /* Checks if this activity was launched from a previous activity. for login status purposes**/
         Intent loginStatus = getIntent();
@@ -142,11 +150,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         signout.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                mAuth.signOut();
                 drawer.closeDrawer(Gravity.LEFT, true);
                 navController.navigate(R.id.nav_home);
-                loggedIn = false;
                 Intent reStart = new Intent(getApplicationContext(), MainActivity.class);
-                reStart.putExtra("loggedIn", false);
                 startActivity(reStart);
                 MainActivity.this.finish();
                 return false;
@@ -154,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         /* determines what is shown in the drawer layout (navigation menu; top left)**/
-        if(!loggedIn){
+        if(currentUser == null){
             userInNav.setTextSize(18);
             userInNav.setText("Hey, who are you!?");
             schedule.setVisible(false);
@@ -163,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             signout.setVisible(false);
         }
         else {
-            userInNav.setText("Its a Me, Mario!");
+            userInNav.setText(currentUser.getEmail());
             userInNav.setVisibility(View.VISIBLE);
             schedule.setVisible(true);
             login.setVisible(false);
@@ -243,5 +250,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         client.connect();
 
     }
+
+    public FirebaseAuth getmAuth(){ return mAuth;}
 
 }

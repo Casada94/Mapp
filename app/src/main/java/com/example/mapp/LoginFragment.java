@@ -1,10 +1,12 @@
 package com.example.mapp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +15,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.regex.Pattern;
 
@@ -34,6 +41,10 @@ public class LoginFragment extends Fragment {
         password = root.findViewById(R.id.password);
         login = root.findViewById(R.id.loginBtn);
 
+        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+
+
 
         /* Sets the click functionality of the button*/
         login.setOnClickListener(new View.OnClickListener() {
@@ -48,12 +59,23 @@ public class LoginFragment extends Fragment {
                     password.clearComposingText();
                     username.onEditorAction(EditorInfo.IME_ACTION_DONE);
                     password.onEditorAction(EditorInfo.IME_ACTION_DONE);
-                    if(checkCredentials(user,pass)) {
-                        Intent loggingIn = new Intent(getContext(), MainActivity.class);
-                        loggingIn.putExtra("loggedIn", true);
-                        startActivity(loggingIn);
-                        getActivity().finish();
+                    try {
+                        mAuth.signInWithEmailAndPassword(user,pass).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if(task.isSuccessful()){
+                                    Intent loggedIn = new Intent(getContext(), MainActivity.class);
+                                    startActivity(loggedIn);
+                                    getActivity().finish();
+                                }else{
+                                    Toast.makeText(getActivity().getApplicationContext(), "Username or Password are incorrect", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
+                    
                 }
                 else{
                     Toast.makeText(getContext(),"Username incorrect format", Toast.LENGTH_LONG).show();
