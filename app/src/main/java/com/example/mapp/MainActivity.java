@@ -7,12 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 
 
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +18,6 @@ import androidx.appcompat.widget.SearchView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.location.LocationManagerCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -37,23 +32,22 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -65,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleApiClient client;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     /* Set up for getting user location and user permissions */
     @Override
@@ -102,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
-
+        db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
 
@@ -170,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             signout.setVisible(false);
         }
         else {
-            userInNav.setText(currentUser.getEmail());
+            userInNav.setText(currentUser.getEmail().split("\\.")[0]);
             userInNav.setVisibility(View.VISIBLE);
             schedule.setVisible(true);
             login.setVisible(false);
@@ -193,10 +188,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Associate searchable configuration with the SearchView
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView =
+        final SearchView searchView =
                 (SearchView) menu.findItem(R.id.search_button).getActionView();
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                db.collection("facilities")
+                            .whereEqualTo("name", searchView.getQuery().toString())
+                            .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if(task.isSuccessful()) {
+                                    for (QueryDocumentSnapshot document : task.getResult())
+                                        System.out.println(document);
+                                } else
+                                    System.out.println("failed");
+                            }
+                        });
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
 
         return true;
     }
@@ -250,7 +270,5 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         client.connect();
 
     }
-
-    public FirebaseAuth getmAuth(){ return mAuth;}
 
 }
