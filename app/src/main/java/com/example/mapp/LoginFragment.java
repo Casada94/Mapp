@@ -54,7 +54,7 @@ public class LoginFragment extends Fragment {
                 String pass = password.getText().toString();
 
                 /* Simple regex check for the formatting of the email**/
-                if(Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user) && (user.contains("@csulb.edu" )|| user.contains("@csulb.student.edu"))){
+                if(Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user) && (user.contains("@csulb.edu" )|| user.contains("@student.csulb.edu"))){
                     username.clearComposingText();
                     password.clearComposingText();
                     username.onEditorAction(EditorInfo.IME_ACTION_DONE);

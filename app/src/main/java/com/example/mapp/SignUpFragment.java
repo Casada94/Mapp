@@ -86,7 +86,7 @@ public class SignUpFragment extends Fragment {
                     errorCount++;
                     error = "Email format incorrect";
                 }
-                if(!(user.contains("@csulb.edu") || user.contains("@csulb.student.edu"))) {
+                if(!(user.contains("@csulb.edu") || user.contains("@student.csulb.edu"))) {
                     emailTxt.setTextColor(Color.RED);
                     goodToSubmit = false;
                     errorCount++;
