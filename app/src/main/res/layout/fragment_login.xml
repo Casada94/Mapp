@@ -54,4 +54,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintVertical_bias=".05"/>
 
+    <Button
+        android:id="@+id/passwordReset"
+        android:layout_width="130dp"
+        android:layout_height="30dp"
+        android:background="@color/colorPrimaryDark"
+        android:textColor="@color/colorWhite"
+        android:text="Reset Password"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loginBtn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias=".05"
+        android:visibility="invisible"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

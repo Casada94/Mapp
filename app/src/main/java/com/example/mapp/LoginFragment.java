@@ -76,9 +76,9 @@ public class LoginFragment extends Fragment {
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser curr_user = mAuth.getCurrentUser();
                                     if(curr_user != null) {
-                                        Map<String, Object> user_email = new HashMap<>();
+                                       /* Map<String, Object> user_email = new HashMap<>();
                                         user_email.put("email", curr_user.getEmail());
-                                        /* document keeps track of user emails ONLY, for verifying later if email already exists */
+                                        // document keeps track of user emails ONLY, for verifying later if email already exists
                                         users_emails.update(user_email).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
@@ -92,7 +92,7 @@ public class LoginFragment extends Fragment {
                                         });
                                         Map<String, Object> new_user = new HashMap<>();
                                         new_user.put("email", curr_user.getEmail()); //fields each user will contain (we can add more, this was tester)
-                                        /* adds current user to collection */
+                                        // adds current user to collection
                                         database.collection("users").document(mAuth.getUid()).set(new_user)
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
@@ -106,7 +106,7 @@ public class LoginFragment extends Fragment {
                                                         Log.w(TAG, "Error adding document", e);
                                                     }
                                                 });
-                                    }
+                                    */}
                                     Intent loggedIn = new Intent(getContext(), MainActivity.class);
                                     startActivity(loggedIn);
                                     getActivity().finish();
