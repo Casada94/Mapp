@@ -134,9 +134,20 @@ public class pointTest{
             dest = parent[dest.getIndex()];
         }
         path.add(0, start);
-        for(point p : path)
+        for(int i = 0; i < path.size()-1; i++)
         {
-            System.out.println("Head towards: " + p.getName());
+            String dir = "";
+            double y = path.get(i).getY() - path.get(i+1).getY();
+            if(y > 50)
+                dir += "north";
+            else if(y < -50)
+                dir += "south";
+            double x = path.get(i).getX() - path.get(i+1).getX();
+            if(x > 50)
+                dir += "west";
+            else if(x < -50)
+                dir += "east";
+            System.out.println("Head " + dir + " towards: " + path.get(i+1).getName());
         }
         System.out.println("Destination reached!");
     }
