@@ -2,6 +2,8 @@ package com.example.mapp;
 
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.os.Bundle;
@@ -53,7 +55,15 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        /*testing */
         map = root.findViewById(R.id.map);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        Bitmap mapMap;
+        mapMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
+
+        map.setImageBitmap(mapMap);
+
 
         /* TEMP BUTTON FOR 360 PANORAMA VIEW */
         Button temp = root.findViewById(R.id.temp);
