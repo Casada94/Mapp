@@ -69,10 +69,10 @@ public class point{
     public String toString()
     {
         String neighborString = "";
-        for(point p : neighbors)
+        for(int i = 0; i < neighbors.size(); i++)
         {
-            neighborString += "," + p.getIndex();
+            neighborString += neighbors.get(i).getIndex() + ",";
         }
-        return name + ";" + x + "," + y + ";" + neighborString.substring(1);
+        return name + ";" + x + "," + y + ";" + neighborString;
     }
 }

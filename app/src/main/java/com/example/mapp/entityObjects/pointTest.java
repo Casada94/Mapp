@@ -144,7 +144,7 @@ public class pointTest{
     public static void readPoints() throws NumberFormatException, IOException
     {
         points = new ArrayList<point>();
-        File file = new File("points.txt");
+        File file = new File("app\\src\\main\\java\\com\\example\\mapp\\entityObjects\\points.txt");
         file.createNewFile();
         BufferedReader br = new BufferedReader(new FileReader(file));
         String line = null;
@@ -181,7 +181,8 @@ public class pointTest{
 
     public static void writePoints() throws FileNotFoundException, UnsupportedEncodingException
     {
-        PrintWriter writer = new PrintWriter("points.txt", "UTF-8");
+        File file = new File("app\\src\\main\\java\\com\\example\\mapp\\entityObjects\\points.txt");
+        PrintWriter writer = new PrintWriter(file, "UTF-8");
         for(int i = 0; i < points.size(); i++)
         {
             writer.println(points.get(i).toString());
