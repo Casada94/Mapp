@@ -14,8 +14,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StyleableRes;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -75,6 +78,12 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        final long[] startTime = {0};
+        final long[] duration = {0};
+        final int[] count = {0};
+        final PointF firstXY = new PointF();
+        final PointF secondXY = new PointF();
+
         /* Touch motion controls for map */
         map.setOnTouchListener(new View.OnTouchListener(){
             @Override
@@ -86,6 +95,11 @@ public class HomeFragment extends Fragment {
 
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
+                        if(count[0] == 0) {
+                            startTime[0] = System.currentTimeMillis();
+                            firstXY.set(event.getX(), event.getY());
+                        }
+                        count[0]++;
                         savedMatrix.set(matrix);
                         startPoint.set(event.getX(), event.getY());
                         mode = DRAG;
@@ -98,9 +112,32 @@ public class HomeFragment extends Fragment {
                             midPoint(midPoint, event);
                             mode = ZOOM;
                         }
+
                         break;
 
                     case MotionEvent.ACTION_UP:
+                        Long time = Long.valueOf(1000);
+                            if(count[0] == 2) {
+                                 time = System.currentTimeMillis() - startTime[0];
+                                duration[0] += time;
+                                secondXY.set(event.getX(), event.getY());
+                            }
+                        float distance = (float) Math.sqrt(Math.pow((secondXY.x-firstXY.x), 2) + Math.pow((secondXY.y - firstXY.y), 2));
+                        System.out.println(distance);
+
+                        matrix.getValues(f);
+
+                        if(count[0] == 2) {
+                            if (f[Matrix.MSCALE_X] == 3) {
+                                if (distance < 30) {
+                                    if (time <= 500) {
+                                        Toast.makeText(getActivity(), "double tapped", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            }
+                                count[0] = 0;
+                                duration[0] = 0;
+                        }
 
                     case MotionEvent.ACTION_POINTER_UP:
                         mode = NONE;
