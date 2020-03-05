@@ -4,7 +4,9 @@ package com.example.mapp;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -59,11 +61,49 @@ public class HomeFragment extends Fragment {
         map = root.findViewById(R.id.map);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
-        Bitmap mapMap;
+        options.inMutable = true;
+        final Bitmap mapMap;
         mapMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
+        final Bitmap backupMap;
+        backupMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
 
         map.setImageBitmap(mapMap);
 
+        Button route1 = root.findViewById(R.id.route1);
+        route1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Do something in response to button click
+                map.setImageBitmap(mapMap);
+                Canvas canvas = new Canvas(mapMap);
+                RouteDrawer drawer = new RouteDrawer();
+                drawer.addPoint(new Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 + 1300 / 2, canvas.getHeight() / 2 + 800 / 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 + 1300 / 2, canvas.getHeight() / 2 + 1000/ 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 + 1000/ 2, canvas.getHeight() / 2 + 3000/ 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 + 2000/ 2, canvas.getHeight() / 2 + 3000/ 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 + 2000/ 2, canvas.getHeight() / 2 + 2500/ 2));
+                drawer.drawPath(getContext(), canvas);
+                drawer.resetPaths();
+                drawer.clearPoints();
+            }
+        });
+
+        Button route2 = root.findViewById(R.id.route2);
+        route2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Do something in response to button click
+                map.setImageBitmap(backupMap);
+                Canvas canvas = new Canvas(backupMap);
+                RouteDrawer drawer = new RouteDrawer();
+                drawer.addPoint(new Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 - 1000 / 2, canvas.getHeight() / 2 - 1000/ 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 - 1000/ 2, canvas.getHeight() / 2 - 3000/ 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 - 2000/ 2, canvas.getHeight() / 2 - 3000/ 2));
+                drawer.drawPath(getContext(), canvas);
+                drawer.resetPaths();
+                drawer.clearPoints();
+            }
+        });
 
         /* TEMP BUTTON FOR 360 PANORAMA VIEW */
         Button temp = root.findViewById(R.id.temp);
