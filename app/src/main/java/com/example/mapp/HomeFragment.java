@@ -4,7 +4,10 @@ package com.example.mapp;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -62,8 +65,11 @@ public class HomeFragment extends Fragment {
         map = root.findViewById(R.id.map);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
-        Bitmap mapMap;
+        options.inMutable = true;
+        final Bitmap mapMap;
         mapMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
+
+
 
         map.setImageBitmap(mapMap);
 
@@ -75,6 +81,20 @@ public class HomeFragment extends Fragment {
             public void onClick(View v) {
                 NavController navController = Navigation.findNavController(getActivity().findViewById(R.id.nav_host_fragment));
                 navController.navigate(R.id.panoramaview);
+            }
+        });
+
+        Button route = root.findViewById(R.id.route);
+        route.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                final Bitmap routeMap;
+                //routeMap = Bitmap.createBitmap(mapMap);
+
+                float[] points = {4200,1380,4075,1550,   4075,1550,4075,1690,     4075,1690,4055,1700,      4055,1700, 4055,2250,   4055,2250,3650,2250,     3650,2250,3650,2500};
+
+                routeMap = drawRoute(mapMap, points);
+                map.setImageBitmap(routeMap);
             }
         });
 
@@ -242,6 +262,17 @@ public class HomeFragment extends Fragment {
         });
 
         return root;
+    }
+
+    public Bitmap drawRoute(Bitmap routeMap, float[] points){
+        Canvas canvas = new Canvas(routeMap);
+        Paint p = new Paint();
+        p.setColor(Color.BLUE);
+        p.setAntiAlias(true);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(3);
+        canvas.drawLines(points, p);
+        return routeMap;
     }
 
 }
