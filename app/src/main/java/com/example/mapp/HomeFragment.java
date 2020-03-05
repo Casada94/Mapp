@@ -4,7 +4,9 @@ package com.example.mapp;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,8 +16,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StyleableRes;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -59,11 +64,49 @@ public class HomeFragment extends Fragment {
         map = root.findViewById(R.id.map);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
-        Bitmap mapMap;
+        options.inMutable = true;
+        final Bitmap mapMap;
         mapMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
+        final Bitmap backupMap;
+        backupMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
 
         map.setImageBitmap(mapMap);
 
+        Button route1 = root.findViewById(R.id.route1);
+        route1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Do something in response to button click
+                map.setImageBitmap(mapMap);
+                Canvas canvas = new Canvas(mapMap);
+                RouteDrawer drawer = new RouteDrawer();
+                drawer.addPoint(new Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 + 1300 / 2, canvas.getHeight() / 2 + 800 / 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 + 1300 / 2, canvas.getHeight() / 2 + 1000/ 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 + 1000/ 2, canvas.getHeight() / 2 + 3000/ 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 + 2000/ 2, canvas.getHeight() / 2 + 3000/ 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 + 2000/ 2, canvas.getHeight() / 2 + 2500/ 2));
+                drawer.drawPath(getContext(), canvas);
+                drawer.resetPaths();
+                drawer.clearPoints();
+            }
+        });
+
+        Button route2 = root.findViewById(R.id.route2);
+        route2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Do something in response to button click
+                map.setImageBitmap(backupMap);
+                Canvas canvas = new Canvas(backupMap);
+                RouteDrawer drawer = new RouteDrawer();
+                drawer.addPoint(new Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 - 1000 / 2, canvas.getHeight() / 2 - 1000/ 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 - 1000/ 2, canvas.getHeight() / 2 - 3000/ 2));
+                drawer.addPoint(new Point(canvas.getWidth() / 2 - 2000/ 2, canvas.getHeight() / 2 - 3000/ 2));
+                drawer.drawPath(getContext(), canvas);
+                drawer.resetPaths();
+                drawer.clearPoints();
+            }
+        });
 
         /* TEMP BUTTON FOR 360 PANORAMA VIEW */
         Button temp = root.findViewById(R.id.temp);
@@ -74,6 +117,12 @@ public class HomeFragment extends Fragment {
                 navController.navigate(R.id.panoramaview);
             }
         });
+
+        final long[] startTime = {0};
+        final long[] duration = {0};
+        final int[] count = {0};
+        final PointF firstXY = new PointF();
+        final PointF secondXY = new PointF();
 
         /* Touch motion controls for map */
         map.setOnTouchListener(new View.OnTouchListener(){
@@ -86,6 +135,11 @@ public class HomeFragment extends Fragment {
 
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
+                        if(count[0] == 0) {
+                            startTime[0] = System.currentTimeMillis();
+                            firstXY.set(event.getX(), event.getY());
+                        }
+                        count[0]++;
                         savedMatrix.set(matrix);
                         startPoint.set(event.getX(), event.getY());
                         mode = DRAG;
@@ -98,9 +152,32 @@ public class HomeFragment extends Fragment {
                             midPoint(midPoint, event);
                             mode = ZOOM;
                         }
+
                         break;
 
                     case MotionEvent.ACTION_UP:
+                        Long time = Long.valueOf(1000);
+                            if(count[0] == 2) {
+                                 time = System.currentTimeMillis() - startTime[0];
+                                duration[0] += time;
+                                secondXY.set(event.getX(), event.getY());
+                            }
+                        float distance = (float) Math.sqrt(Math.pow((secondXY.x-firstXY.x), 2) + Math.pow((secondXY.y - firstXY.y), 2));
+                        System.out.println(distance);
+
+                        matrix.getValues(f);
+
+                        if(count[0] == 2) {
+                            if (f[Matrix.MSCALE_X] == 3) {
+                                if (distance < 30) {
+                                    if (time <= 500) {
+                                        Toast.makeText(getActivity(), "double tapped", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            }
+                                count[0] = 0;
+                                duration[0] = 0;
+                        }
 
                     case MotionEvent.ACTION_POINTER_UP:
                         mode = NONE;
