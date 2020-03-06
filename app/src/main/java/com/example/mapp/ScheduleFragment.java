@@ -27,7 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ScheduleFragment extends Fragment {
 
-    private ScheduleViewModel scheduleViewModel;
+
     private RecyclerView currSchedule;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -35,8 +35,7 @@ public class ScheduleFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        scheduleViewModel =
-                ViewModelProviders.of(this).get(ScheduleViewModel.class);
+
         View root = inflater.inflate(R.layout.fragment_schedule, container, false);
 
         /* set up for the list view of classes in user's schedule**/

@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 public class SignUpFragment extends Fragment {
 
-    private SignUpViewModel signUpViewModel;
+
     private EditText email;
     private EditText password;
     private EditText rePassword;
@@ -44,8 +44,7 @@ public class SignUpFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        signUpViewModel =
-                ViewModelProviders.of(this).get(SignUpViewModel.class);
+
 
         View root = inflater.inflate(R.layout.fragment_signup, container, false);
 

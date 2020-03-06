@@ -30,7 +30,7 @@ import androidx.navigation.Navigation;
 
 public class HomeFragment extends Fragment {
 
-    private HomeViewModel homeViewModel;
+
 
     private ImageView map;
 
@@ -47,19 +47,11 @@ public class HomeFragment extends Fragment {
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        homeViewModel =
-                ViewModelProviders.of(this).get(HomeViewModel.class);
+
         final View root = inflater.inflate(R.layout.fragment_home, container, false);
         final TextView textView = root.findViewById(R.id.text_home);
 
-        /* Honestly I dont know the purpose of this section. It isnt needed so idk if it a
-          convention that we should follow or what**/
-        homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
+
 
         /*testing */
         map = root.findViewById(R.id.map);

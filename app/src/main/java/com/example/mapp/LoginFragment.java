@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 public class LoginFragment extends Fragment {
 
-    private LoginViewModel loginViewModel;
+
     private EditText username;
     private EditText password;
     private Button login;
@@ -42,8 +42,7 @@ public class LoginFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        loginViewModel =
-                ViewModelProviders.of(this).get(LoginViewModel.class);
+
         View root = inflater.inflate(R.layout.fragment_login, container, false);
 
         /*Connects the buttons and edit text fields to the code**/
