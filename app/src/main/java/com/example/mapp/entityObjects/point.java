@@ -5,18 +5,18 @@ public class point{
     private int index;
     private double x;
     private double y;
-    private ArrayList<point> neighbors;
+    private ArrayList<Integer> neighbors;
     private String name;
     public point(String name)
     {
         this.name = name;
-        neighbors = new ArrayList<point>();
+        neighbors = new ArrayList<Integer>();
     }
     public point(double x, double y)
     {
         this.x = x;
         this.y = y;
-        neighbors = new ArrayList<point>();
+        neighbors = new ArrayList<Integer>();
     }
     public String getName()
     {
@@ -44,13 +44,13 @@ public class point{
     }
     public void addNeighbor(point p)
     {
-        neighbors.add(p);
+        neighbors.add(p.getIndex());
     }
-    public ArrayList<point> getNeighbors()
+    public ArrayList<Integer> getNeighbors()
     {
         return neighbors;
     }
-    public void setNeighbors(ArrayList<point> neighbors)
+    public void setNeighbors(ArrayList<Integer> neighbors)
     {
         this.neighbors = neighbors;
     }
@@ -71,7 +71,7 @@ public class point{
         String neighborString = "";
         for(int i = 0; i < neighbors.size(); i++)
         {
-            neighborString += neighbors.get(i).getIndex() + ",";
+            neighborString += neighbors.get(i) + ",";
         }
         return name + ";" + x + "," + y + ";" + neighborString;
     }

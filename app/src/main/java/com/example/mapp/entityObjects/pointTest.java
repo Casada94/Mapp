@@ -1,12 +1,19 @@
 package com.example.mapp.entityObjects;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 public class pointTest{
     private static ArrayList<point> points;
@@ -99,30 +106,17 @@ public class pointTest{
         {
             point curr = neighbors.get(0);
             neighbors.remove(curr);
-//			System.out.println("parent : ");
-//			for(point p : parent)
-//			{
-//				String name = "";
-//				if(p != null)
-//					name = p.getName();
-//				System.out.println(name);
-//			}
-//			System.out.println("distance: ");
-//			for(double d : distance)
-//			{
-//				System.out.println(d);
-//			}
-            for(point p : curr.getNeighbors())
+            for(int p : curr.getNeighbors())
             {
-                if(parent[p.getIndex()] == null && p != start)
+                if(parent[p] == null && points.get(p) != start)
                 {
-                    neighbors.add(p);
+                    neighbors.add(points.get(p));
                 }
-                double newDistance = curr.distance(p) + distance[curr.getIndex()];
-                if(newDistance < distance[p.getIndex()])
+                double newDistance = curr.distance(points.get(p)) + distance[curr.getIndex()];
+                if(newDistance < distance[p])
                 {
-                    distance[p.getIndex()] = newDistance;
-                    parent[p.getIndex()] = curr;
+                    distance[p] = newDistance;
+                    parent[p] = curr;
                 }
             }
         }
@@ -154,51 +148,26 @@ public class pointTest{
 
     public static void readPoints() throws NumberFormatException, IOException
     {
-        points = new ArrayList<point>();
         File file = new File("app\\src\\main\\java\\com\\example\\mapp\\entityObjects\\points.txt");
         file.createNewFile();
-        BufferedReader br = new BufferedReader(new FileReader(file));
-        String line = null;
-        int count = 0;
-        ArrayList<int[]> neighborsList = new ArrayList<int[]>();
-        while((line = br.readLine()) != null)
-        {
-            String[] param = line.split(";");
-            point p = new point(param[0]);
-            String[] coord = param[1].split(",");
-            p.setX(Double.valueOf(coord[0]));
-            p.setY(Double.valueOf(coord[1]));
-            String[] neighbors = param[2].split(",");
-            int[] neighborIndex = new int[neighbors.length];
-            for(int i = 0; i < neighbors.length; i++)
-            {
-                neighborIndex[i] = Integer.valueOf(neighbors[i]);
-            }
-            neighborsList.add(neighborIndex);
-            p.setIndex(count++);
-            points.add(p);
-        }
-        for(int i = 0; i < neighborsList.size(); i++)
-        {
-            ArrayList<point> neighbors = new ArrayList<point>();
-            for(int j = 0; j < neighborsList.get(i).length; j++)
-            {
-                neighbors.add(points.get(neighborsList.get(i)[j]));
-            }
-            points.get(i).setNeighbors(neighbors);
-        }
-        System.out.println("points read");
+        FileReader reader = new FileReader(file);
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        points = gson.fromJson(reader, new TypeToken<List<point>>(){}.getType());
+        if(points == null)
+            points = new ArrayList<point>();
     }
 
-    public static void writePoints() throws FileNotFoundException, UnsupportedEncodingException
-    {
+    public static void writePoints() throws IOException {
+        GsonBuilder builder = new GsonBuilder();
+        builder.setPrettyPrinting();
+        Gson gson = builder.create();
         File file = new File("app\\src\\main\\java\\com\\example\\mapp\\entityObjects\\points.txt");
-        PrintWriter writer = new PrintWriter(file, "UTF-8");
-        for(int i = 0; i < points.size(); i++)
-        {
-            writer.println(points.get(i).toString());
-        }
+        FileWriter writer = new FileWriter(file);
+        writer.write(gson.toJson(points));
+        writer.flush();
         writer.close();
+
     }
 }
 
