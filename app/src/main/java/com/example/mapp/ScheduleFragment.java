@@ -12,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,13 +24,18 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+
 public class ScheduleFragment extends Fragment {
 
-
+    private MyAdapter myAdapter;
+    private ArrayList<Classes> schedule = new ArrayList<>();
     private RecyclerView currSchedule;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager layoutManager;
-    private String[] tempData = {"temp 1", "temp 2", "temp 3", "temp 4", "temp 5"};
+
+
+    //private RecyclerView.Adapter mAdapter;
+    //private RecyclerView.LayoutManager layoutManager;
+    //private String[] tempData = {"temp 1", "temp 2", "temp 3", "temp 4", "temp 5"};
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -41,10 +45,16 @@ public class ScheduleFragment extends Fragment {
         /* set up for the list view of classes in user's schedule**/
         currSchedule = root.findViewById(R.id.currentSchedule);
         currSchedule.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(root.getContext());
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(root.getContext());
         currSchedule.setLayoutManager(layoutManager);
-        mAdapter = new MyAdapter(tempData);
-        currSchedule.setAdapter(mAdapter);
+        myAdapter = new MyAdapter(getContext(), schedule);
+        currSchedule.setAdapter(myAdapter);
+
+        for(int i = 0; i< 5; i++)
+            schedule.add(new Classes("CECS " + (420 +i), "ECS" + (310 + i), "M/W", "10:" + (10*i), true));
+
+        myAdapter.notifyDataSetChanged();
 
         /* connects framelayout in XML to java code and hides its visibility**/
         final FrameLayout addClass = root.findViewById(R.id.addClassView);

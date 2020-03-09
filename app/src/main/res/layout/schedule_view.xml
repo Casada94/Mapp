@@ -8,23 +8,37 @@
         android:id="@+id/className"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="location"/>
+        app:layout_constraintEnd_toStartOf="@id/location"/>
     <TextView
         android:id="@+id/location"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/className"
-        app:layout_constraintEnd_toEndOf="@+id/days"/>
+        app:layout_constraintEnd_toStartOf="@id/days"/>
     <TextView
         android:id="@+id/days"
         android:layout_width="75dp"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@+id/location"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/location"
+        app:layout_constraintEnd_toStartOf="@id/thisClassTime"/>
     <TextView
         android:id="@+id/thisClassTime"
         android:layout_width="120dp"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/days"
+        app:layout_constraintEnd_toStartOf="@id/isPm"/>
+    <TextView
+        android:id="@+id/isPm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/thisClassTime"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
