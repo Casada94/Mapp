@@ -8,7 +8,7 @@ public class Classes {
     private String time;
     private boolean isPm;
 
-    public Classes(String className, String location, String days, String time,boolean isPm){
+    public Classes(String className, String location, String days, String time, boolean isPm){
         this.className = className;
         this.location = location;
         this.days = days;
