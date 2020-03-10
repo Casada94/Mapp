@@ -67,25 +67,39 @@
                 android:layout_height="match_parent"
                 app:layout_constraintTop_toTopOf="@+id/addClassView">
 
-            <TextView
-                android:id="@+id/newClassTxt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="New Class"
-                app:layout_constraintTop_toTopOf="@+id/addClassConstraint"
-                app:layout_constraintStart_toStartOf="@+id/addClassConstraint"/>
+                <TextView
+                    android:id="@+id/newClassTxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="New Class"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toTopOf="@+id/addClassConstraint"
+                    app:layout_constraintStart_toStartOf="@+id/addClassConstraint"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintVertical_bias=".02"
+                    android:textStyle="bold"
+                    />
 
-            <EditText
-                android:id="@+id/className"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:layout_constraintStart_toStartOf="@+id/addClassConstraint"
-                app:layout_constraintTop_toTopOf="@+id/addClassConstraint"
-                android:layout_marginLeft="16dp"
-                android:hint="Class Name"/>
+                <EditText
+                    android:id="@+id/className"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
 
-                <Spinner
+                    app:layout_constraintStart_toStartOf="@+id/addClassConstraint"
+                    app:layout_constraintTop_toBottomOf="@+id/newClassTxt"
+                    android:layout_marginLeft="16dp"
+                    android:hint="Class Name"/>
+
+                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                    android:id="@+id/classLocation"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/className"
+                    app:layout_constraintStart_toStartOf="@id/className"
+                    android:hint="locaton"/>
+
+                <androidx.appcompat.widget.AppCompatSpinner
                     android:id="@+id/meetingDays"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -102,17 +116,7 @@
                     app:layout_constraintStart_toEndOf="@id/meetingDays"
                     android:isScrollContainer="true"
                     android:clipToPadding="false"
-
                     />
-
-                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
-                    android:id="@+id/classLocation"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@+id/className"
-                    app:layout_constraintStart_toStartOf="@id/addClassConstraint"
-                    android:layout_marginLeft="16dp"
-                    android:hint="locaton"/>
 
                 <Button
                     android:id="@+id/submitClass"
@@ -128,9 +132,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-
         </androidx.cardview.widget.CardView>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
