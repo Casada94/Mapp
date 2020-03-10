@@ -1,15 +1,19 @@
 package com.example.mapp;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -33,10 +37,6 @@ public class ScheduleFragment extends Fragment {
     private RecyclerView currSchedule;
 
 
-    //private RecyclerView.Adapter mAdapter;
-    //private RecyclerView.LayoutManager layoutManager;
-    //private String[] tempData = {"temp 1", "temp 2", "temp 3", "temp 4", "temp 5"};
-
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -57,7 +57,11 @@ public class ScheduleFragment extends Fragment {
         myAdapter.notifyDataSetChanged();
 
         /* connects framelayout in XML to java code and hides its visibility**/
-        final FrameLayout addClass = root.findViewById(R.id.addClassView);
+        final CardView addClass = root.findViewById(R.id.addClassView);
+        addClass.setContentPadding(40,20,40,20);
+        addClass.setCardElevation(30);
+
+        addClass.setRadius(50);
         addClass.setVisibility(View.INVISIBLE);
 
         /* connects button from XML with java code**/
@@ -70,6 +74,14 @@ public class ScheduleFragment extends Fragment {
                 addClass.setVisibility(View.VISIBLE);
             }
         });
+
+        Spinner meetingDays = root.findViewById(R.id.meetingDays);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.meetingDays, android.R.layout.simple_spinner_dropdown_item);
+        meetingDays.setAdapter(adapter);
+
+        Spinner meetingTime = root.findViewById(R.id.classTime);
+        ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(getContext(), R.array.classTime, android.R.layout.simple_spinner_dropdown_item);
+        meetingTime.setAdapter(adapter1);
 
         final TextView temp1 = root.findViewById(R.id.dbStuff);
 

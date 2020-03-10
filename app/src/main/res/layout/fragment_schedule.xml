@@ -52,18 +52,19 @@
 
 
 
-        <FrameLayout
+        <androidx.cardview.widget.CardView
             android:id="@+id/addClassView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="200dp"
             app:layout_constraintBottom_toBottomOf="parent"
             android:animateLayoutChanges="true"
-            android:visibility="visible">
+            android:visibility="visible"
+            app:cardUseCompatPadding="true">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/addClassConstraint"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 app:layout_constraintTop_toTopOf="@+id/addClassView">
 
             <TextView
@@ -81,23 +82,28 @@
                 android:layout_marginTop="16dp"
                 app:layout_constraintStart_toStartOf="@+id/addClassConstraint"
                 app:layout_constraintTop_toTopOf="@+id/addClassConstraint"
-                android:layout_marginLeft="16dp"/>
+                android:layout_marginLeft="16dp"
+                android:hint="Class Name"/>
 
                 <Spinner
                     android:id="@+id/meetingDays"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/classLocation"
+                    app:layout_constraintStart_toStartOf="@id/classLocation"
+                    android:clipToPadding="false"
+                    />
 
-                    app:layout_constraintTop_toTopOf="@+id/className"
-                    app:layout_constraintStart_toEndOf="@+id/className" />
-
-                <Spinner
+                <androidx.appcompat.widget.AppCompatSpinner
                     android:id="@+id/classTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="@id/className"
-                    app:layout_constraintStart_toEndOf="@+id/meetingDays"
-                    android:isScrollContainer="true"/>
+                    app:layout_constraintTop_toBottomOf="@id/classLocation"
+                    app:layout_constraintStart_toEndOf="@id/meetingDays"
+                    android:isScrollContainer="true"
+                    android:clipToPadding="false"
+
+                    />
 
                 <androidx.appcompat.widget.AppCompatAutoCompleteTextView
                     android:id="@+id/classLocation"
@@ -105,12 +111,25 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@+id/className"
                     app:layout_constraintStart_toStartOf="@id/addClassConstraint"
-                    android:layout_marginLeft="16dp"/>
+                    android:layout_marginLeft="16dp"
+                    android:hint="locaton"/>
+
+                <Button
+                    android:id="@+id/submitClass"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Save"
+                    android:textColor="@color/colorWhite"
+                    android:background="@color/colorPrimary"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginEnd="12dp"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-        </FrameLayout>
+        </androidx.cardview.widget.CardView>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
