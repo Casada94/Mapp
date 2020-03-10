@@ -17,7 +17,7 @@
         android:layout_marginLeft="10dp"/>
     <TextView
         android:id="@+id/location"
-        android:layout_width="100dp"
+        android:layout_width="75dp"
         android:layout_height="wrap_content"
         android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"
@@ -59,8 +59,9 @@
         app:layout_constraintStart_toEndOf="@id/isPm"
         app:layout_constraintEnd_toEndOf="parent"
         android:src="@drawable/ic_remove"
-        android:scaleX=".5"
-        android:scaleY=".5"/>
+        android:scaleX=".67"
+        android:scaleY=".67"
+        android:background="@android:color/transparent"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

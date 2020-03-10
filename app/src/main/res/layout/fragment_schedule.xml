@@ -40,17 +40,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <TextView
-            android:id="@+id/dbStuff"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="temporary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/addClass"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
-
 
         <androidx.cardview.widget.CardView
             android:id="@+id/addClassView"
@@ -78,14 +67,12 @@
                     app:layout_constraintStart_toStartOf="@+id/addClassConstraint"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintVertical_bias=".02"
-                    android:textStyle="bold"
-                    />
+                    android:textStyle="bold" />
 
                 <EditText
                     android:id="@+id/className"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-
                     app:layout_constraintStart_toStartOf="@+id/addClassConstraint"
                     app:layout_constraintTop_toBottomOf="@+id/newClassTxt"
                     android:layout_marginLeft="16dp"
@@ -105,8 +92,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@+id/classLocation"
                     app:layout_constraintStart_toStartOf="@id/classLocation"
-                    android:clipToPadding="false"
-                    />
+                    android:clipToPadding="false" />
 
                 <androidx.appcompat.widget.AppCompatSpinner
                     android:id="@+id/classTime"
@@ -115,8 +101,15 @@
                     app:layout_constraintTop_toBottomOf="@id/classLocation"
                     app:layout_constraintStart_toEndOf="@id/meetingDays"
                     android:isScrollContainer="true"
+                    android:clipToPadding="false" />
+
+                <androidx.appcompat.widget.AppCompatSpinner
+                    android:id="@+id/ampm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:clipToPadding="false"
-                    />
+                    app:layout_constraintStart_toEndOf="@id/classTime"
+                    app:layout_constraintTop_toBottomOf="@id/classLocation"/>
 
                 <Button
                     android:id="@+id/submitClass"
@@ -126,9 +119,22 @@
                     android:textColor="@color/colorWhite"
                     android:background="@color/colorPrimary"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:layout_marginBottom="12dp"
-                    android:layout_marginEnd="12dp"/>
+                    android:layout_marginEnd="10dp"/>
+
+                <ImageButton
+                    android:id="@+id/close_new_class"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_remove"
+                    android:scaleX=".75"
+                    android:scaleY=".75"
+                    android:layout_marginTop="5dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:background="@android:color/transparent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

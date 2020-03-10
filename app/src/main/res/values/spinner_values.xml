@@ -11,18 +11,6 @@
     </string-array>
 
     <string-array name="classTime">
-        <item>7</item>
-        <item>7:30</item>
-        <item>8</item>
-        <item>8:30</item>
-        <item>9</item>
-        <item>9:30</item>
-        <item>10</item>
-        <item>10:30</item>
-        <item>11</item>
-        <item>11:30</item>
-        <item>12</item>
-        <item>12:30</item>
         <item>1</item>
         <item>1:30</item>
         <item>2</item>
@@ -38,5 +26,19 @@
         <item>7</item>
         <item>7:30</item>
         <item>8</item>
+        <item>8:30</item>
+        <item>9</item>
+        <item>9:30</item>
+        <item>10</item>
+        <item>10:30</item>
+        <item>11</item>
+        <item>11:30</item>
+        <item>12</item>
+        <item>12:30</item>
+    </string-array>
+
+    <string-array name="amPm">
+        <item>AM</item>
+        <item>PM</item>
     </string-array>
 </resources>
