@@ -7,8 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 
 
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +38,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mapp.entityObjects.point;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -45,9 +49,24 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -99,6 +118,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        //Reads points from the database and stores it in the SharedPreference
+        readPointsDB();
+
 
 
         /* Checks if this activity was launched from a previous activity. for login status purposes**/
@@ -271,4 +294,64 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    public void savePoint(point p)
+    {
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        GsonBuilder builder = new GsonBuilder();
+        builder.setPrettyPrinting();
+        Gson gson = builder.create();
+        prefsEditor.putString(p.getName(), gson.toJson(p));
+        prefsEditor.apply();
+    }
+
+    //Reads points from SharedPreferences
+    public ArrayList<point> readData()
+    {
+        ArrayList<point> points = new ArrayList<>();
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        Gson gson = new Gson();
+        Map<String, ?> keys = mPrefs.getAll();
+        for(String name : keys.keySet())
+        {
+            String json = keys.get(name).toString();
+            point p = gson.fromJson(json, new TypeToken<point>(){}.getType());
+            points.add(p);
+        }
+        return points;
+    }
+
+    //Writes points from SharedPreferences to Database
+    public void writePointsDB()
+    {
+        ArrayList<point> points = readData();
+        Gson gson = new Gson();
+
+        for(point p : points) {
+            FirebaseFirestore.getInstance().collection("points").document(p.getName()).set(p);
+        }
+    }
+
+    //Reads points from Database and stores in SharedPreferences
+    public void readPointsDB()
+    {
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        prefsEditor.clear().commit();
+        CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("points");
+        pointsDB.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()){
+                    for(QueryDocumentSnapshot document : task.getResult())
+                    {
+                        point p = document.toObject(point.class);
+                        savePoint(p);
+                    }
+                } else {
+                    Log.d("point", "Error getting documents: ", task.getException());
+                }
+            }
+        });
+    }
 }

@@ -1,12 +1,16 @@
 package com.example.mapp.entityObjects;
 import java.util.ArrayList;
+import java.util.List;
 
 public class point{
     private int index;
     private double x;
     private double y;
-    private ArrayList<Integer> neighbors;
+    private List<Integer> neighbors;
     private String name;
+
+    public point(){}
+
     public point(String name)
     {
         this.name = name;
@@ -46,7 +50,7 @@ public class point{
     {
         neighbors.add(p.getIndex());
     }
-    public ArrayList<Integer> getNeighbors()
+    public List<Integer> getNeighbors()
     {
         return neighbors;
     }
