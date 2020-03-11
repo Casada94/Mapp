@@ -26,10 +26,13 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.regex.Pattern;
 
 public class SignUpFragment extends Fragment {
+
+
 
 
     private EditText email;
@@ -39,12 +42,11 @@ public class SignUpFragment extends Fragment {
     private TextView emailTxt;
     private TextView passwordTxt;
     private TextView rePasswordTxt;
-
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
 
         View root = inflater.inflate(R.layout.fragment_signup, container, false);
 
@@ -114,11 +116,24 @@ public class SignUpFragment extends Fragment {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()){
-                                /*Uses the activity's navigation controller to change fragments to the login fragment**/
-                                email.clearComposingText();
-                                password.clearComposingText();
-                                NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
-                                navController.navigate(R.id.action_signUp_to_login);
+                                mAuth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(getContext(), "Please check email for verification", Toast.LENGTH_SHORT).show();
+
+                                            /*Uses the activity's navigation controller to change fragments to the login fragment**/
+                                            FirebaseAuth.getInstance().signOut();
+                                            email.clearComposingText();
+                                            password.clearComposingText();
+                                            NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
+                                            navController.navigate(R.id.action_signUp_to_login);
+
+                                        } else {
+                                            Toast.makeText(getContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
                             }else{
                                 if(task.getException() instanceof FirebaseAuthUserCollisionException)
                                     Toast.makeText(getContext(), "Email Already In Use", Toast.LENGTH_LONG).show();

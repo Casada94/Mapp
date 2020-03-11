@@ -38,6 +38,7 @@ public class LoginFragment extends Fragment {
     private EditText username;
     private EditText password;
     private Button login;
+    private Button forgetPass;
     private static String TAG= "EmailPassword";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -49,12 +50,41 @@ public class LoginFragment extends Fragment {
         username = root.findViewById(R.id.userName);
         password = root.findViewById(R.id.password);
         login = root.findViewById(R.id.loginBtn);
+        forgetPass = root.findViewById(R.id.forgetPassBtn);
 
         final FirebaseAuth mAuth = FirebaseAuth.getInstance();
         final FirebaseFirestore database = FirebaseFirestore.getInstance();
         final DocumentReference users_emails = database.document("users/users_emails");
 
         /* Sets the click functionality of the button*/
+        forgetPass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String user = username.getText().toString();
+                if (Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user) && (user.contains("@csulb.edu") || user.contains("@student.csulb.edu"))) {
+                    username.clearComposingText();
+                    username.onEditorAction(EditorInfo.IME_ACTION_DONE);
+                    try {
+                        FirebaseAuth.getInstance().sendPasswordResetEmail(user)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d(TAG, "Email sent.");
+                                        } else {
+                                            Toast.makeText(getContext(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Username incorrect format", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,9 +101,10 @@ public class LoginFragment extends Fragment {
                         mAuth.signInWithEmailAndPassword(user,pass).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                if(task.isSuccessful()){
+                                if(task.isSuccessful()) {
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser curr_user = mAuth.getCurrentUser();
+
                                     if(curr_user != null) {
                                        /* Map<String, Object> user_email = new HashMap<>();
                                         user_email.put("email", curr_user.getEmail());
@@ -106,9 +137,19 @@ public class LoginFragment extends Fragment {
                                                     }
                                                 });
                                     */}
-                                    Intent loggedIn = new Intent(getContext(), MainActivity.class);
-                                    startActivity(loggedIn);
-                                    getActivity().finish();
+                                    if (curr_user.isEmailVerified())
+                                    {
+                                        // user is verified, send to main activity
+                                        Intent loggedIn = new Intent(getContext(), MainActivity.class);
+                                        startActivity(loggedIn);
+                                        getActivity().finish();
+                                    }
+                                    else {
+                                        // email is not verified, so just prompt the message to the user and restart this activity.
+                                        // NOTE: don't forget to log out the user.
+                                        Toast.makeText(getContext(),"Email not verified", Toast.LENGTH_LONG).show();
+                                        password.clearComposingText();
+                                    }
                                 }else{
                                     Log.w(TAG, "signInWithEmail:failure", task.getException());
                                     Toast.makeText(getActivity().getApplicationContext(), "Username or Password are incorrect", Toast.LENGTH_LONG).show();
@@ -129,6 +170,8 @@ public class LoginFragment extends Fragment {
 
         return root;
     }
+
+
 
     /* Checks the user input against DB login info */
     private boolean checkCredentials(String username, String password){
