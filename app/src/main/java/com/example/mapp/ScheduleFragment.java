@@ -1,6 +1,8 @@
 package com.example.mapp;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +14,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
@@ -42,12 +46,36 @@ public class ScheduleFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.fragment_schedule, container, false);
 
+        RecyclerViewClickListener listener = new RecyclerViewClickListener() {
+            @Override
+            public void onClick(View view, final int position) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle(R.string.app_name);
+                builder.setMessage("Are you sure you want to remove the class?");
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        remove(position);
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            }
+        };
+
         /* set up for the list view of classes in user's schedule**/
         currSchedule = root.findViewById(R.id.currentSchedule);
         currSchedule.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(root.getContext());
         currSchedule.setLayoutManager(layoutManager);
-        myAdapter = new MyAdapter(getContext(), schedule);
+        myAdapter = new MyAdapter(getContext(), schedule, listener);
         currSchedule.setAdapter(myAdapter);
 
 
@@ -144,7 +172,7 @@ public class ScheduleFragment extends Fragment {
                 String temp = "oo";
                 int best  = 100;
                 int tested;
-                for(int i = 0; i < buildings.length-1; i++){
+                for(int i = 0; i < buildings.length; i++){
                     tested =  invalidText.toString().compareTo(buildings[i]);
                     if(Math.abs(tested) < best){
                         best = Math.abs(tested);
@@ -184,8 +212,8 @@ public class ScheduleFragment extends Fragment {
 
                 /* adds to current schedule locally and closes extraneous UI */
                 schedule.add(new Classes(cName, cLocation, days,time, amPM));
-                className.clearComposingText();
-                location.clearComposingText();
+                //className.clearComposingText();
+                //location.clearComposingText();
                 className.onEditorAction(EditorInfo.IME_ACTION_DONE);
                 location.onEditorAction(EditorInfo.IME_ACTION_DONE);
                 addClass.setVisibility(View.INVISIBLE);
@@ -220,5 +248,34 @@ public class ScheduleFragment extends Fragment {
         });
 
         return root;
+    }
+
+    public void remove(final int position){
+        final String temp = schedule.get(position).getClassName();
+        final FirebaseUser currUser = FirebaseAuth.getInstance().getCurrentUser();
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users").document(currUser.getEmail()).collection("schedule").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()){
+                    QuerySnapshot  querySnapshot = task.getResult();
+                    if(!querySnapshot.isEmpty()){
+                        List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
+                        for(int i = 0; i < documentSnapshots.size(); i++){
+                            if(temp.equals(documentSnapshots.get(i).get("class"))){
+                                db.collection("users").document(currUser.getEmail()).collection("schedule").document(documentSnapshots.get(i).getId()).delete();
+                                schedule.remove(position);
+                                myAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    public interface RecyclerViewClickListener{
+        void onClick(View view, int position);
     }
 }

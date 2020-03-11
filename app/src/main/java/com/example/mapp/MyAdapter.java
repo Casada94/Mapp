@@ -4,7 +4,10 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.example.mapp.Classes;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,20 +21,23 @@ import java.util.ArrayList;
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     private ArrayList<Classes> schedule = new ArrayList<>();
     private Context context;
-
+    private ScheduleFragment.RecyclerViewClickListener clickListener;
     /* Provide a reference to the views for each data item
        Complex data items may need more than one view per item, and
        you provide access to all the views for a data item in a view holder  */
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
+    public static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView className;
         private TextView location;
         private TextView days;
         private TextView time;
         private TextView isPm;
+        private ImageButton remove;
+        private int position;
+        private ScheduleFragment.RecyclerViewClickListener mListener;
 
 
-        public MyViewHolder(View v) {
+        public MyViewHolder(View v, ScheduleFragment.RecyclerViewClickListener listener) {
             super(v);
 
             className = v.findViewById(R.id.className);
@@ -39,6 +45,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             days = v.findViewById(R.id.days);
             time = v.findViewById(R.id.thisClassTime);
             isPm = v.findViewById(R.id.isPm);
+            remove = v.findViewById(R.id.remove);
+            mListener = listener;
+            remove.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view){
+            mListener.onClick(view, getAdapterPosition());
         }
 
         public void setClassName(String className) {
@@ -60,12 +74,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             else
                 this.isPm.setText("AM");
         }
+        public void setPosition(int position){this.position = position;}
+
     }
 
     /* Provide a suitable constructor (depends on the kind of dataset)*/
-    public MyAdapter(Context context, ArrayList<Classes> schedule) {
+    public MyAdapter(Context context, ArrayList<Classes> schedule, ScheduleFragment.RecyclerViewClickListener listener) {
         this.context = context;
         this.schedule = schedule;
+        clickListener = listener;
     }
 
     /* Create new views (invoked by the layout manager)*/
@@ -76,7 +93,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext()) ;
         View view = layoutInflater.inflate(R.layout.schedule_view, parent, false);
 
-        MyViewHolder vh = new MyViewHolder(view);
+        MyViewHolder vh = new MyViewHolder(view, clickListener);
         return vh;
     }
 
@@ -92,6 +109,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         holder.setDays(classes.getDays());
         holder.setTime(classes.getTime());
         holder.setIsPm(classes.isPm());
+        holder.setPosition(position);
 
     }
 
