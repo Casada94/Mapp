@@ -3,42 +3,65 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="0dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <TextView
         android:id="@+id/className"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/location"/>
+        app:layout_constraintEnd_toStartOf="@id/location"
+        android:layout_marginLeft="10dp"/>
     <TextView
         android:id="@+id/location"
-        android:layout_width="100dp"
+        android:layout_width="75dp"
         android:layout_height="wrap_content"
+        android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/className"
         app:layout_constraintEnd_toStartOf="@id/days"/>
     <TextView
         android:id="@+id/days"
         android:layout_width="75dp"
         android:layout_height="wrap_content"
+        android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/location"
         app:layout_constraintEnd_toStartOf="@id/thisClassTime"/>
     <TextView
         android:id="@+id/thisClassTime"
-        android:layout_width="120dp"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
+        android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/days"
         app:layout_constraintEnd_toStartOf="@id/isPm"/>
     <TextView
         android:id="@+id/isPm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/thisClassTime"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="@id/remove"/>
+    <ImageButton
+        android:id="@+id/remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/isPm"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/ic_remove"
+        android:scaleX=".67"
+        android:scaleY=".67"
+        android:background="@android:color/transparent"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

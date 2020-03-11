@@ -10,9 +10,11 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -94,6 +96,14 @@ public class HomeFragment extends Fragment {
         final PointF firstXY = new PointF();
         final PointF secondXY = new PointF();
 
+        final Handler handler = new Handler();
+        final Runnable longPressed = new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getContext(), "longPressed", Toast.LENGTH_SHORT).show();
+            }
+        };
+
         /* Touch motion controls for map */
         map.setOnTouchListener(new View.OnTouchListener(){
             @Override
@@ -113,6 +123,9 @@ public class HomeFragment extends Fragment {
                         savedMatrix.set(matrix);
                         startPoint.set(event.getX(), event.getY());
                         mode = DRAG;
+
+                        handler.postDelayed(longPressed, ViewConfiguration.getLongPressTimeout());
+
                         break;
 
                     case MotionEvent.ACTION_POINTER_DOWN:
@@ -126,6 +139,9 @@ public class HomeFragment extends Fragment {
                         break;
 
                     case MotionEvent.ACTION_UP:
+
+                        handler.removeCallbacks(longPressed);
+
                         Long time = Long.valueOf(1000);
                             if(count[0] == 2) {
                                  time = System.currentTimeMillis() - startTime[0];
@@ -165,6 +181,10 @@ public class HomeFragment extends Fragment {
                             float moveXby = event.getX() - startPoint.x;
                             float moveYby = event.getY() - startPoint.y;
 
+                            float longPressDistance = (float) Math.sqrt(Math.pow(moveXby,2) + Math.pow(moveYby,2));
+                            if(longPressDistance > 15)
+                                handler.removeCallbacks(longPressed);
+
 
                             /* Prevents the map from moving too far off of screen */
                             if(newPosX > 10){
@@ -186,6 +206,8 @@ public class HomeFragment extends Fragment {
                             System.out.println(matrix.toString());
 
                         } else if (mode == ZOOM) {
+                            handler.removeCallbacks(longPressed);
+
                             float newDist = spacing(event);
                             if (newDist > 10f) {
                                 matrix.set(savedMatrix);
