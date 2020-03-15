@@ -46,6 +46,7 @@ public class ScheduleFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.fragment_schedule, container, false);
 
+        /* Call back and dialog for removing a class */
         RecyclerViewClickListener listener = new RecyclerViewClickListener() {
             @Override
             public void onClick(View view, final int position) {
@@ -250,6 +251,7 @@ public class ScheduleFragment extends Fragment {
         return root;
     }
 
+    /* removes class from firestore and local class array */
     public void remove(final int position){
         final String temp = schedule.get(position).getClassName();
         final FirebaseUser currUser = FirebaseAuth.getInstance().getCurrentUser();
