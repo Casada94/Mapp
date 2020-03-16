@@ -125,4 +125,8 @@ public class Polygon {
         else
             return false;
     }
+
+    public String toString(){
+        return name;
+    }
 }

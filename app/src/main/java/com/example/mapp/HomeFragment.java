@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,7 +62,11 @@ public class HomeFragment extends Fragment {
     private static final int DRAG = 1;
     private static final int ZOOM = 2;
     private int mode = NONE;
+
     CardView buildingDetails;
+    TextView buildingName;
+    TextView hours;
+    ImageButton report;
 
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -70,9 +75,7 @@ public class HomeFragment extends Fragment {
         final View root = inflater.inflate(R.layout.fragment_home, container, false);
         final TextView textView = root.findViewById(R.id.text_home);
 
-
-
-        /*testing */
+        /* Sets up the map */
         map = root.findViewById(R.id.map);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
@@ -83,13 +86,18 @@ public class HomeFragment extends Fragment {
         map.setImageBitmap(mapMap);
 
         buildingDetails = root.findViewById(R.id.buildingDetails);
+        buildingName = root.findViewById(R.id.bName);
+        hours = root.findViewById(R.id.hours);
+        report = root.findViewById(R.id.report);
 
-        //if(upToDate()){
-            //setUpOutlines();
-        //}
-        //else{
+        /* Logic for deciding how to initialize the bounds of buildings */
+        if(upToDate()){
+            System.out.println("wasnt up to date");
+            setUpOutlines();
+        }
+        else{
             upDateOutlines();
-        //}
+        }
 
 
         /* TEMP BUTTON FOR 360 PANORAMA VIEW */
@@ -131,7 +139,6 @@ public class HomeFragment extends Fragment {
             public boolean onTouch(View v, MotionEvent event){
 
                 ImageView view = (ImageView) v;
-
                 float[] f = new float[9];
 
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
@@ -145,9 +152,8 @@ public class HomeFragment extends Fragment {
                         startPoint.set(event.getX(), event.getY());
                         mode = DRAG;
 
+                        /* Sets up and initializes long press function  */
                         matrix.getValues(f);
-                        //int userX = (int)(-f[2]/f[0] + event.getX()/f[0]);
-                        //System.out.println("userX = " + userX);
                         longPressed[0] = new Runn(new SimplePoint((int)(-f[2]/f[0] + event.getX()/f[0]), (int)(-f[5]/f[0] + event.getY()/f[0])), bOutlines);
                         handler.postDelayed(longPressed[0], ViewConfiguration.getLongPressTimeout());
 
@@ -165,6 +171,7 @@ public class HomeFragment extends Fragment {
 
                     case MotionEvent.ACTION_UP:
 
+                        /* Cancels long press function if finger is lifted */
                         handler.removeCallbacks(longPressed[0]);
 
                         Long time = Long.valueOf(1000);
@@ -173,9 +180,8 @@ public class HomeFragment extends Fragment {
                                 duration[0] += time;
                                 secondXY.set(event.getX(), event.getY());
                             }
-                        float distance = (float) Math.sqrt(Math.pow((secondXY.x-firstXY.x), 2) + Math.pow((secondXY.y - firstXY.y), 2));
-                        System.out.println(distance);
 
+                        float distance = (float) Math.sqrt(Math.pow((secondXY.x-firstXY.x), 2) + Math.pow((secondXY.y - firstXY.y), 2));
                         matrix.getValues(f);
 
                         if(count[0] == 2) {
@@ -206,6 +212,7 @@ public class HomeFragment extends Fragment {
                             float moveXby = event.getX() - startPoint.x;
                             float moveYby = event.getY() - startPoint.y;
 
+                            /* Cancels long press if its done while dragging */
                             float longPressDistance = (float) Math.sqrt(Math.pow(moveXby,2) + Math.pow(moveYby,2));
                             if(longPressDistance > 15)
                                 handler.removeCallbacks(longPressed[0]);
@@ -227,8 +234,6 @@ public class HomeFragment extends Fragment {
 
                             matrix.postTranslate(moveXby, moveYby);
 
-
-                            System.out.println(matrix.toString());
 
                         } else if (mode == ZOOM) {
                             handler.removeCallbacks(longPressed[0]);
@@ -277,12 +282,8 @@ public class HomeFragment extends Fragment {
                         }
                         break;
                         default:
-
                 }
-
                 System.out.println((-f[2]/f[0] + event.getX()/f[0]) + ", " + (-f[5]/f[0] + event.getY()/f[0]));
-
-
 
                 view.setImageMatrix(matrix);
                 return true;
@@ -316,26 +317,30 @@ public class HomeFragment extends Fragment {
         return routeMap;
     }
 
+    /* Checks to see when the last time building detail and bounds was updated */
     public boolean upToDate(){
         Context context = getActivity();
         SharedPreferences mPrefs = context.getSharedPreferences("com.example.mapp.upToDate", Context.MODE_PRIVATE);
+
         String last = mPrefs.getString("lastChecked", "00000000");
         String today = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
 
         return today.equals(last);
     }
 
+    /* Sets up the clickable areas for building details
+    * pulls from firestore and saves into shared preferences */
     public void upDateOutlines(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("polygons").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.isSuccessful()){
-
                     QuerySnapshot querySnapshot = task.getResult();
                     if(!querySnapshot.isEmpty()){
                         List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
                         bOutlines = new Polygon[documentSnapshots.size()];
+
                         int x[] = new int[4];
                         int y[] = new int[4];
                         String name;
@@ -357,7 +362,7 @@ public class HomeFragment extends Fragment {
                             bOutlines[i] = new Polygon(x,y,4, name);
 
                         }
-                        Context context = getActivity();
+                        Context context = getActivity().getApplicationContext();
                         SharedPreferences mPrefs = context.getSharedPreferences("com.example.mapp.outlines", Context.MODE_PRIVATE);
                         SharedPreferences.Editor prefEditor = mPrefs.edit();
                         prefEditor.clear();
@@ -365,10 +370,11 @@ public class HomeFragment extends Fragment {
                         builder.setPrettyPrinting();
                         Gson gson = builder.create();
 
-                        for(int i = 0; i< bOutlines.length-1; i++){
+                        for(int i = 0; i< bOutlines.length; i++){
                             prefEditor.putString(String.valueOf(i), gson.toJson(bOutlines[i]));
-                            prefEditor.apply();
+
                         }
+                        prefEditor.apply();
 
                         mPrefs = context.getSharedPreferences("com.example.mapp.upToDate", Context.MODE_PRIVATE);
                         prefEditor = mPrefs.edit();
@@ -379,26 +385,49 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-
     }
 
+    /* Sets up the clickable areas for buildings
+    * pulls from shared preferences to save reads on firebase */
     public void setUpOutlines(){
-        Context context = getActivity();
+        Context context = getActivity().getApplicationContext();
+        context = getActivity().getApplicationContext();
         SharedPreferences mPrefs = context.getSharedPreferences("com.example.mapp.outlines", Context.MODE_PRIVATE);
-        SharedPreferences.Editor prefEditor = mPrefs.edit();
+        //SharedPreferences mPrefs = PreferenceManager.getSharedPreferences("com.example.mapp.outlines", Context.MODE_PRIVATE);
         Gson gson = new Gson();
         Map<String, ?> keys = mPrefs.getAll();
+
         bOutlines = new Polygon[keys.size()];
         for(int i = 0; i< keys.size(); i++){
             String json = keys.get(String.valueOf(i)).toString();
+            System.out.println(json);
             bOutlines[i] = gson.fromJson(json, new TypeToken<Polygon>(){}.getType());
         }
     }
 
+    /* Sets all the textViews and info for building details card view */
     public void buildingInfo(Polygon building){
+        buildingDetails.setContentPadding(40,20,40,20);
         buildingDetails.setVisibility(View.VISIBLE);
+        buildingDetails.setCardElevation(30);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("facilities").document(building.name).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    buildingName.setText(documentSnapshot.get("name").toString());
+                    List<Double> temp = (List<Double>) documentSnapshot.get("Hours");
+                    String avail = temp.get(0).intValue() + "am - " + (temp.get(1).intValue())%12 + "pm";
+                    hours.setText(avail);
+                }
+            }
+        });
+
     }
 
+    /* Runnable class so that a variable can be passed to the runnable and open the building details card view */
     class Runn implements Runnable{
         SimplePoint user;
         Polygon[] bOutlines;
