@@ -134,7 +134,8 @@ public class HomeFragment extends Fragment {
                 final Bitmap routeMap;
                 //routeMap = Bitmap.createBitmap(mapMap);
 
-                float[] points = {4200,1380,4075,1550,   4075,1550,4075,1690,     4075,1690,4055,1700,      4055,1700, 4055,2250,   4055,2250,3650,2250,     3650,2250,3650,2500};
+                //float[] points = {4200,1380,4075,1550,   4075,1550,4075,1690,     4075,1690,4055,1700,      4055,1700, 4055,2250,   4055,2250,3650,2250,     3650,2250,3650,2500};
+                float[] points = {bOutlines[0].points[0].x, bOutlines[0].points[0].y, bOutlines[0].points[2].x,bOutlines[0].points[2].y};
 
                 routeMap = drawRoute(mapMap, points);
                 map.setImageBitmap(routeMap);
@@ -421,6 +422,8 @@ public class HomeFragment extends Fragment {
             String json = keys.get(String.valueOf(i)).toString();
             bOutlines[i] = gson.fromJson(json, new TypeToken<Polygon>(){}.getType());
         }
+
+
     }
 
     /* Sets all the textViews and info for building details card view */
