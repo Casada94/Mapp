@@ -32,7 +32,7 @@ public class PanoFragment extends Fragment {
 
     private VrPanoramaView streetView;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
-    private StorageReference ref = storage.getReference("images_360").child("a360.jpg");
+    private StorageReference ref = storage.getReference("images_360").child("tester.jpg");
 
 //    StorageReference storageRef = storage.getReference();
 //    StorageReference imageRef = storageRef.child("a360.jpg");
