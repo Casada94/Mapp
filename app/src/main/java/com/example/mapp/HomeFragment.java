@@ -135,7 +135,7 @@ public class HomeFragment extends Fragment {
                 //routeMap = Bitmap.createBitmap(mapMap);
 
                 //float[] points = {4200,1380,4075,1550,   4075,1550,4075,1690,     4075,1690,4055,1700,      4055,1700, 4055,2250,   4055,2250,3650,2250,     3650,2250,3650,2500};
-                float[] points = {bOutlines[0].points[0].x, bOutlines[0].points[0].y, bOutlines[0].points[2].x,bOutlines[0].points[2].y};
+                float[] points = {(float)(bOutlines[0].points[0].x/.87637), (float)(bOutlines[0].points[0].y/.87344), (float) (bOutlines[0].points[2].x/.87637), (float) (bOutlines[0].points[2].y/.87344)};
 
                 routeMap = drawRoute(mapMap, points);
                 map.setImageBitmap(routeMap);
