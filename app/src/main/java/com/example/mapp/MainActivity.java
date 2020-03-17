@@ -21,6 +21,7 @@ import androidx.appcompat.widget.SearchView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -115,6 +116,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //Reads points from the database and stores it in the SharedPreference
         readPointsDB();
+
+        final PanoViewModel panoViewModel = new ViewModelProvider(this).get(PanoViewModel.class);
 
 
 

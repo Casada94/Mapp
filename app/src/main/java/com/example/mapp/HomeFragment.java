@@ -2,6 +2,7 @@ package com.example.mapp;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -28,10 +29,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 
+import com.example.mapp.entityObjects.point;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -43,6 +47,7 @@ import com.google.gson.reflect.TypeToken;
 
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -74,6 +79,7 @@ public class HomeFragment extends Fragment {
 
         final View root = inflater.inflate(R.layout.fragment_home, container, false);
         final TextView textView = root.findViewById(R.id.text_home);
+        final PanoViewModel panoViewModel = new ViewModelProvider(requireActivity()).get(PanoViewModel.class);
 
         /* Sets up the map */
         map = root.findViewById(R.id.map);
@@ -92,12 +98,23 @@ public class HomeFragment extends Fragment {
 
         /* Logic for deciding how to initialize the bounds of buildings */
         if(upToDate()){
-            System.out.println("wasnt up to date");
             setUpOutlines();
         }
         else{
             upDateOutlines();
         }
+
+
+        ArrayList<point> unfiltered = readData();
+        System.out.println(unfiltered.size());
+        final ArrayList<point> filtered = new ArrayList<>();
+        for(int i = 0; i < unfiltered.size(); i++){
+            if(unfiltered.get(i).getName().startsWith("p")){
+                filtered.add(unfiltered.get(i));
+            }
+        }
+
+
 
 
         /* TEMP BUTTON FOR 360 PANORAMA VIEW */
@@ -188,6 +205,8 @@ public class HomeFragment extends Fragment {
                             if (f[Matrix.MSCALE_X] == 3) {
                                 if (distance < 30) {
                                     if (time <= 500) {
+                                        openStreetView(filtered, new SimplePoint((int)event.getX(), (int)event.getY()), panoViewModel);
+
                                         Toast.makeText(getActivity(), "double tapped", Toast.LENGTH_LONG).show();
                                     }
                                 }
@@ -400,7 +419,6 @@ public class HomeFragment extends Fragment {
         bOutlines = new Polygon[keys.size()];
         for(int i = 0; i< keys.size(); i++){
             String json = keys.get(String.valueOf(i)).toString();
-            System.out.println(json);
             bOutlines[i] = gson.fromJson(json, new TypeToken<Polygon>(){}.getType());
         }
     }
@@ -446,6 +464,41 @@ public class HomeFragment extends Fragment {
                 }
             }
         }
+    }
+
+    /*  */
+    public void openStreetView(ArrayList<point> streetViews, SimplePoint userTouch, PanoViewModel pano){
+        point closest = streetViews.get(0);
+        float bestDistance = 1000;
+        float testDistance;
+        float streetX, streetY;
+        for(int i = 0; i < streetViews.size(); i++){
+            streetX = (float)streetViews.get(i).getX();
+            streetY = (float)streetViews.get(i).getY();
+            testDistance = (float) Math.sqrt(Math.pow((userTouch.x - streetX),2) + Math.pow(userTouch.y - streetY, 2));
+            if(testDistance < bestDistance){
+                bestDistance = testDistance;
+                closest = streetViews.get(i);
+            }
+        }
+        pano.setStreetViewPoint(closest);
+        NavController navController = Navigation.findNavController(getActivity().findViewById(R.id.nav_host_fragment));
+        navController.navigate(R.id.panoramaview);
+    }
+
+    public ArrayList<point> readData()
+    {
+        ArrayList<point> points = new ArrayList<>();
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
+        Gson gson = new Gson();
+        Map<String, ?> keys = mPrefs.getAll();
+        for(String name : keys.keySet())
+        {
+            String json = keys.get(name).toString();
+            point p = gson.fromJson(json, new TypeToken<point>(){}.getType());
+            points.add(p);
+        }
+        return points;
     }
 
 }
