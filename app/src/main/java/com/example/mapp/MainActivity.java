@@ -299,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         builder.setPrettyPrinting();
         Gson gson = builder.create();
         prefsEditor.putString(p.getName(), gson.toJson(p));
-        prefsEditor.apply();
+        prefsEditor.commit();
     }
 
     //Reads points from SharedPreferences

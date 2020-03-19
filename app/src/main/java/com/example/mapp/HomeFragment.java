@@ -63,6 +63,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
 
 public class HomeFragment extends Fragment {
 
@@ -79,19 +82,15 @@ public class HomeFragment extends Fragment {
     private static final int ZOOM = 2;
     private int mode = NONE;
 
-    CardView buildingDetails;
-    TextView buildingName;
-    TextView hours;
-    ImageButton report;
+    private CardView buildingDetails;
+    private TextView buildingName;
+    private TextView hours;
 
-    CardView reportCard;
-    Spinner reasons;
-    TextView other;
-    Button submit;
+    private CardView reportCard;
+    private Spinner reasons;
+    private TextView other;
 
-    Polygon currentBuilding;
-    boolean buildingNotShowing = true;
-    boolean reportNotShowing = true;
+    private Polygon currentBuilding;
 
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -105,7 +104,7 @@ public class HomeFragment extends Fragment {
         buildingDetails.setContentPadding(40,20,40,20);
         buildingName = root.findViewById(R.id.bName);
         hours = root.findViewById(R.id.hours);
-        report = root.findViewById(R.id.report);
+        ImageButton report = root.findViewById(R.id.report);
 
         reportCard = root.findViewById(R.id.reportCard);
         reportCard.setContentPadding(40,20,40,20);
@@ -114,7 +113,7 @@ public class HomeFragment extends Fragment {
         reasons.setAdapter(adapter);
 
         other = root.findViewById(R.id.otherReason);
-        submit = root.findViewById(R.id.submitReport);
+        Button submit = root.findViewById(R.id.submitReport);
 
 
         /* Sets up the map */
@@ -153,30 +152,26 @@ public class HomeFragment extends Fragment {
         buildingDetails.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if(reportNotShowing) {
-                    switch (event.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            System.out.println("drag started");
-                            y[0] = event.getY();
-                            System.out.println(y[0]);
-                            break;
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        y[0] = event.getY();
 
-                        case MotionEvent.ACTION_UP:
-                            System.out.println("drag ended");
-                            y[1] = event.getY();
-                            System.out.println(y[1]);
-                            if ((y[0] - y[1]) < -300) {
-                                ViewPropertyAnimator animate = buildingDetails.animate();
-                                animate.translationY(buildingDetails.getHeight());
-                                animate.setDuration(750);
-                                animate.start();
-                                buildingNotShowing = true;
-                            }
-                            break;
+                        break;
 
-                        default:
-                    }
+                    case MotionEvent.ACTION_UP:
+                        y[1] = event.getY();
+
+                        if ((y[0] - y[1]) < -300) {
+                            ViewPropertyAnimator animate = buildingDetails.animate();
+                            animate.translationY(buildingDetails.getHeight());
+                            animate.setDuration(750);
+                            animate.start();
+                        }
+                        break;
+
+                    default:
                 }
+
                 return true;
             }
         });
@@ -187,21 +182,17 @@ public class HomeFragment extends Fragment {
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        System.out.println("drag started");
                         y2[0] = event.getY();
-                        System.out.println(y2[0]);
                         break;
 
                     case MotionEvent.ACTION_UP:
-                        System.out.println("drag ended");
                         y2[1] = event.getY();
-                        System.out.println(y2[1]);
+
                         if ((y2[0] - y2[1]) < -300) {
                             ViewPropertyAnimator animate = reportCard.animate();
                             animate.translationY(reportCard.getHeight());
                             animate.setDuration(750);
                             animate.start();
-                            reportNotShowing = true;
                         }
                         break;
 
@@ -219,8 +210,6 @@ public class HomeFragment extends Fragment {
                 animator.translationY(-reportCard.getHeight());
                 animator.setDuration(500);
                 animator.start();
-                reportNotShowing = false;
-
             }
         });
 
@@ -242,8 +231,6 @@ public class HomeFragment extends Fragment {
                 animator.setDuration(500);
                 animator.translationY(reportCard.getHeight());
                 animator.start();
-                reportNotShowing = true;
-
             }
         });
 
@@ -298,10 +285,10 @@ public class HomeFragment extends Fragment {
                         /* Cancels long press function if finger is lifted */
                         handler.removeCallbacks(longPressed[0]);
 
-                        Long time = Long.valueOf(1000);
+                        Long time = 1000L;
                         if (count[0] == 2) {
                             time = System.currentTimeMillis() - startTime[0];
-                            duration[0] += time;
+                            duration[0] = time-startTime[0];
                             secondXY.set(event.getX(), event.getY());
                         }
 
@@ -311,10 +298,8 @@ public class HomeFragment extends Fragment {
                         if (count[0] == 2) {
                             if (f[Matrix.MSCALE_X] == 3) {
                                 if (distance < 30) {
-                                    if (time <= 500) {
+                                    if (duration[0] <= 750) {
                                         openStreetView(filtered, new SimplePoint((int) event.getX(), (int) event.getY()), panoViewModel);
-
-                                        Toast.makeText(getActivity(), "double tapped", Toast.LENGTH_LONG).show();
                                     }
                                 }
                             }
@@ -446,7 +431,7 @@ public class HomeFragment extends Fragment {
     }
 
     /* Checks to see when the last time building detail and bounds was updated */
-    public boolean upToDate(){
+    private boolean upToDate(){
         Context context = getActivity();
         SharedPreferences mPrefs = context.getSharedPreferences("com.example.mapp.upToDate", Context.MODE_PRIVATE);
 
@@ -458,7 +443,7 @@ public class HomeFragment extends Fragment {
 
     /* Sets up the clickable areas for building details
     * pulls from firestore and saves into shared preferences */
-    public void upDateOutlines(){
+    private void upDateOutlines(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("polygons").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -469,8 +454,8 @@ public class HomeFragment extends Fragment {
                         List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
                         bOutlines = new Polygon[documentSnapshots.size()];
 
-                        int x[] = new int[4];
-                        int y[] = new int[4];
+                        int[] x = new int[4];
+                        int[] y = new int[4];
                         String name;
                         DocumentSnapshot temp;
                         for(int i = 0; i< documentSnapshots.size(); i++){
@@ -502,13 +487,13 @@ public class HomeFragment extends Fragment {
                             prefEditor.putString(String.valueOf(i), gson.toJson(bOutlines[i]));
 
                         }
-                        prefEditor.apply();
+                        prefEditor.commit();
 
                         mPrefs = context.getSharedPreferences("com.example.mapp.upToDate", Context.MODE_PRIVATE);
                         prefEditor = mPrefs.edit();
                         prefEditor.clear();
                         prefEditor.putString("lastChecked", new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date()));
-                        prefEditor.apply();
+                        prefEditor.commit();
                     }
                 }
             }
@@ -517,7 +502,7 @@ public class HomeFragment extends Fragment {
 
     /* Sets up the clickable areas for buildings
     * pulls from shared preferences to save reads on firebase */
-    public void setUpOutlines(){
+    private void setUpOutlines(){
         Context context = getActivity().getApplicationContext();
         context = getActivity().getApplicationContext();
         SharedPreferences mPrefs = context.getSharedPreferences("com.example.mapp.outlines", Context.MODE_PRIVATE);
@@ -535,7 +520,7 @@ public class HomeFragment extends Fragment {
     }
 
     /* Sets all the textViews and info for building details card view */
-    public void buildingInfo(Polygon building){
+    private void buildingInfo(Polygon building){
         currentBuilding = building;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -556,14 +541,13 @@ public class HomeFragment extends Fragment {
         animation.translationY(-buildingDetails.getHeight());
         animation.setDuration(750);
         animation.start();
-        buildingNotShowing = true;
     }
 
     /* Runnable class so that a variable can be passed to the runnable and open the building details card view */
     class Runn implements Runnable{
         SimplePoint user;
         Polygon[] bOutlines;
-        public Runn(SimplePoint user, Polygon[] bOutlines){
+        Runn(SimplePoint user, Polygon[] bOutlines){
             this.user = user;
             this.bOutlines = bOutlines;
         }
@@ -571,17 +555,19 @@ public class HomeFragment extends Fragment {
         @Override
         public void run(){
             System.out.println("User selected (" + user.x + ", " + user.y + ")");
-            for(int i = 0; i < bOutlines.length; i++){
-                if(bOutlines[i].contains(user.x, user.y)){
-                    buildingInfo(bOutlines[i]);
-                    Toast.makeText(getContext(),"hurray", Toast.LENGTH_LONG).show();
+            for (Polygon bOutline : bOutlines) {
+                if (bOutline.contains(user.x, user.y)) {
+                    buildingInfo(bOutline);
                 }
             }
         }
     }
 
     /*  */
-    public void openStreetView(ArrayList<point> streetViews, SimplePoint userTouch, PanoViewModel pano){
+    private void openStreetView(ArrayList<point> streetViews, SimplePoint userTouch, PanoViewModel pano){
+        if(streetViews.isEmpty()){
+            streetViews = readData();
+        }
         point closest = streetViews.get(0);
         float bestDistance = 20000;
         float testDistance;
@@ -596,59 +582,29 @@ public class HomeFragment extends Fragment {
             }
         }
         pano.setStreetViewPoint(closest);
-        NavController navController = Navigation.findNavController(getActivity().findViewById(R.id.nav_host_fragment));
+        NavController navController = Navigation.findNavController(Objects.requireNonNull(getActivity()).findViewById(R.id.nav_host_fragment));
         navController.navigate(R.id.panoramaview);
     }
 
-    public ArrayList<point> readData()
+    /*  */
+    private ArrayList<point> readData()
     {
         ArrayList<point> points = new ArrayList<>();
-        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(Objects.requireNonNull(getContext()).getApplicationContext());
         Gson gson = new Gson();
 
         Map<String, ?> keys = mPrefs.getAll();
-        for(String name : keys.keySet())
-        {
+        for (String name : keys.keySet()) {
             String json = keys.get(name).toString();
-            point p = gson.fromJson(json, new TypeToken<point>(){}.getType());
+            point p = gson.fromJson(json, new TypeToken<point>() {
+            }.getType());
             points.add(p);
         }
         System.out.println(points);
         return points;
+
     }
 
-    public void savePoint(point p)
-    {
-        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
-        SharedPreferences.Editor prefsEditor = mPrefs.edit();
-        GsonBuilder builder = new GsonBuilder();
-        builder.setPrettyPrinting();
-        Gson gson = builder.create();
-        prefsEditor.putString(p.getName(), gson.toJson(p));
-        prefsEditor.apply();
-    }
-
-    public void readPointsDB()
-    {
-        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
-        SharedPreferences.Editor prefsEditor = mPrefs.edit();
-        prefsEditor.clear().commit();
-        CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("points");
-        pointsDB.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()){
-                    for(QueryDocumentSnapshot document : task.getResult())
-                    {
-                        point p = document.toObject(point.class);
-                        savePoint(p);
-                    }
-                } else {
-                    Log.d("point", "Error getting documents: ", task.getException());
-                }
-            }
-        });
-    }
 
 }
 
