@@ -504,9 +504,8 @@ public class HomeFragment extends Fragment {
     * pulls from shared preferences to save reads on firebase */
     private void setUpOutlines(){
         Context context = getActivity().getApplicationContext();
-        context = getActivity().getApplicationContext();
         SharedPreferences mPrefs = context.getSharedPreferences("com.example.mapp.outlines", Context.MODE_PRIVATE);
-        //SharedPreferences mPrefs = PreferenceManager.getSharedPreferences("com.example.mapp.outlines", Context.MODE_PRIVATE);
+
         Gson gson = new Gson();
         Map<String, ?> keys = mPrefs.getAll();
 
