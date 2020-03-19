@@ -1,6 +1,8 @@
 package com.example.mapp;
 
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -12,21 +14,28 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
@@ -38,8 +47,10 @@ import androidx.navigation.Navigation;
 import com.example.mapp.entityObjects.point;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -73,13 +84,38 @@ public class HomeFragment extends Fragment {
     TextView hours;
     ImageButton report;
 
+    CardView reportCard;
+    Spinner reasons;
+    TextView other;
+    Button submit;
+
+    Polygon currentBuilding;
+    boolean buildingNotShowing = true;
+    boolean reportNotShowing = true;
+
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
+        /* Initializations of UI elements */
         final View root = inflater.inflate(R.layout.fragment_home, container, false);
-        final TextView textView = root.findViewById(R.id.text_home);
         final PanoViewModel panoViewModel = new ViewModelProvider(requireActivity()).get(PanoViewModel.class);
+
+        buildingDetails = root.findViewById(R.id.buildingDetails);
+        buildingDetails.setContentPadding(40,20,40,20);
+        buildingName = root.findViewById(R.id.bName);
+        hours = root.findViewById(R.id.hours);
+        report = root.findViewById(R.id.report);
+
+        reportCard = root.findViewById(R.id.reportCard);
+        reportCard.setContentPadding(40,20,40,20);
+        reasons = root.findViewById(R.id.reportReasons);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.reportReasons, android.R.layout.simple_spinner_dropdown_item);
+        reasons.setAdapter(adapter);
+
+        other = root.findViewById(R.id.otherReason);
+        submit = root.findViewById(R.id.submitReport);
+
 
         /* Sets up the map */
         map = root.findViewById(R.id.map);
@@ -91,10 +127,6 @@ public class HomeFragment extends Fragment {
 
         map.setImageBitmap(mapMap);
 
-        buildingDetails = root.findViewById(R.id.buildingDetails);
-        buildingName = root.findViewById(R.id.bName);
-        hours = root.findViewById(R.id.hours);
-        report = root.findViewById(R.id.report);
 
         /* Logic for deciding how to initialize the bounds of buildings */
         if(upToDate()){
@@ -106,6 +138,7 @@ public class HomeFragment extends Fragment {
 
 
         ArrayList<point> unfiltered = readData();
+
         System.out.println(unfiltered.size());
         final ArrayList<point> filtered = new ArrayList<>();
         for(int i = 0; i < unfiltered.size(); i++){
@@ -114,33 +147,106 @@ public class HomeFragment extends Fragment {
             }
         }
 
+        final float y[] = new float[2];
+
+        /*Set onClickListeners for clickable UI elements*/
+        buildingDetails.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(reportNotShowing) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            System.out.println("drag started");
+                            y[0] = event.getY();
+                            System.out.println(y[0]);
+                            break;
+
+                        case MotionEvent.ACTION_UP:
+                            System.out.println("drag ended");
+                            y[1] = event.getY();
+                            System.out.println(y[1]);
+                            if ((y[0] - y[1]) < -300) {
+                                ViewPropertyAnimator animate = buildingDetails.animate();
+                                animate.translationY(buildingDetails.getHeight());
+                                animate.setDuration(750);
+                                animate.start();
+                                buildingNotShowing = true;
+                            }
+                            break;
+
+                        default:
+                    }
+                }
+                return true;
+            }
+        });
+
+        final float[] y2 = new float[2];
+        reportCard.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        System.out.println("drag started");
+                        y2[0] = event.getY();
+                        System.out.println(y2[0]);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        System.out.println("drag ended");
+                        y2[1] = event.getY();
+                        System.out.println(y2[1]);
+                        if ((y2[0] - y2[1]) < -300) {
+                            ViewPropertyAnimator animate = reportCard.animate();
+                            animate.translationY(reportCard.getHeight());
+                            animate.setDuration(750);
+                            animate.start();
+                            reportNotShowing = true;
+                        }
+                        break;
+
+                    default:
+                }
+                return true;
+            }
+        });
 
 
-
-        /* TEMP BUTTON FOR 360 PANORAMA VIEW */
-        Button temp = root.findViewById(R.id.temp);
-        temp.setOnClickListener(new View.OnClickListener() {
+        report.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NavController navController = Navigation.findNavController(getActivity().findViewById(R.id.nav_host_fragment));
-                navController.navigate(R.id.panoramaview);
+                ViewPropertyAnimator animator = reportCard.animate();
+                animator.translationY(-reportCard.getHeight());
+                animator.setDuration(500);
+                animator.start();
+                reportNotShowing = false;
+
             }
         });
 
-        Button route = root.findViewById(R.id.route);
-        route.setOnClickListener(new View.OnClickListener(){
+        submit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
-                final Bitmap routeMap;
-                //routeMap = Bitmap.createBitmap(mapMap);
+            public void onClick(View v) {
+                String reason = reasons.getSelectedItem().toString();
+                String typedReason = other.getText().toString();
 
-                //float[] points = {4200,1380,4075,1550,   4075,1550,4075,1690,     4075,1690,4055,1700,      4055,1700, 4055,2250,   4055,2250,3650,2250,     3650,2250,3650,2500};
-                float[] points = {(float)(bOutlines[0].points[0].x/.87637), (float)(bOutlines[0].points[0].y/.87344), (float) (bOutlines[0].points[2].x/.87637), (float) (bOutlines[0].points[2].y/.87344)};
+                //so you can add the report to the right building
+                String currBuilding = currentBuilding.name;
 
-                routeMap = drawRoute(mapMap, points);
-                map.setImageBitmap(routeMap);
+                /* Ken please add the functionality to write to the database */
+
+                reasons.setSelection(0);
+                other.clearComposingText();
+
+                ViewPropertyAnimator animator = reportCard.animate();
+                animator.setDuration(500);
+                animator.translationY(reportCard.getHeight());
+                animator.start();
+                reportNotShowing = true;
+
             }
         });
+
 
         final long[] startTime = {0};
         final long[] duration = {0};
@@ -154,14 +260,14 @@ public class HomeFragment extends Fragment {
         /* Touch motion controls for map */
         map.setOnTouchListener(new View.OnTouchListener(){
             @Override
-            public boolean onTouch(View v, MotionEvent event){
+            public boolean onTouch(View v, MotionEvent event) {
 
                 ImageView view = (ImageView) v;
                 float[] f = new float[9];
 
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
-                        if(count[0] == 0) {
+                        if (count[0] == 0) {
                             startTime[0] = System.currentTimeMillis();
                             firstXY.set(event.getX(), event.getY());
                         }
@@ -172,7 +278,7 @@ public class HomeFragment extends Fragment {
 
                         /* Sets up and initializes long press function  */
                         matrix.getValues(f);
-                        longPressed[0] = new Runn(new SimplePoint((int)(-f[2]/f[0] + event.getX()/f[0]), (int)(-f[5]/f[0] + event.getY()/f[0])), bOutlines);
+                        longPressed[0] = new Runn(new SimplePoint((int) (-f[2] / f[0] + event.getX() / f[0]), (int) (-f[5] / f[0] + event.getY() / f[0])), bOutlines);
                         handler.postDelayed(longPressed[0], ViewConfiguration.getLongPressTimeout());
 
                         break;
@@ -193,27 +299,27 @@ public class HomeFragment extends Fragment {
                         handler.removeCallbacks(longPressed[0]);
 
                         Long time = Long.valueOf(1000);
-                            if(count[0] == 2) {
-                                 time = System.currentTimeMillis() - startTime[0];
-                                duration[0] += time;
-                                secondXY.set(event.getX(), event.getY());
-                            }
+                        if (count[0] == 2) {
+                            time = System.currentTimeMillis() - startTime[0];
+                            duration[0] += time;
+                            secondXY.set(event.getX(), event.getY());
+                        }
 
-                        float distance = (float) Math.sqrt(Math.pow((secondXY.x-firstXY.x), 2) + Math.pow((secondXY.y - firstXY.y), 2));
+                        float distance = (float) Math.sqrt(Math.pow((secondXY.x - firstXY.x), 2) + Math.pow((secondXY.y - firstXY.y), 2));
                         matrix.getValues(f);
 
-                        if(count[0] == 2) {
+                        if (count[0] == 2) {
                             if (f[Matrix.MSCALE_X] == 3) {
                                 if (distance < 30) {
                                     if (time <= 500) {
-                                        openStreetView(filtered, new SimplePoint((int)event.getX(), (int)event.getY()), panoViewModel);
+                                        openStreetView(filtered, new SimplePoint((int) event.getX(), (int) event.getY()), panoViewModel);
 
                                         Toast.makeText(getActivity(), "double tapped", Toast.LENGTH_LONG).show();
                                     }
                                 }
                             }
-                                count[0] = 0;
-                                duration[0] = 0;
+                            count[0] = 0;
+                            duration[0] = 0;
                         }
 
                     case MotionEvent.ACTION_POINTER_UP:
@@ -233,23 +339,23 @@ public class HomeFragment extends Fragment {
                             float moveYby = event.getY() - startPoint.y;
 
                             /* Cancels long press if its done while dragging */
-                            float longPressDistance = (float) Math.sqrt(Math.pow(moveXby,2) + Math.pow(moveYby,2));
-                            if(longPressDistance > 15)
+                            float longPressDistance = (float) Math.sqrt(Math.pow(moveXby, 2) + Math.pow(moveYby, 2));
+                            if (longPressDistance > 15)
                                 handler.removeCallbacks(longPressed[0]);
 
 
                             /* Prevents the map from moving too far off of screen */
-                            if(newPosX > 10){
+                            if (newPosX > 10) {
                                 moveXby = -f[Matrix.MTRANS_X] + 10;
                             }
-                            if(newPosX < (-4115*f[0] + 1074)) {
-                                moveXby = (-4115*f[0] + 1074) - f[Matrix.MTRANS_X];
+                            if (newPosX < (-4115 * f[0] + 1074)) {
+                                moveXby = (-4115 * f[0] + 1074) - f[Matrix.MTRANS_X];
                             }
-                            if(newPosY > 10){
+                            if (newPosY > 10) {
                                 moveYby = -f[Matrix.MTRANS_Y] + 40;
                             }
-                            if(newPosY < (-4189*f[0] + 1296)){
-                                moveYby = (-4189*f[0] + 1296) - f[Matrix.MTRANS_Y];
+                            if (newPosY < (-4189 * f[0] + 1296)) {
+                                moveYby = (-4189 * f[0] + 1296) - f[Matrix.MTRANS_Y];
                             }
 
                             matrix.postTranslate(moveXby, moveYby);
@@ -270,10 +376,10 @@ public class HomeFragment extends Fragment {
                             float scaleY = f[Matrix.MSCALE_Y];
 
                             /* Limits Zoom in and Zoom out */
-                            if(scaleX <= 0.3f){
-                                matrix.postScale((0.3f)/scaleX, (0.3f)/scaleY, midPoint.x, midPoint.y);
-                            }else if(scaleX >= 3.0f){
-                                matrix.postScale((3.0f)/scaleX, (3.0f)/scaleY, midPoint.x, midPoint.y);
+                            if (scaleX <= 0.3f) {
+                                matrix.postScale((0.3f) / scaleX, (0.3f) / scaleY, midPoint.x, midPoint.y);
+                            } else if (scaleX >= 3.0f) {
+                                matrix.postScale((3.0f) / scaleX, (3.0f) / scaleY, midPoint.x, midPoint.y);
                             }
 
                             float transX = f[Matrix.MTRANS_X];
@@ -284,28 +390,30 @@ public class HomeFragment extends Fragment {
                             float moveYby = event.getY() - startPoint.y;
 
                             /* Limits panning during zooming */
-                            if(newPosX > 10){
+                            if (newPosX > 10) {
                                 moveXby = -f[Matrix.MTRANS_X] + 10;
                             }
-                            if(newPosX < (-4115*f[0] + 1074)) {
-                                moveXby = (-4115*f[0] + 1074) - f[Matrix.MTRANS_X];
+                            if (newPosX < (-4115 * f[0] + 1074)) {
+                                moveXby = (-4115 * f[0] + 1074) - f[Matrix.MTRANS_X];
                             }
-                            if(newPosY > 10){
+                            if (newPosY > 10) {
                                 moveYby = -f[Matrix.MTRANS_Y] + 40;
                             }
-                            if(newPosY < (-4189*f[0] + 1296)){
-                                moveYby = (-4189*f[0] + 1296) - f[Matrix.MTRANS_Y];
+                            if (newPosY < (-4189 * f[0] + 1296)) {
+                                moveYby = (-4189 * f[0] + 1296) - f[Matrix.MTRANS_Y];
                             }
 
                             matrix.postTranslate(moveXby, moveYby);
 
                         }
                         break;
-                        default:
+                    default:
                 }
-                System.out.println((-f[2]/f[0] + event.getX()/f[0]) + ", " + (-f[5]/f[0] + event.getY()/f[0]));
 
-                view.setImageMatrix(matrix);
+                    System.out.println((-f[2] / f[0] + event.getX() / f[0]) + ", " + (-f[5] / f[0] + event.getY() / f[0]));
+                    view.setImageMatrix(matrix);
+
+
                 return true;
             }
 
@@ -428,9 +536,7 @@ public class HomeFragment extends Fragment {
 
     /* Sets all the textViews and info for building details card view */
     public void buildingInfo(Polygon building){
-        buildingDetails.setContentPadding(40,20,40,20);
-        buildingDetails.setVisibility(View.VISIBLE);
-        buildingDetails.setCardElevation(30);
+        currentBuilding = building;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("facilities").document(building.name).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -446,6 +552,11 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        ViewPropertyAnimator animation = buildingDetails.animate();
+        animation.translationY(-buildingDetails.getHeight());
+        animation.setDuration(750);
+        animation.start();
+        buildingNotShowing = true;
     }
 
     /* Runnable class so that a variable can be passed to the runnable and open the building details card view */
@@ -472,7 +583,7 @@ public class HomeFragment extends Fragment {
     /*  */
     public void openStreetView(ArrayList<point> streetViews, SimplePoint userTouch, PanoViewModel pano){
         point closest = streetViews.get(0);
-        float bestDistance = 1000;
+        float bestDistance = 20000;
         float testDistance;
         float streetX, streetY;
         for(int i = 0; i < streetViews.size(); i++){
@@ -494,6 +605,7 @@ public class HomeFragment extends Fragment {
         ArrayList<point> points = new ArrayList<>();
         SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
         Gson gson = new Gson();
+
         Map<String, ?> keys = mPrefs.getAll();
         for(String name : keys.keySet())
         {
@@ -501,7 +613,41 @@ public class HomeFragment extends Fragment {
             point p = gson.fromJson(json, new TypeToken<point>(){}.getType());
             points.add(p);
         }
+        System.out.println(points);
         return points;
+    }
+
+    public void savePoint(point p)
+    {
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        GsonBuilder builder = new GsonBuilder();
+        builder.setPrettyPrinting();
+        Gson gson = builder.create();
+        prefsEditor.putString(p.getName(), gson.toJson(p));
+        prefsEditor.apply();
+    }
+
+    public void readPointsDB()
+    {
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        prefsEditor.clear().commit();
+        CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("points");
+        pointsDB.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()){
+                    for(QueryDocumentSnapshot document : task.getResult())
+                    {
+                        point p = document.toObject(point.class);
+                        savePoint(p);
+                    }
+                } else {
+                    Log.d("point", "Error getting documents: ", task.getException());
+                }
+            }
+        });
     }
 
 }
