@@ -16,6 +16,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -60,28 +62,11 @@ public class LoginFragment extends Fragment {
         forgetPass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String user = username.getText().toString();
-                if (Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user) && (user.contains("@csulb.edu") || user.contains("@student.csulb.edu"))) {
-                    username.clearComposingText();
-                    username.onEditorAction(EditorInfo.IME_ACTION_DONE);
-                    try {
-                        FirebaseAuth.getInstance().sendPasswordResetEmail(user)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            Log.d(TAG, "Email sent.");
-                                        } else {
-                                            Toast.makeText(getContext(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    Toast.makeText(getContext(), "Username incorrect format", Toast.LENGTH_LONG).show();
-                }
+                FirebaseAuth.getInstance().signOut();
+                username.clearComposingText();
+                password.clearComposingText();
+                NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
+                navController.navigate(R.id.action_login_to_forgetPassword);
             }
         });
 
@@ -145,8 +130,7 @@ public class LoginFragment extends Fragment {
                                         getActivity().finish();
                                     }
                                     else {
-                                        // email is not verified, so just prompt the message to the user and restart this activity.
-                                        // NOTE: don't forget to log out the user.
+                                        // email is not verified, so just prompt the message to the user
                                         Toast.makeText(getContext(),"Email not verified", Toast.LENGTH_LONG).show();
                                         password.clearComposingText();
                                     }

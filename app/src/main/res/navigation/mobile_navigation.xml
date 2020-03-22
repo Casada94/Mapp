@@ -19,7 +19,45 @@
         android:id="@+id/login_frag"
         android:name="com.example.mapp.LoginFragment"
         android:label="Login"
-        tools:layout="@layout/fragment_login"/>
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_login_to_forgetPassword"
+            app:destination="@+id/forgetPassword_frag"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/login_frag"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/forgetPassword_frag"
+        android:name="com.example.mapp.ForgetPasswordFragment"
+        android:label="Forget Password"
+        tools:layout="@layout/fragment_forgetpassword">
+
+        <action
+            android:id="@+id/action_forgetPassword_to_forgetPasswordEmail"
+            app:destination="@+id/forgetPasswordEmail_frag"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/login_frag"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/forgetPasswordEmail_frag"
+        android:name="com.example.mapp.ForgetPasswordEmailFragment"
+        android:label="Forget Password Email"
+        tools:layout="@layout/fragment_forgetpasswordemail">
+
+        <action
+            android:id="@+id/action_forgetPasswordEmail_to_login"
+            app:destination="@+id/login_frag"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/nav_home"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+
+
     <fragment
         android:id="@+id/signup_frag"
         android:name="com.example.mapp.SignUpFragment"
