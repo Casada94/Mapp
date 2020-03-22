@@ -36,8 +36,8 @@ public abstract class Facility{
 		}
 		return ret;
 	}
-	public Report report(String reportDetails)
+	public Report report(String Reason, String reportDetails)
 	{
-		return new Report(reportDetails, this);
+		return new Report(Reason, reportDetails, this.getName());
 	}
 }

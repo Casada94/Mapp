@@ -21,6 +21,8 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.mapp.entityObjects.point;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -146,7 +148,13 @@ public class ScheduleFragment extends Fragment {
 
         /* Connects editable fields with java code */
         final EditText className = root.findViewById(R.id.className);
-        final String[] buildings = {"ECS", "VEC"};
+        ArrayList<point> points = new ArrayList<point>();
+        points = MainActivity.readData(getContext());
+        final String[] buildings = new String[points.size()];
+        for(int i = 0; i < buildings.length; i++)
+        {
+            buildings[i] = points.get(i).getName();
+        }
 
 
         /* Set up for auto complete text view of location

@@ -44,10 +44,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 
+import com.example.mapp.entityObjects.Report;
 import com.example.mapp.entityObjects.point;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -223,6 +226,9 @@ public class HomeFragment extends Fragment {
                 String currBuilding = currentBuilding.name;
 
                 /* Ken please add the functionality to write to the database */
+                Report r = new Report(reason, typedReason, currBuilding);
+                Gson gson = new Gson();
+                FirebaseFirestore.getInstance().collection("report").add(r);
 
                 reasons.setSelection(0);
                 other.clearComposingText();

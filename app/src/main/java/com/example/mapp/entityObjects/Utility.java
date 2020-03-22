@@ -2,13 +2,14 @@ package com.example.mapp.entityObjects;
 
 import java.util.ArrayList;
 
-public class Utility extends Facility{
+public class Utility extends point{
 	enum Type
 	{
 		VENDING_MACHINE, BATHROOM, WATER_FOUNTAIN;
 	}
 	private Type type;
 	private ArrayList<String> contents;
+	private Building building;
 
 	public Utility(Type type)
 	{

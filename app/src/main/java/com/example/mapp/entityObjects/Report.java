@@ -5,52 +5,57 @@ import java.util.Date;
 
 public class Report {
 	private boolean isSolved;
-	private String reportDetails;
-	private Facility facility;
-	private Date reportTime;
-	private Date solvedTime;
+	private String description;
+	private String reason;
+	private String facility;
+//	private Date reportTime;
+//	private Date solvedTime;
+
+	public Report() {}
+//	public Report()
+//	{
+//		isSolved = false;
+//		description = "";
+//		reason = "";
+//		facility = null;
+//		reportTime = new Date();
+//		solvedTime = null;
+//	}
 	
-	public Report()
-	{
-		isSolved = false; 
-		reportDetails = "";
-		facility = null;
-		reportTime = new Date();
-		solvedTime = null;
-	}
-	
-	public Report(String reportDetails, Facility facility)
+	public Report(String reason, String description, String facility)
 	{
 		isSolved = false;
-		this.reportDetails = reportDetails;
+		this.description = description;
+		this.reason = reason;
 		this.facility = facility;
-		reportTime = new Date();
-		solvedTime = null;
+//		reportTime = new Date();
+//		solvedTime = null;
 	}
-	
+
 	public boolean isSolved()
 	{
 		return isSolved;
 	}
-	public void solve()
+//	public void solve()
+//	{
+//		isSolved = true;
+//		solvedTime = new Date();
+//	}
+	public String getDescription()
 	{
-		isSolved = true;
-		solvedTime = new Date();
+		return description;
 	}
-	public String getDetails()
-	{
-		return reportDetails;
-	}
-	public Facility getFacility()
+	public String getReason() {return reason;}
+	public String getFacility()
 	{
 		return facility;
 	}
-	public Date getReportTime()
-	{
-		return reportTime;
-	}
-	public Date getSolvedTime()
-	{
-		return solvedTime;
-	}
+//	public Date getReportTime()
+//	{
+//		return reportTime;
+//	}
+//	public Date getSolvedTime()
+//	{
+//		return solvedTime;
+//	}
 }

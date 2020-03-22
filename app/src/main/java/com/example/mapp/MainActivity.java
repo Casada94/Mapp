@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
@@ -303,10 +304,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //Reads points from SharedPreferences
-    public ArrayList<point> readData()
+    public static ArrayList<point> readData(Context con)
     {
         ArrayList<point> points = new ArrayList<>();
-        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(con);
         Gson gson = new Gson();
         Map<String, ?> keys = mPrefs.getAll();
         for(String name : keys.keySet())
@@ -321,9 +322,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Writes points from SharedPreferences to Database
     public void writePointsDB()
     {
-        ArrayList<point> points = readData();
+        ArrayList<point> points = readData(getApplicationContext());
         Gson gson = new Gson();
-
         for(point p : points) {
             FirebaseFirestore.getInstance().collection("points").document(p.getName()).set(p);
         }
@@ -351,4 +351,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
+
+
 }

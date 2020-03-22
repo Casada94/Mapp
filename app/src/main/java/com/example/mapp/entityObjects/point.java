@@ -9,11 +9,15 @@ public class point{
     private List<Integer> neighbors;
     private String name;
 
-    public point(){}
+    public point()
+    {
+    }
 
     public point(String name)
     {
         this.name = name;
+        this.x = 0;
+        this.y = 0;
         neighbors = new ArrayList<Integer>();
     }
     public point(double x, double y)
