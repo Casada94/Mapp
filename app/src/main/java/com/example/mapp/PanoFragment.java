@@ -30,7 +30,7 @@ public class PanoFragment extends Fragment {
 
     private VrPanoramaView streetView;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
-    private StorageReference ref = storage.getReference("images_360").child("tester.jpg");
+
     //private StorageReference ref = storage.getReference("images_360");
     private PanoViewModel panoViewModel;
 //    StorageReference storageRef = storage.getReference();
@@ -41,36 +41,38 @@ public class PanoFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
 
         final View root = inflater.inflate(R.layout.fragment_pano, container, false);
+        final StorageReference ref = storage.getReference("images_360");//.child("tester.jpg");
 
         /* Connects the view in XML with the java code */
         streetView = root.findViewById(R.id.panoView);
 
         panoViewModel = new ViewModelProvider(requireActivity()).get(PanoViewModel.class);
         //ref = ref.child(panoViewModel.getPoint().getValue().getName() + "_360");
+        final long ONE_MEGABYTE = 1024 * 1024;
         panoViewModel.getPoint().observe(getViewLifecycleOwner(), new Observer<point>() {
             @Override
             public void onChanged(point point) {
-                Toast.makeText(getContext(), point.getName(), Toast.LENGTH_LONG).show();
+                String picture = panoViewModel.getPoint().getValue().getName() + ".jpg";
+
+                ref.child(picture).getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        /* Programmatically provides an image to fill VrPanoramaView */
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);//decodeResource(getResources(), ref.);
+                        VrPanoramaView.Options options = new VrPanoramaView.Options();
+                        options.inputType = VrPanoramaView.Options.TYPE_MONO;
+                        streetView.loadImageFromBitmap(bitmap, options);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
             }
         });
 
-
-        final long ONE_MEGABYTE = 1024 * 1024;
-        ref.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                /* Programmatically provides an image to fill VrPanoramaView */
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);//decodeResource(getResources(), ref.);
-                VrPanoramaView.Options options = new VrPanoramaView.Options();
-                options.inputType = VrPanoramaView.Options.TYPE_MONO;
-                streetView.loadImageFromBitmap(bitmap, options);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                e.printStackTrace();
-            }
-        });
         return root;
     }
 

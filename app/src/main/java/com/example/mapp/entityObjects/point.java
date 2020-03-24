@@ -20,12 +20,16 @@ public class point{
         this.y = 0;
         neighbors = new ArrayList<Integer>();
     }
-    public point(double x, double y)
+    public point(String name, double x, double y)
     {
+        this.name = name;
         this.x = x;
         this.y = y;
         neighbors = new ArrayList<Integer>();
     }
+
+
+
     public String getName()
     {
         return name;

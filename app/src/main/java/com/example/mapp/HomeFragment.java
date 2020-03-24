@@ -131,7 +131,7 @@ public class HomeFragment extends Fragment {
 
 
         /* Logic for deciding how to initialize the bounds of buildings */
-        if(upToDate()){
+        if(upToDate("lastUpdateBounds")){
             setUpOutlines();
         }
         else{
@@ -139,15 +139,8 @@ public class HomeFragment extends Fragment {
         }
 
 
-        ArrayList<point> unfiltered = readData();
+        final ArrayList<point> filtered = readData();
 
-        System.out.println(unfiltered.size());
-        final ArrayList<point> filtered = new ArrayList<>();
-        for(int i = 0; i < unfiltered.size(); i++){
-            if(unfiltered.get(i).getName().startsWith("p")){
-                filtered.add(unfiltered.get(i));
-            }
-        }
 
         final float y[] = new float[2];
 
@@ -305,7 +298,7 @@ public class HomeFragment extends Fragment {
                             if (f[Matrix.MSCALE_X] == 3) {
                                 if (distance < 30) {
                                     if (duration[0] <= 750) {
-                                        openStreetView(filtered, new SimplePoint((int) event.getX(), (int) event.getY()), panoViewModel);
+                                        openStreetView(filtered, new SimplePoint((int) (-f[2]/f[0] + event.getX()/f[0]), (int) (-f[5]/f[0] + event.getY()/f[0])), panoViewModel);
                                     }
                                 }
                             }
@@ -437,11 +430,11 @@ public class HomeFragment extends Fragment {
     }
 
     /* Checks to see when the last time building detail and bounds was updated */
-    private boolean upToDate(){
+    private boolean upToDate(String key){
         Context context = getActivity();
         SharedPreferences mPrefs = context.getSharedPreferences("com.example.mapp.upToDate", Context.MODE_PRIVATE);
 
-        String last = mPrefs.getString("lastChecked", "00000000");
+        String last = mPrefs.getString(key, "00000000");
         String today = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
 
         return today.equals(last);
@@ -498,7 +491,7 @@ public class HomeFragment extends Fragment {
                         mPrefs = context.getSharedPreferences("com.example.mapp.upToDate", Context.MODE_PRIVATE);
                         prefEditor = mPrefs.edit();
                         prefEditor.clear();
-                        prefEditor.putString("lastChecked", new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date()));
+                        prefEditor.putString("lastCheckedBounds", new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date()));
                         prefEditor.commit();
                     }
                 }
@@ -592,24 +585,74 @@ public class HomeFragment extends Fragment {
     }
 
     /*  */
-    private ArrayList<point> readData()
-    {
-        ArrayList<point> points = new ArrayList<>();
-        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(Objects.requireNonNull(getContext()).getApplicationContext());
-        Gson gson = new Gson();
+    private ArrayList<point> readData() {
+        if (upToDate("lastUpdateStreetViewPoints")) {
+            /* pull from shared preferences */
+            SharedPreferences mPrefs = getActivity().getSharedPreferences("com.example.mapp.streetViewPoints", Context.MODE_PRIVATE);
+            ArrayList<point> points = new ArrayList<>();
+            Gson gson = new Gson();
 
-        Map<String, ?> keys = mPrefs.getAll();
-        for (String name : keys.keySet()) {
-            String json = keys.get(name).toString();
-            point p = gson.fromJson(json, new TypeToken<point>() {
-            }.getType());
-            points.add(p);
+            Map<String, ?> keys = mPrefs.getAll();
+            for (String name : keys.keySet()) {
+                String json = keys.get(name).toString();
+                point p = gson.fromJson(json, new TypeToken<point>() {
+                }.getType());
+                points.add(p);
+            }
+            return points;
+        } else {
+            /* pull from db */
+            final ArrayList<point> points = new ArrayList<>();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("streetViewLocations").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (!querySnapshot.isEmpty()) {
+                            List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
+
+                            DocumentSnapshot dSnapshot;
+
+                            String name;
+                            int x;
+                            int y;
+
+                            for (int i = 0; i < documentSnapshots.size(); i++) {
+                                dSnapshot = documentSnapshots.get(i);
+
+                                name = dSnapshot.getId();
+                                x = Integer.parseInt(dSnapshot.get("x").toString());
+                                y = Integer.parseInt(dSnapshot.get("y").toString());
+
+                                points.add(new point(name, x, y));
+                            }
+
+                        }
+                        else{
+                            System.out.println("empty StreetView Snapshot");
+                        }
+                    }
+                    else{
+                        System.out.println("Street view task wasnt successful");
+                    }
+                }
+            });
+            /* now save into shared preferences */
+            SharedPreferences mPrefs = getActivity().getSharedPreferences("com.example.mapp.streetViewPoints", Context.MODE_PRIVATE);
+            SharedPreferences.Editor prefEditor = mPrefs.edit();
+            prefEditor.clear();
+            GsonBuilder builder = new GsonBuilder();
+            builder.setPrettyPrinting();
+            Gson gson = builder.create();
+
+            for(int i = 0; i < points.size(); i++){
+                prefEditor.putString(String.valueOf(i), gson.toJson(points.get(i)) );
+            }
+            prefEditor.commit();
+
+            return points;
         }
-        System.out.println(points);
-        return points;
-
     }
-
-
 }
 
