@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firestore.v1.WriteResult;
 
+import org.w3c.dom.Text;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -40,7 +43,7 @@ public class LoginFragment extends Fragment {
     private EditText username;
     private EditText password;
     private Button login;
-    private Button forgetPass;
+    private TextView forgotPass;
     private static String TAG= "EmailPassword";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -52,14 +55,14 @@ public class LoginFragment extends Fragment {
         username = root.findViewById(R.id.userName);
         password = root.findViewById(R.id.password);
         login = root.findViewById(R.id.loginBtn);
-        forgetPass = root.findViewById(R.id.forgetPassBtn);
+        forgotPass = root.findViewById(R.id.forgotPassClickTxt);
 
         final FirebaseAuth mAuth = FirebaseAuth.getInstance();
         final FirebaseFirestore database = FirebaseFirestore.getInstance();
         final DocumentReference users_emails = database.document("users/users_emails");
 
-        /* Sets the click functionality of the button*/
-        forgetPass.setOnClickListener(new View.OnClickListener() {
+        /* Sets the click functionality of the text*/
+        forgotPass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
