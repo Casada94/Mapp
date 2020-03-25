@@ -21,35 +21,35 @@
         android:label="Login"
         tools:layout="@layout/fragment_login">
         <action
-            android:id="@+id/action_login_to_forgetPassword"
-            app:destination="@+id/forgetPassword_frag"
+            android:id="@+id/action_login_to_forgotPassword"
+            app:destination="@+id/forgotPassword_frag"
             app:launchSingleTop="true"
             app:popUpTo="@id/login_frag"
             app:popUpToInclusive="false" />
     </fragment>
 
     <fragment
-        android:id="@+id/forgetPassword_frag"
-        android:name="com.example.mapp.ForgetPasswordFragment"
+        android:id="@+id/forgotPassword_frag"
+        android:name="com.example.mapp.ForgotPasswordFragment"
         android:label="Forget Password"
-        tools:layout="@layout/fragment_forgetpassword">
+        tools:layout="@layout/fragment_forgotpassword">
 
         <action
-            android:id="@+id/action_forgetPassword_to_forgetPasswordEmail"
-            app:destination="@+id/forgetPasswordEmail_frag"
+            android:id="@+id/action_forgotPassword_to_forgotPasswordEmail"
+            app:destination="@+id/forgotPasswordEmail_frag"
             app:launchSingleTop="true"
             app:popUpTo="@id/login_frag"
             app:popUpToInclusive="false" />
     </fragment>
 
     <fragment
-        android:id="@+id/forgetPasswordEmail_frag"
-        android:name="com.example.mapp.ForgetPasswordEmailFragment"
+        android:id="@+id/forgotPasswordEmail_frag"
+        android:name="com.example.mapp.ForgotPasswordEmailFragment"
         android:label="Forget Password Email"
-        tools:layout="@layout/fragment_forgetpasswordemail">
+        tools:layout="@layout/fragment_forgotpasswordemail">
 
         <action
-            android:id="@+id/action_forgetPasswordEmail_to_login"
+            android:id="@+id/action_forgotPasswordEmail_to_login"
             app:destination="@+id/login_frag"
             app:launchSingleTop="true"
             app:popUpTo="@id/nav_home"
