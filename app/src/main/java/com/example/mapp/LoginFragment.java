@@ -1,7 +1,9 @@
 package com.example.mapp;
 
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -66,10 +69,20 @@ public class LoginFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
+                final String userPasser = username.getText().toString();
+                SharedPreferences.Editor editor = getContext().getSharedPreferences("emailForForgotPassword",  getContext().MODE_PRIVATE).edit();
+                if(Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", userPasser) && (userPasser.contains("@csulb.edu" )|| userPasser.contains("@student.csulb.edu"))){
+                    editor.putString("key", userPasser);
+                    editor.apply();
+                }
+                else {
+                    editor.putString("key", "");
+                    editor.apply();
+                }
                 username.clearComposingText();
                 password.clearComposingText();
                 NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
-                navController.navigate(R.id.action_login_to_forgetPassword);
+                navController.navigate(R.id.action_login_to_forgotPassword);
             }
         });
 

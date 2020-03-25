@@ -94,328 +94,334 @@ public class HomeFragment extends Fragment {
     private TextView other;
 
     private Polygon currentBuilding;
+    private View previousView;
 
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        /* Initializations of UI elements */
-        final View root = inflater.inflate(R.layout.fragment_home, container, false);
-        final PanoViewModel panoViewModel = new ViewModelProvider(requireActivity()).get(PanoViewModel.class);
+        if(previousView != null){
+            inflater.inflate(R.layout.fragment_home, (ViewGroup) previousView, false);
+        }else {
 
-        buildingDetails = root.findViewById(R.id.buildingDetails);
-        buildingDetails.setContentPadding(40,20,40,20);
-        buildingName = root.findViewById(R.id.bName);
-        hours = root.findViewById(R.id.hours);
-        ImageButton report = root.findViewById(R.id.report);
+            /* Initializations of UI elements */
+            final View root = inflater.inflate(R.layout.fragment_home, container, false);
+            final PanoViewModel panoViewModel = new ViewModelProvider(requireActivity()).get(PanoViewModel.class);
 
-        reportCard = root.findViewById(R.id.reportCard);
-        reportCard.setContentPadding(40,20,40,20);
-        reasons = root.findViewById(R.id.reportReasons);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.reportReasons, android.R.layout.simple_spinner_dropdown_item);
-        reasons.setAdapter(adapter);
+            buildingDetails = root.findViewById(R.id.buildingDetails);
+            buildingDetails.setContentPadding(40, 20, 40, 20);
+            buildingName = root.findViewById(R.id.bName);
+            hours = root.findViewById(R.id.hours);
+            ImageButton report = root.findViewById(R.id.report);
 
-        other = root.findViewById(R.id.otherReason);
-        Button submit = root.findViewById(R.id.submitReport);
+            reportCard = root.findViewById(R.id.reportCard);
+            reportCard.setContentPadding(40, 20, 40, 20);
+            reasons = root.findViewById(R.id.reportReasons);
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.reportReasons, android.R.layout.simple_spinner_dropdown_item);
+            reasons.setAdapter(adapter);
 
-
-        /* Sets up the map */
-        map = root.findViewById(R.id.map);
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inScaled = false;
-        options.inMutable = true;
-        final Bitmap mapMap;
-        mapMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
-
-        map.setImageBitmap(mapMap);
+            other = root.findViewById(R.id.otherReason);
+            Button submit = root.findViewById(R.id.submitReport);
 
 
-        /* Logic for deciding how to initialize the bounds of buildings */
-        if(upToDate("lastUpdateBounds")){
-            setUpOutlines();
-        }
-        else{
-            upDateOutlines();
-        }
+            /* Sets up the map */
+            map = root.findViewById(R.id.map);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inScaled = false;
+            options.inMutable = true;
+            final Bitmap mapMap;
+            mapMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
+
+            map.setImageBitmap(mapMap);
 
 
-        final ArrayList<point> filtered = readData();
+            /* Logic for deciding how to initialize the bounds of buildings */
+            if (upToDate("lastUpdateBounds")) {
+                setUpOutlines();
+            } else {
+                upDateOutlines();
+            }
 
 
-        final float y[] = new float[2];
+            final ArrayList<point> filtered = readData();
 
-        /*Set onClickListeners for clickable UI elements*/
-        buildingDetails.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        y[0] = event.getY();
 
-                        break;
+            final float y[] = new float[2];
 
-                    case MotionEvent.ACTION_UP:
-                        y[1] = event.getY();
+            /*Set onClickListeners for clickable UI elements*/
+            buildingDetails.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            y[0] = event.getY();
 
-                        if ((y[0] - y[1]) < -300) {
-                            ViewPropertyAnimator animate = buildingDetails.animate();
-                            animate.translationY(buildingDetails.getHeight());
-                            animate.setDuration(750);
-                            animate.start();
-                        }
-                        break;
+                            break;
 
-                    default:
+                        case MotionEvent.ACTION_UP:
+                            y[1] = event.getY();
+
+                            if ((y[0] - y[1]) < -300) {
+                                ViewPropertyAnimator animate = buildingDetails.animate();
+                                animate.translationY(buildingDetails.getHeight());
+                                animate.setDuration(750);
+                                animate.start();
+                            }
+                            break;
+
+                        default:
+                    }
+
+                    return true;
                 }
+            });
 
-                return true;
-            }
-        });
+            final float[] y2 = new float[2];
+            reportCard.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            y2[0] = event.getY();
+                            break;
 
-        final float[] y2 = new float[2];
-        reportCard.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        y2[0] = event.getY();
-                        break;
+                        case MotionEvent.ACTION_UP:
+                            y2[1] = event.getY();
 
-                    case MotionEvent.ACTION_UP:
-                        y2[1] = event.getY();
+                            if ((y2[0] - y2[1]) < -300) {
+                                ViewPropertyAnimator animate = reportCard.animate();
+                                animate.translationY(reportCard.getHeight());
+                                animate.setDuration(750);
+                                animate.start();
+                            }
+                            break;
 
-                        if ((y2[0] - y2[1]) < -300) {
-                            ViewPropertyAnimator animate = reportCard.animate();
-                            animate.translationY(reportCard.getHeight());
-                            animate.setDuration(750);
-                            animate.start();
-                        }
-                        break;
-
-                    default:
+                        default:
+                    }
+                    return true;
                 }
-                return true;
-            }
-        });
+            });
 
 
-        report.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ViewPropertyAnimator animator = reportCard.animate();
-                animator.translationY(-reportCard.getHeight());
-                animator.setDuration(500);
-                animator.start();
-            }
-        });
+            report.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ViewPropertyAnimator animator = reportCard.animate();
+                    animator.translationY(-reportCard.getHeight());
+                    animator.setDuration(500);
+                    animator.start();
+                }
+            });
 
-        submit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String reason = reasons.getSelectedItem().toString();
-                String typedReason = other.getText().toString();
+            submit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String reason = reasons.getSelectedItem().toString();
+                    String typedReason = other.getText().toString();
 
-                //so you can add the report to the right building
-                String currBuilding = currentBuilding.name;
+                    //so you can add the report to the right building
+                    String currBuilding = currentBuilding.name;
 
-                /* Ken please add the functionality to write to the database */
-                Report r = new Report(reason, typedReason, currBuilding);
-                Gson gson = new Gson();
-                FirebaseFirestore.getInstance().collection("report").add(r);
+                    /* Ken please add the functionality to write to the database */
+                    Report r = new Report(reason, typedReason, currBuilding);
+                    Gson gson = new Gson();
+                    FirebaseFirestore.getInstance().collection("report").add(r);
 
-                reasons.setSelection(0);
-                other.clearComposingText();
+                    reasons.setSelection(0);
+                    other.clearComposingText();
 
-                ViewPropertyAnimator animator = reportCard.animate();
-                animator.setDuration(500);
-                animator.translationY(reportCard.getHeight());
-                animator.start();
-            }
-        });
+                    ViewPropertyAnimator animator = reportCard.animate();
+                    animator.setDuration(500);
+                    animator.translationY(reportCard.getHeight());
+                    animator.start();
+                }
+            });
 
 
-        final long[] startTime = {0};
-        final long[] duration = {0};
-        final int[] count = {0};
-        final PointF firstXY = new PointF();
-        final PointF secondXY = new PointF();
+            final long[] startTime = {0};
+            final long[] duration = {0};
+            final int[] count = {0};
+            final PointF firstXY = new PointF();
+            final PointF secondXY = new PointF();
 
-        final Handler handler = new Handler();
-        final Runnable[] longPressed = new Runnable[1];
+            final Handler handler = new Handler();
+            final Runnable[] longPressed = new Runnable[1];
 
-        /* Touch motion controls for map */
-        map.setOnTouchListener(new View.OnTouchListener(){
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            /* Touch motion controls for map */
+            map.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
 
-                ImageView view = (ImageView) v;
-                float[] f = new float[9];
+                    ImageView view = (ImageView) v;
+                    float[] f = new float[9];
 
-                switch (event.getAction() & MotionEvent.ACTION_MASK) {
-                    case MotionEvent.ACTION_DOWN:
-                        if (count[0] == 0) {
-                            startTime[0] = System.currentTimeMillis();
-                            firstXY.set(event.getX(), event.getY());
-                        }
-                        count[0]++;
-                        savedMatrix.set(matrix);
-                        startPoint.set(event.getX(), event.getY());
-                        mode = DRAG;
-
-                        /* Sets up and initializes long press function  */
-                        matrix.getValues(f);
-                        longPressed[0] = new Runn(new SimplePoint((int) (-f[2] / f[0] + event.getX() / f[0]), (int) (-f[5] / f[0] + event.getY() / f[0])), bOutlines);
-                        handler.postDelayed(longPressed[0], ViewConfiguration.getLongPressTimeout());
-
-                        break;
-
-                    case MotionEvent.ACTION_POINTER_DOWN:
-                        oldDist = spacing(event);
-                        if (oldDist > 10f) {
+                    switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                        case MotionEvent.ACTION_DOWN:
+                            if (count[0] == 0) {
+                                startTime[0] = System.currentTimeMillis();
+                                firstXY.set(event.getX(), event.getY());
+                            }
+                            count[0]++;
                             savedMatrix.set(matrix);
-                            midPoint(midPoint, event);
-                            mode = ZOOM;
-                        }
+                            startPoint.set(event.getX(), event.getY());
+                            mode = DRAG;
 
-                        break;
-
-                    case MotionEvent.ACTION_UP:
-
-                        /* Cancels long press function if finger is lifted */
-                        handler.removeCallbacks(longPressed[0]);
-
-                        Long time = 1000L;
-                        if (count[0] == 2) {
-                            time = System.currentTimeMillis() - startTime[0];
-                            duration[0] = time-startTime[0];
-                            secondXY.set(event.getX(), event.getY());
-                        }
-
-                        float distance = (float) Math.sqrt(Math.pow((secondXY.x - firstXY.x), 2) + Math.pow((secondXY.y - firstXY.y), 2));
-                        matrix.getValues(f);
-
-                        if (count[0] == 2) {
-                            if (f[Matrix.MSCALE_X] == 3) {
-                                if (distance < 30) {
-                                    if (duration[0] <= 750) {
-                                        openStreetView(filtered, new SimplePoint((int) (-f[2]/f[0] + event.getX()/f[0]), (int) (-f[5]/f[0] + event.getY()/f[0])), panoViewModel);
-                                    }
-                                }
-                            }
-                            count[0] = 0;
-                            duration[0] = 0;
-                        }
-
-                    case MotionEvent.ACTION_POINTER_UP:
-                        mode = NONE;
-                        break;
-
-                    case MotionEvent.ACTION_MOVE:
-                        if (mode == DRAG) {
-                            matrix.set(savedMatrix);
+                            /* Sets up and initializes long press function  */
                             matrix.getValues(f);
+                            longPressed[0] = new Runn(new SimplePoint((int) (-f[2] / f[0] + event.getX() / f[0]), (int) (-f[5] / f[0] + event.getY() / f[0])), bOutlines);
+                            handler.postDelayed(longPressed[0], ViewConfiguration.getLongPressTimeout());
 
-                            float transX = f[Matrix.MTRANS_X];
-                            float transY = f[Matrix.MTRANS_Y];
-                            float newPosX = transX + (event.getX() - startPoint.x);
-                            float newPosY = transY + (event.getY() - startPoint.y);
-                            float moveXby = event.getX() - startPoint.x;
-                            float moveYby = event.getY() - startPoint.y;
+                            break;
 
-                            /* Cancels long press if its done while dragging */
-                            float longPressDistance = (float) Math.sqrt(Math.pow(moveXby, 2) + Math.pow(moveYby, 2));
-                            if (longPressDistance > 15)
-                                handler.removeCallbacks(longPressed[0]);
-
-
-                            /* Prevents the map from moving too far off of screen */
-                            if (newPosX > 10) {
-                                moveXby = -f[Matrix.MTRANS_X] + 10;
-                            }
-                            if (newPosX < (-4115 * f[0] + 1074)) {
-                                moveXby = (-4115 * f[0] + 1074) - f[Matrix.MTRANS_X];
-                            }
-                            if (newPosY > 10) {
-                                moveYby = -f[Matrix.MTRANS_Y] + 40;
-                            }
-                            if (newPosY < (-4189 * f[0] + 1296)) {
-                                moveYby = (-4189 * f[0] + 1296) - f[Matrix.MTRANS_Y];
+                        case MotionEvent.ACTION_POINTER_DOWN:
+                            oldDist = spacing(event);
+                            if (oldDist > 10f) {
+                                savedMatrix.set(matrix);
+                                midPoint(midPoint, event);
+                                mode = ZOOM;
                             }
 
-                            matrix.postTranslate(moveXby, moveYby);
+                            break;
 
+                        case MotionEvent.ACTION_UP:
 
-                        } else if (mode == ZOOM) {
+                            /* Cancels long press function if finger is lifted */
                             handler.removeCallbacks(longPressed[0]);
 
-                            float newDist = spacing(event);
-                            if (newDist > 10f) {
-                                matrix.set(savedMatrix);
-                                float scale = newDist / oldDist;
-                                matrix.postScale(scale, scale, midPoint.x, midPoint.y);
+                            Long time = 1000L;
+                            if (count[0] == 2) {
+                                time = System.currentTimeMillis() - startTime[0];
+                                duration[0] = time - startTime[0];
+                                secondXY.set(event.getX(), event.getY());
                             }
 
+                            float distance = (float) Math.sqrt(Math.pow((secondXY.x - firstXY.x), 2) + Math.pow((secondXY.y - firstXY.y), 2));
                             matrix.getValues(f);
-                            float scaleX = f[Matrix.MSCALE_X];
-                            float scaleY = f[Matrix.MSCALE_Y];
 
-                            /* Limits Zoom in and Zoom out */
-                            if (scaleX <= 0.3f) {
-                                matrix.postScale((0.3f) / scaleX, (0.3f) / scaleY, midPoint.x, midPoint.y);
-                            } else if (scaleX >= 3.0f) {
-                                matrix.postScale((3.0f) / scaleX, (3.0f) / scaleY, midPoint.x, midPoint.y);
+                            if (count[0] == 2) {
+                                if (f[Matrix.MSCALE_X] == 3) {
+                                    if (distance < 30) {
+                                        if (duration[0] <= 750) {
+                                            openStreetView(filtered, new SimplePoint((int) (-f[2] / f[0] + event.getX() / f[0]), (int) (-f[5] / f[0] + event.getY() / f[0])), panoViewModel);
+                                        }
+                                    }
+                                }
+                                count[0] = 0;
+                                duration[0] = 0;
                             }
 
-                            float transX = f[Matrix.MTRANS_X];
-                            float transY = f[Matrix.MTRANS_Y];
-                            float newPosX = transX + (event.getX() - startPoint.x);
-                            float newPosY = transY + (event.getY() - startPoint.y);
-                            float moveXby = event.getX() - startPoint.x;
-                            float moveYby = event.getY() - startPoint.y;
+                        case MotionEvent.ACTION_POINTER_UP:
+                            mode = NONE;
+                            break;
 
-                            /* Limits panning during zooming */
-                            if (newPosX > 10) {
-                                moveXby = -f[Matrix.MTRANS_X] + 10;
-                            }
-                            if (newPosX < (-4115 * f[0] + 1074)) {
-                                moveXby = (-4115 * f[0] + 1074) - f[Matrix.MTRANS_X];
-                            }
-                            if (newPosY > 10) {
-                                moveYby = -f[Matrix.MTRANS_Y] + 40;
-                            }
-                            if (newPosY < (-4189 * f[0] + 1296)) {
-                                moveYby = (-4189 * f[0] + 1296) - f[Matrix.MTRANS_Y];
-                            }
+                        case MotionEvent.ACTION_MOVE:
+                            if (mode == DRAG) {
+                                matrix.set(savedMatrix);
+                                matrix.getValues(f);
 
-                            matrix.postTranslate(moveXby, moveYby);
+                                float transX = f[Matrix.MTRANS_X];
+                                float transY = f[Matrix.MTRANS_Y];
+                                float newPosX = transX + (event.getX() - startPoint.x);
+                                float newPosY = transY + (event.getY() - startPoint.y);
+                                float moveXby = event.getX() - startPoint.x;
+                                float moveYby = event.getY() - startPoint.y;
 
-                        }
-                        break;
-                    default:
-                }
+                                /* Cancels long press if its done while dragging */
+                                float longPressDistance = (float) Math.sqrt(Math.pow(moveXby, 2) + Math.pow(moveYby, 2));
+                                if (longPressDistance > 15)
+                                    handler.removeCallbacks(longPressed[0]);
+
+
+                                /* Prevents the map from moving too far off of screen */
+                                if (newPosX > 10) {
+                                    moveXby = -f[Matrix.MTRANS_X] + 10;
+                                }
+                                if (newPosX < (-4115 * f[0] + 1074)) {
+                                    moveXby = (-4115 * f[0] + 1074) - f[Matrix.MTRANS_X];
+                                }
+                                if (newPosY > 10) {
+                                    moveYby = -f[Matrix.MTRANS_Y] + 40;
+                                }
+                                if (newPosY < (-4189 * f[0] + 1296)) {
+                                    moveYby = (-4189 * f[0] + 1296) - f[Matrix.MTRANS_Y];
+                                }
+
+                                matrix.postTranslate(moveXby, moveYby);
+
+
+                            } else if (mode == ZOOM) {
+                                handler.removeCallbacks(longPressed[0]);
+
+                                float newDist = spacing(event);
+                                if (newDist > 10f) {
+                                    matrix.set(savedMatrix);
+                                    float scale = newDist / oldDist;
+                                    matrix.postScale(scale, scale, midPoint.x, midPoint.y);
+                                }
+
+                                matrix.getValues(f);
+                                float scaleX = f[Matrix.MSCALE_X];
+                                float scaleY = f[Matrix.MSCALE_Y];
+
+                                /* Limits Zoom in and Zoom out */
+                                if (scaleX <= 0.3f) {
+                                    matrix.postScale((0.3f) / scaleX, (0.3f) / scaleY, midPoint.x, midPoint.y);
+                                } else if (scaleX >= 3.0f) {
+                                    matrix.postScale((3.0f) / scaleX, (3.0f) / scaleY, midPoint.x, midPoint.y);
+                                }
+
+                                float transX = f[Matrix.MTRANS_X];
+                                float transY = f[Matrix.MTRANS_Y];
+                                float newPosX = transX + (event.getX() - startPoint.x);
+                                float newPosY = transY + (event.getY() - startPoint.y);
+                                float moveXby = event.getX() - startPoint.x;
+                                float moveYby = event.getY() - startPoint.y;
+
+                                /* Limits panning during zooming */
+                                if (newPosX > 10) {
+                                    moveXby = -f[Matrix.MTRANS_X] + 10;
+                                }
+                                if (newPosX < (-4115 * f[0] + 1074)) {
+                                    moveXby = (-4115 * f[0] + 1074) - f[Matrix.MTRANS_X];
+                                }
+                                if (newPosY > 10) {
+                                    moveYby = -f[Matrix.MTRANS_Y] + 40;
+                                }
+                                if (newPosY < (-4189 * f[0] + 1296)) {
+                                    moveYby = (-4189 * f[0] + 1296) - f[Matrix.MTRANS_Y];
+                                }
+
+                                matrix.postTranslate(moveXby, moveYby);
+
+                            }
+                            break;
+                        default:
+                    }
 
                     System.out.println((-f[2] / f[0] + event.getX() / f[0]) + ", " + (-f[5] / f[0] + event.getY() / f[0]));
                     view.setImageMatrix(matrix);
 
 
-                return true;
-            }
+                    return true;
+                }
 
-            @SuppressLint("FloatMath")
-            private float spacing(MotionEvent event) {
-                float x = event.getX(0) - event.getX(1);
-                float y = event.getY(0) - event.getY(1);
-                return (float) Math.sqrt(x * x + y * y);
-            }
+                @SuppressLint("FloatMath")
+                private float spacing(MotionEvent event) {
+                    float x = event.getX(0) - event.getX(1);
+                    float y = event.getY(0) - event.getY(1);
+                    return (float) Math.sqrt(x * x + y * y);
+                }
 
-            private void midPoint(PointF point, MotionEvent event) {
-                float x = event.getX(0) + event.getX(1);
-                float y = event.getY(0) + event.getY(1);
-                point.set(x / 2, y / 2);
-            }
-        });
-
-        return root;
+                private void midPoint(PointF point, MotionEvent event) {
+                    float x = event.getX(0) + event.getX(1);
+                    float y = event.getY(0) + event.getY(1);
+                    point.set(x / 2, y / 2);
+                }
+            });
+            previousView = root;
+            return root;
+        }
+        return previousView;
     }
 
     public Bitmap drawRoute(Bitmap routeMap, float[] points){
