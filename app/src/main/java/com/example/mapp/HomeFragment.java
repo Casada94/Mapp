@@ -60,13 +60,22 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Scanner;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 
@@ -122,6 +131,69 @@ public class HomeFragment extends Fragment {
 
             other = root.findViewById(R.id.otherReason);
             Button submit = root.findViewById(R.id.submitReport);
+
+
+            //TEMP JUST FOR DB FILLING
+            Button dbFiller = root.findViewById(R.id.dbLoader);
+            dbFiller.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    InputStream in = null;
+                    BufferedReader bReader = null;
+                    try {
+                        in = getActivity().getAssets().open("dbFiller.txt");
+                        bReader = new BufferedReader(new InputStreamReader(in));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    String line = "";
+                    final String[][] tokens = new String[1][];
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                        try {
+                            while((line = bReader.readLine())  != null) {
+                                Map<String, Object> data = new HashMap<>();
+
+                                tokens[0] = line.split(",");
+
+                                if(tokens[0][0].contains(".")){
+                                    String[] tempSuper = tokens[0][0].split("[.]");
+                                    System.out.println(tempSuper[0]);
+                                    data.put("name", tempSuper[0].toUpperCase());
+                                } else{
+                                    System.out.println(tokens[0][0]);
+                                    data.put("name", tokens[0][0].toUpperCase());
+                                }
+
+                                data.put("coord1x", tokens[0][1]);
+                                data.put("coord1y", tokens[0][2]);
+                                data.put("coord2x", tokens[0][3]);
+                                data.put("coord2y", tokens[0][4]);
+                                data.put("coord3x", tokens[0][5]);
+                                data.put("coord3y", tokens[0][6]);
+                                data.put("coord4x", tokens[0][7]);
+                                data.put("coord4y", tokens[0][8]);
+
+
+                                db.collection("polygons").document(tokens[0][0].toLowerCase()).set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if(task.isSuccessful()){
+                                            System.out.println("added to db");
+                                        }
+                                    }
+                                });
+
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                }
+            });
+
+
 
 
             /* Sets up the map */

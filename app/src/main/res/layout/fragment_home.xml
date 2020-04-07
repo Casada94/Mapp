@@ -28,6 +28,16 @@
         android:scaleType="matrix"
         />
 
+    <Button
+        android:id="@+id/dbLoader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="load DB"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="30dp"/>
+
     <androidx.cardview.widget.CardView
         android:id="@+id/reportCard"
         android:layout_width="match_parent"
