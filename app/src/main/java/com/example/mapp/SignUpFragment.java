@@ -1,8 +1,10 @@
 package com.example.mapp;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -13,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProviders;
@@ -45,6 +48,8 @@ public class SignUpFragment extends Fragment {
     private FirebaseAuth.AuthStateListener mAuthListener;
 
 
+
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -60,6 +65,11 @@ public class SignUpFragment extends Fragment {
         rePassword = root.findViewById(R.id.rePassword);
         rePasswordTxt = root.findViewById(R.id.rePasswordTxt);
         signUp = root.findViewById(R.id.loginBtn);
+
+        /* Hides search button in action bar */
+        Toolbar toolbar = ((MainActivity) getActivity()).findViewById(R.id.toolBar);
+        MenuItem menuItem = toolbar.getMenu().getItem(0);
+        menuItem.setVisible(false);
 
 
         /* set functionality of the sign up button **/
@@ -148,4 +158,5 @@ public class SignUpFragment extends Fragment {
 
         return root;
     }
+
 }

@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -17,6 +18,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -47,6 +49,12 @@ public class ScheduleFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_schedule, container, false);
+
+        /* Hides search button in action bar */
+        Toolbar toolbar = ((MainActivity) getActivity()).findViewById(R.id.toolBar);
+        MenuItem menuItem = toolbar.getMenu().getItem(0);
+        menuItem.setVisible(false);
+
 
         /* Call back and dialog for removing a class */
         RecyclerViewClickListener listener = new RecyclerViewClickListener() {
@@ -288,4 +296,5 @@ public class ScheduleFragment extends Fragment {
     public interface RecyclerViewClickListener{
         void onClick(View view, int position);
     }
+
 }

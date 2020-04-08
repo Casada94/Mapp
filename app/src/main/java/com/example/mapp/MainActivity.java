@@ -119,8 +119,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         readPointsDB();
 
         final PanoViewModel panoViewModel = new ViewModelProvider(this).get(PanoViewModel.class);
-
-
+        final HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
         /* Checks if this activity was launched from a previous activity. for login status purposes**/
         Intent loginStatus = getIntent();
@@ -133,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setSupportActionBar(myToolBar);
         myToolBar.setTitleTextColor(Color.parseColor("#FFFFFF"));
         myToolBar.setTitle("Mapp");
+
 
         /* connects the drawer layout XML to the code**/
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -213,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 (SearchView) menu.findItem(R.id.search_button).getActionView();
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
+
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override

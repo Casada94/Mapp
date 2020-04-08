@@ -1,10 +1,7 @@
 package com.example.mapp;
 
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -14,13 +11,10 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -32,10 +26,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
@@ -48,22 +41,15 @@ import com.example.mapp.entityObjects.Report;
 import com.example.mapp.entityObjects.point;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -75,9 +61,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Scanner;
-import java.util.prefs.PreferenceChangeEvent;
-import java.util.prefs.PreferenceChangeListener;
 
 public class HomeFragment extends Fragment {
 
@@ -104,6 +87,8 @@ public class HomeFragment extends Fragment {
 
     private Polygon currentBuilding;
     private View previousView;
+    private HomeViewModel homeViewModel;
+
 
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -116,6 +101,16 @@ public class HomeFragment extends Fragment {
             /* Initializations of UI elements */
             final View root = inflater.inflate(R.layout.fragment_home, container, false);
             final PanoViewModel panoViewModel = new ViewModelProvider(requireActivity()).get(PanoViewModel.class);
+            homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
+            homeViewModel.incrementCount();
+
+            /* Hides search button in action bar */
+            if(homeViewModel.getCount().getValue() > 1){
+                Toolbar toolbar = ((MainActivity) Objects.requireNonNull(getActivity())).findViewById(R.id.toolBar);
+                MenuItem menuItem = toolbar.getMenu().getItem(0);
+                menuItem.setVisible(true);
+            }
+
 
             buildingDetails = root.findViewById(R.id.buildingDetails);
             buildingDetails.setContentPadding(40, 20, 40, 20);
@@ -189,11 +184,8 @@ public class HomeFragment extends Fragment {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
                 }
             });
-
-
 
 
             /* Sets up the map */
@@ -473,7 +465,6 @@ public class HomeFragment extends Fragment {
                     System.out.println((-f[2] / f[0] + event.getX() / f[0]) + ", " + (-f[5] / f[0] + event.getY() / f[0]));
                     view.setImageMatrix(matrix);
 
-
                     return true;
                 }
 
@@ -493,8 +484,10 @@ public class HomeFragment extends Fragment {
             previousView = root;
             return root;
         }
+
         return previousView;
     }
+
 
     public Bitmap drawRoute(Bitmap routeMap, float[] points){
         Canvas canvas = new Canvas(routeMap);

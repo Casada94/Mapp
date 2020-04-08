@@ -1,43 +1,43 @@
 package com.example.mapp;
 
 
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import androidx.annotation.NonNull;
+
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewModelProviders;
+
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firestore.v1.WriteResult;
 
-import org.w3c.dom.Text;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 public class LoginFragment extends Fragment {
@@ -49,6 +49,7 @@ public class LoginFragment extends Fragment {
     private TextView forgotPass;
     private static String TAG= "EmailPassword";
 
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -59,6 +60,11 @@ public class LoginFragment extends Fragment {
         password = root.findViewById(R.id.password);
         login = root.findViewById(R.id.loginBtn);
         forgotPass = root.findViewById(R.id.forgotPassClickTxt);
+
+        /* Hides search button in action bar */
+        Toolbar toolbar = ((MainActivity) getActivity()).findViewById(R.id.toolBar);
+        MenuItem menuItem = toolbar.getMenu().getItem(0);
+        menuItem.setVisible(false);
 
         final FirebaseAuth mAuth = FirebaseAuth.getInstance();
         final FirebaseFirestore database = FirebaseFirestore.getInstance();
@@ -138,7 +144,6 @@ public class LoginFragment extends Fragment {
 
         return root;
     }
-
 
 
     /* Checks the user input against DB login info */
