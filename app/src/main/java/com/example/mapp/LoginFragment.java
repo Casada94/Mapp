@@ -1,12 +1,14 @@
 package com.example.mapp;
 
 
-
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 
 import android.view.MenuItem;
@@ -16,7 +18,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,12 +32,14 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.tasks.OnCompleteListener;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -87,8 +92,72 @@ public class LoginFragment extends Fragment {
                 }
                 username.clearComposingText();
                 password.clearComposingText();
-                NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
-                navController.navigate(R.id.action_login_to_forgotPassword);
+                //NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
+                //navController.navigate(R.id.action_login_to_forgotPassword);
+
+                LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+                View popupView = layoutInflater.inflate(R.layout.fragment_forgotpassword, null);
+                int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+                int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                final PopupWindow popupWindow = new PopupWindow(popupView, width, height, true);
+                popupWindow.setTouchable(true);
+                popupWindow.setElevation(40);
+                popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, -600);
+
+                SharedPreferences prefs = getContext().getSharedPreferences("emailForForgotPassword", getContext().MODE_PRIVATE);
+                String loadedString = prefs.getString("key", null);
+                EditText email = null;
+                email = (EditText) popupView.findViewById(R.id.emailForPw);
+                email.setText(loadedString);
+
+                final EditText finalEmail = email;
+
+                ((Button) popupView.findViewById(R.id.confirmBtn)).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final String user = finalEmail.getText().toString();
+                        if (Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user) && (user.contains("@csulb.edu") || user.contains("@student.csulb.edu"))) {
+                            finalEmail.clearComposingText();
+                            finalEmail.onEditorAction(EditorInfo.IME_ACTION_DONE);
+                            try {
+                                mAuth.fetchSignInMethodsForEmail(user).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
+                                                boolean isNewUser = task.getResult().getSignInMethods().isEmpty();
+
+                                                if (isNewUser) {
+                                                    Log.e("TAG", "Is New User!");
+                                                    Toast.makeText(getContext(), "Account does not exist", Toast.LENGTH_LONG).show();
+                                                } else {
+                                                    Log.e("TAG", "Is existing User!");
+                                                    mAuth.sendPasswordResetEmail(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if (task.isSuccessful()) {
+                                                                Log.d(TAG, "Email sent.");
+                                                                Toast.makeText(getContext(), "Email sent!", Toast.LENGTH_SHORT).show();
+                                                                //NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
+                                                                //navController.navigate(R.id.action_forgotPassword_to_forgotPasswordEmail);
+                                                                popupWindow.dismiss();
+                                                            } else {
+                                                                Log.d(TAG, "Sending email failed.");
+                                                                Toast.makeText(getContext(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }
+                                                    });
+                                                }
+
+                                            }
+                                        });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "Username incorrect format", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+
             }
         });
 
