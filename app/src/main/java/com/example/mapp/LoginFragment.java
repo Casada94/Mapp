@@ -28,6 +28,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,6 +36,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firestore.v1.WriteResult;
@@ -114,20 +116,33 @@ public class LoginFragment extends Fragment {
                             finalEmail.clearComposingText();
                             finalEmail.onEditorAction(EditorInfo.IME_ACTION_DONE);
                             try {
-                                mAuth.sendPasswordResetEmail(user)
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                mAuth.fetchSignInMethodsForEmail(user).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
                                             @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()) {
-                                                    Log.d(TAG, "Email sent.");
-                                                    Toast.makeText(getContext(), "Email sent!", Toast.LENGTH_SHORT).show();
-                                                    //NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
-                                                    //navController.navigate(R.id.action_forgotPassword_to_forgotPasswordEmail);
-                                                    popupWindow.dismiss();
+                                            public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
+                                                boolean isNewUser = task.getResult().getSignInMethods().isEmpty();
+
+                                                if (isNewUser) {
+                                                    Log.e("TAG", "Is New User!");
+                                                    Toast.makeText(getContext(), "Account does not exist", Toast.LENGTH_LONG).show();
                                                 } else {
-                                                    Log.d(TAG, "Sending email failed.");
-                                                    Toast.makeText(getContext(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
+                                                    Log.e("TAG", "Is existing User!");
+                                                    mAuth.sendPasswordResetEmail(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if (task.isSuccessful()) {
+                                                                Log.d(TAG, "Email sent.");
+                                                                Toast.makeText(getContext(), "Email sent!", Toast.LENGTH_SHORT).show();
+                                                                //NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
+                                                                //navController.navigate(R.id.action_forgotPassword_to_forgotPasswordEmail);
+                                                                popupWindow.dismiss();
+                                                            } else {
+                                                                Log.d(TAG, "Sending email failed.");
+                                                                Toast.makeText(getContext(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }
+                                                    });
                                                 }
+
                                             }
                                         });
                             } catch (Exception e) {
