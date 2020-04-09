@@ -31,7 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -111,7 +110,6 @@ public class HomeFragment extends Fragment {
                 menuItem.setVisible(true);
             }
 
-
             buildingDetails = root.findViewById(R.id.buildingDetails);
             buildingDetails.setContentPadding(40, 20, 40, 20);
             buildingName = root.findViewById(R.id.bName);
@@ -126,7 +124,6 @@ public class HomeFragment extends Fragment {
 
             other = root.findViewById(R.id.otherReason);
             Button submit = root.findViewById(R.id.submitReport);
-
 
             //TEMP JUST FOR DB FILLING
             Button dbFiller = root.findViewById(R.id.dbLoader);
@@ -170,7 +167,6 @@ public class HomeFragment extends Fragment {
                                 data.put("coord4x", tokens[0][7]);
                                 data.put("coord4y", tokens[0][8]);
 
-
                                 db.collection("polygons").document(tokens[0][0].toLowerCase()).set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
@@ -187,7 +183,6 @@ public class HomeFragment extends Fragment {
                 }
             });
 
-
             /* Sets up the map */
             map = root.findViewById(R.id.map);
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -198,7 +193,6 @@ public class HomeFragment extends Fragment {
 
             map.setImageBitmap(mapMap);
 
-
             /* Logic for deciding how to initialize the bounds of buildings */
             if (upToDate("lastUpdateBounds")) {
                 setUpOutlines();
@@ -206,9 +200,7 @@ public class HomeFragment extends Fragment {
                 upDateOutlines();
             }
 
-
             final ArrayList<point> filtered = readData();
-
 
             final float y[] = new float[2];
 
@@ -235,7 +227,6 @@ public class HomeFragment extends Fragment {
 
                         default:
                     }
-
                     return true;
                 }
             });

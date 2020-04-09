@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,6 +35,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,10 @@ public class ScheduleFragment extends Fragment {
     private MyAdapter myAdapter;
     private ArrayList<Classes> schedule = new ArrayList<>();
     private RecyclerView currSchedule;
+
+    private MyAdapter myAdapter2;
+    private ArrayList<Classes> tdaySchedule = new ArrayList<>();
+    private RecyclerView todaySchedule;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -90,10 +96,24 @@ public class ScheduleFragment extends Fragment {
         currSchedule.setAdapter(myAdapter);
 
 
+        /* Set up for the list view of Todays classes in user schedule */
+        todaySchedule = root.findViewById(R.id.todaySchedule);
+        todaySchedule.setHasFixedSize(true);
+        LinearLayoutManager layoutManager2 = new LinearLayoutManager(root.getContext());
+        todaySchedule.setLayoutManager(layoutManager2);
+        myAdapter2 = new MyAdapter(getContext(), tdaySchedule);
+        todaySchedule.setAdapter(myAdapter2);
+
+
+
         /* Get Users Schedule */
         final FirebaseUser currUser = FirebaseAuth.getInstance().getCurrentUser();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference collRef = db.collection("users");
+        final Calendar calendar = Calendar.getInstance();
+        int day= 0;
+        final TextView none = root.findViewById(R.id.none);
+
         db.collection("users").document(currUser.getEmail()).collection("schedule").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -115,8 +135,17 @@ public class ScheduleFragment extends Fragment {
                                 PM = true;
 
                             schedule.add(new Classes(tempName, templocation, tempDays,tempTime, PM));
+
+                            String weekDay = Day(calendar.get(Calendar.DAY_OF_WEEK));
+
+                            if(tempDays.contains(weekDay)){
+                                none.setVisibility(View.INVISIBLE);
+                                tdaySchedule.add(new Classes(tempName, templocation, tempDays,tempTime, PM));
+                            }
+
                         }
                         myAdapter.notifyDataSetChanged();
+                        myAdapter2.notifyDataSetChanged();
                     }
                 }
             }
@@ -295,6 +324,35 @@ public class ScheduleFragment extends Fragment {
 
     public interface RecyclerViewClickListener{
         void onClick(View view, int position);
+    }
+
+    public String Day(int a){
+        String weekDay;
+
+        switch(a){
+            case 2:
+                weekDay = "M";
+                break;
+            case 3:
+                weekDay = "T";
+                break;
+            case 4:
+                weekDay = "W";
+                break;
+            case 5:
+                weekDay = "Th";
+                break;
+            case 6:
+                weekDay = "F";
+                break;
+            case 7:
+                weekDay = "S";
+                break;
+            default:
+                weekDay = "Sun";
+        }
+
+        return weekDay;
     }
 
 }

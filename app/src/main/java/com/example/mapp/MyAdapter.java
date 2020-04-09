@@ -47,7 +47,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             isPm = v.findViewById(R.id.isPm);
             remove = v.findViewById(R.id.remove);
             mListener = listener;
-            remove.setOnClickListener(this);
+            if(listener == null){
+                remove.setVisibility(View.INVISIBLE);
+            }else{
+                remove.setOnClickListener(this);
+            }
         }
 
         @Override
@@ -83,6 +87,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         this.context = context;
         this.schedule = schedule;
         clickListener = listener;
+    }
+
+    /* Provide a suitable constructor (depends on the kind of dataset)*/
+    public MyAdapter(Context context, ArrayList<Classes> schedule) {
+        this.context = context;
+        this.schedule = schedule;
     }
 
     /* Create new views (invoked by the layout manager)*/
