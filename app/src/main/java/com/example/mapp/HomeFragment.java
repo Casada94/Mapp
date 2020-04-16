@@ -280,7 +280,8 @@ public class HomeFragment extends Fragment {
                     /* Ken please add the functionality to write to the database */
                     Report r = new Report(reason, typedReason, currBuilding);
                     Gson gson = new Gson();
-                    FirebaseFirestore.getInstance().collection("report").add(r);
+                    FirebaseFirestore.getInstance().collection("activeReports").add(r);
+//                    FirebaseFirestore.getInstance().collection("report").add(r);
 
                     reasons.setSelection(0);
                     other.clearComposingText();

@@ -185,7 +185,7 @@ public class ScheduleFragment extends Fragment {
 
         /* Connects editable fields with java code */
         final EditText className = root.findViewById(R.id.className);
-        ArrayList<point> points = new ArrayList<point>();
+        HashMap<String, point> points = new HashMap<>();
         points = MainActivity.readData(getContext());
         final String[] buildings = new String[points.size()];
         for(int i = 0; i < buildings.length; i++)

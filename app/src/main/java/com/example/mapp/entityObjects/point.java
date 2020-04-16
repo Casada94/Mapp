@@ -1,12 +1,14 @@
 package com.example.mapp.entityObjects;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class point{
-    private int index;
     private double x;
     private double y;
-    private List<Integer> neighbors;
+    private List<String> neighbors;
     private String name;
 
     public point()
@@ -18,16 +20,22 @@ public class point{
         this.name = name;
         this.x = 0;
         this.y = 0;
-        neighbors = new ArrayList<Integer>();
+        neighbors = new ArrayList<String>();
     }
     public point(String name, double x, double y)
     {
         this.name = name;
         this.x = x;
         this.y = y;
-        neighbors = new ArrayList<Integer>();
+        neighbors = new ArrayList<String>();
     }
-
+    public point(String name, double x, double y, ArrayList<String> neighbors)
+    {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+        this.neighbors = neighbors;
+    }
 
 
     public String getName()
@@ -56,24 +64,24 @@ public class point{
     }
     public void addNeighbor(point p)
     {
-        neighbors.add(p.getIndex());
+        neighbors.add(p.getName());
     }
-    public List<Integer> getNeighbors()
+    public List<String> getNeighbors()
     {
         return neighbors;
     }
-    public void setNeighbors(ArrayList<Integer> neighbors)
+    public void setNeighbors(ArrayList<String> neighbors)
     {
         this.neighbors = neighbors;
     }
-    public void setIndex(int i)
-    {
-        this.index = i;
-    }
-    public int getIndex()
-    {
-        return this.index;
-    }
+//    public void setIndex(int i)
+//    {
+//        this.index = i;
+//    }
+//    public int getIndex()
+//    {
+//        return this.index;
+//    }
     public double distance(point p)
     {
         return Math.sqrt(Math.pow((this.x - p.getX()),2) + Math.pow((this.y - p.getY()), 2));
@@ -85,6 +93,7 @@ public class point{
         {
             neighborString += neighbors.get(i) + ",";
         }
-        return name + ";" + x + "," + y + ";" + neighborString;
+        return name + " (" + x + "," + y + "): " + neighborString;
     }
+
 }
