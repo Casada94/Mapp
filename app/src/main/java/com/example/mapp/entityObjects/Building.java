@@ -22,4 +22,9 @@ public class Building extends point{
 	{
 		this.availability = availability;
 	}
+
+	@Override
+	public String toString() {
+		return super.toString() + availability;
+	}
 }

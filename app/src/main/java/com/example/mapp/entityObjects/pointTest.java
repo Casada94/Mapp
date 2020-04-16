@@ -11,17 +11,25 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+
 public class pointTest{
-    private static ArrayList<point> points;
+    private static HashMap<String, point> points;
     static Scanner in = new Scanner(System.in);
 
     public static void main(String[]args) throws NumberFormatException, IOException
     {
-        readPoints();
+        points = new HashMap<>();
+        updatePoints();
+        writePoints();
+        System.exit(0);
+        readPointsA();
         int option = 1;
         while(option != 0)
         {
@@ -57,66 +65,81 @@ public class pointTest{
         while(stop != 0)
         {
             System.out.println("Select neighbor(s): ");
-            for(int i = 0; i < points.size(); i++)
+            for(String k : points.keySet())
             {
-                System.out.println("(" + (i+1) + ") " + points.get(i).getName());
+                System.out.println("(" + (k) + ") ");
             }
             System.out.println("0 to exit");
             stop = in.nextInt();
-            if(stop != 0 && !p.getNeighbors().contains(points.get(stop-1)))
+            if(stop != 0 && !p.getNeighbors().contains(String.valueOf(stop)))
             {
-                p.addNeighbor(points.get(stop-1));
-                points.get(stop-1).addNeighbor(p);
+                p.addNeighbor(points.get(String.valueOf(stop)));
+                points.get(String.valueOf(stop)).addNeighbor(p);
             }
         }
-        p.setIndex(points.size());
-        points.add(p);
+//        p.setIndex(points.size());
+        points.put(p.getName(), p);
         System.out.println("point added!");
     }
 
     public static void viewPoints()
     {
-        for(int i = 0; i < points.size(); i++)
+        Set<String> keys = points.keySet();
+        int i = 0;
+        for(String key : keys)
         {
-            point p = points.get(i);
-            System.out.println("[" + (i+1) + "] " + p.getName() + " " + p.getX() + "," + p.getY());
+            point p = points.get(key);
+            System.out.println("(" + i++ + ") [" + p.getName() + "] " + p.getX() + "," + p.getY());
         }
     }
 
     public static void FindPath()
     {
+        int n = points.keySet().size();
+        List<point> pointsA = new ArrayList<point>(n);
+        for (String x : points.keySet())
+            pointsA.add(points.get(x));
         System.out.println("Select Starting point: ");
         viewPoints();
         int sel = in.nextInt();
-        point start = points.get(sel -1);
+        point start = pointsA.get(sel);
         System.out.println("Select destination: ");
         viewPoints();
         sel = in.nextInt();
-        point dest = points.get(sel - 1);
+        point dest = pointsA.get(sel);
         ArrayList<point> neighbors = new ArrayList<point>();
         neighbors.add(start);
-        point[] parent = new point[points.size()];
-        double[] distance = new double[points.size()];
-        for(int i = 0; i < distance.length; i++)
+        HashMap<String, point> parent = new HashMap<String, point>();
+        HashMap<String, Double> distance = new HashMap<String, Double>();
+        Set<String> keys = points.keySet();
+        for(String key : keys)
         {
-            distance[i] = Double.MAX_VALUE;
+            distance.put(key, Double.MAX_VALUE);
+            parent.put(key, null);
         }
-        distance[start.getIndex()] = 0;
+        distance.put(start.getName(), 0.0);
+        System.out.println("Distance: " );
+        for(String x : distance.keySet())
+        {
+            System.out.println(x + " " + distance.get(x));
+        }
         while(neighbors.size() > 0)
         {
             point curr = neighbors.get(0);
             neighbors.remove(curr);
-            for(int p : curr.getNeighbors())
+            for(String p : curr.getNeighbors())
             {
-                if(parent[p] == null && points.get(p) != start)
+                if(parent.get(p) == null && points.get(p) != start)
                 {
                     neighbors.add(points.get(p));
                 }
-                double newDistance = curr.distance(points.get(p)) + distance[curr.getIndex()];
-                if(newDistance < distance[p])
+                double newDistance = Double.MAX_VALUE;
+                if(points.get(p) != null && distance.get(curr.getName()) != null)
+                    newDistance = curr.distance(points.get(p)) + distance.get(curr.getName());
+                if(newDistance < distance.get(p))
                 {
-                    distance[p] = newDistance;
-                    parent[p] = curr;
+                    distance.put(p, newDistance);
+                    parent.put(p, curr);
                 }
             }
         }
@@ -125,7 +148,7 @@ public class pointTest{
         while(dest != start)
         {
             path.add(0, dest);
-            dest = parent[dest.getIndex()];
+            dest = parent.get(dest.getName());
         }
         path.add(0, start);
         for(int i = 0; i < path.size()-1; i++)
@@ -145,7 +168,6 @@ public class pointTest{
         }
         System.out.println("Destination reached!");
     }
-
     public static void readPoints() throws NumberFormatException, IOException
     {
         File file = new File("app\\src\\main\\java\\com\\example\\mapp\\entityObjects\\points.txt");
@@ -153,9 +175,28 @@ public class pointTest{
         FileReader reader = new FileReader(file);
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        points = gson.fromJson(reader, new TypeToken<List<point>>(){}.getType());
+        ArrayList<point> pointsA = gson.fromJson(reader, new TypeToken<HashMap<String, point>>(){}.getType());
         if(points == null)
-            points = new ArrayList<point>();
+            points = new HashMap<String, point>();
+        for(point p : pointsA)
+            points.put(p.getName(), p);
+        if(points == null)
+            points = new HashMap<String, point>();
+    }
+    public static void readPointsA() throws NumberFormatException, IOException
+    {
+        File file = new File("app\\src\\main\\java\\com\\example\\mapp\\entityObjects\\points.txt");
+        file.createNewFile();
+        FileReader reader = new FileReader(file);
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        ArrayList<point> pointsA = gson.fromJson(reader, new TypeToken<List<point>>(){}.getType());
+        if(points == null)
+            points = new HashMap<String, point>();
+        for(point p : pointsA)
+            points.put(p.getName(), p);
+        if(points == null)
+            points = new HashMap<String, point>();
     }
 
     public static void writePoints() throws IOException {
@@ -167,6 +208,34 @@ public class pointTest{
         writer.write(gson.toJson(points));
         writer.flush();
         writer.close();
+    }
+
+    public static void updatePoints() throws IOException{
+        File file = new File("app\\src\\main\\java\\com\\example\\mapp\\entityObjects\\points.txt");
+        FileReader reader = new FileReader(file);
+        BufferedReader br = new BufferedReader(reader);
+        String st;
+        while((st = br.readLine()) != null)
+        {
+            String [] txt = st.split("//");
+            String name = txt[0];
+            Double x = 0.0;
+            Double y = 0.0;
+            ArrayList<String> neighbors = new ArrayList<>();
+            if(txt.length > 1)
+            {
+                x = Double.valueOf(txt[1]);
+                y = Double.valueOf(txt[2]);
+                String [] N = txt[3].split(";");
+                for(String n : N)
+                {
+                    n = n.replaceAll("\\s","");
+                    neighbors.add(n);
+                }
+            }
+            point p = new point(name, x, y, neighbors);
+            points.put(name, p);
+        }
 
     }
 }

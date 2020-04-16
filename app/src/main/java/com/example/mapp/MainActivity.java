@@ -37,9 +37,13 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.util.Util;
+import com.example.mapp.entityObjects.Building;
+import com.example.mapp.entityObjects.Utility;
 import com.example.mapp.entityObjects.point;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -60,8 +64,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -115,9 +121,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
+//        KENupdateDB();
+//        Log.d("Ken", " success!");
         //Reads points from the database and stores it in the SharedPreference
-        readPointsDB();
-
+//        readPointsDB();
+//        writePointsDB();
         final PanoViewModel panoViewModel = new ViewModelProvider(this).get(PanoViewModel.class);
         final HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
@@ -293,29 +301,50 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    //saves to SharedPreferences
     public void savePoint(point p)
     {
-        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences mPrefs = getSharedPreferences("points", 0);
+//        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting();
         Gson gson = builder.create();
-        prefsEditor.putString(p.getName(), gson.toJson(p));
+        String docName = "";
+        if(p.getClass() == Building.class)
+            docName += "b-";
+        else if(p.getClass() == Utility.class)
+            docName += "u-";
+        else
+            docName += "p-";
+        docName += p.getName();
+        prefsEditor.putString(docName, gson.toJson(p));
         prefsEditor.commit();
+//        Log.d("ken", "SavePoint " + p.toString());
     }
 
     //Reads points from SharedPreferences
-    public static ArrayList<point> readData(Context con)
+    public static HashMap<String, point> readData(Context con)
     {
-        ArrayList<point> points = new ArrayList<>();
-        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(con);
+        HashMap<String, point> points = new HashMap<>();
+        SharedPreferences mPrefs = con.getSharedPreferences("points", 0);
+//        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(con);
         Gson gson = new Gson();
         Map<String, ?> keys = mPrefs.getAll();
+        Log.d("ken", "points in sp: " + keys.size());
         for(String name : keys.keySet())
         {
             String json = keys.get(name).toString();
-            point p = gson.fromJson(json, new TypeToken<point>(){}.getType());
-            points.add(p);
+            point p = null;
+            switch(name.split("-")[0]){
+                case "b": p = gson.fromJson(json, new TypeToken<Building>(){}.getType());
+                   break;
+                case "u" : p = gson.fromJson(json, new TypeToken<Utility>(){}.getType());
+                    break;
+                default:
+                    p = gson.fromJson(json, new TypeToken<point>(){}.getType());
+            }
+            points.put(p.getName(), p);
         }
         return points;
     }
@@ -323,17 +352,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Writes points from SharedPreferences to Database
     public void writePointsDB()
     {
-        ArrayList<point> points = readData(getApplicationContext());
-        Gson gson = new Gson();
-        for(point p : points) {
-            FirebaseFirestore.getInstance().collection("points").document(p.getName()).set(p);
+        SharedPreferences pref = getSharedPreferences("points", 0);
+        Log.d("ken", "pref size : " + pref.getAll().size());
+        HashMap<String, point> points = readData(this);
+        Log.d("ken", "maybe? " + points.size());
+        for(String p : points.keySet()) {
+            String docName = "";
+            if(points.get(p).getClass() == Building.class)
+            {
+                docName += "b-";
+            }else if(points.get(p).getClass() == Utility.class)
+                docName += "u-";
+            else
+                docName += "p-";
+            docName += p;
+//            Log.d("ken", "writepoint at " + docName);
+            FirebaseFirestore.getInstance().collection("points2").document(docName).set(points.get(p));
         }
     }
 
     //Reads points from Database and stores in SharedPreferences
     public void readPointsDB()
     {
-        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences mPrefs = getSharedPreferences("points", 0);
+//        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
         prefsEditor.clear().commit();
         CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("points");
@@ -343,7 +385,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if(task.isSuccessful()){
                     for(QueryDocumentSnapshot document : task.getResult())
                     {
-                        point p = document.toObject(point.class);
+                        String type = document.getId().split("-")[0];
+                        point p = null;
+                        switch(type){
+                            case "b": p = document.toObject(Building.class);
+                        break;
+                            case "u": p = document.toObject(Utility.class);
+                            break;
+                            default: p = document.toObject(point.class);
+                        }
                         savePoint(p);
                     }
                 } else {
@@ -353,5 +403,40 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
+    public void KENupdateDB()
+    {
+        SharedPreferences prefs = getSharedPreferences("points", 0);
+        SharedPreferences.Editor prefsEditor = prefs.edit();
+        prefsEditor.clear().commit();
+        CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("test");
+        final String[] json = new String[1];
+        pointsDB.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()){
+                    for(QueryDocumentSnapshot document : task.getResult())
+                    {
+                        Gson gson = new Gson();
+                        HashMap<String, point> points = gson.fromJson((String) document.get("test"), new TypeToken<HashMap<String, point>>(){}.getType());
+                        Log.d("ken", Integer.toString(points.keySet().size()));
+                        for(String p : points.keySet())
+                        {
+                            savePoint(points.get(p));
+                        }
+                    }
+                } else {
+                    Log.d("ken", "Error getting documents: ", task.getException());
+                }
+            }
+        });
 
+        Log.d("ken1", "done");
+//        Gson gson = new Gson();
+//        HashMap<String, point> points = gson.fromJson(json[0], new TypeToken<HashMap<String, point>>(){}.getType());
+//        Log.d("Ken", "wait");
+//        for(String p : points.keySet())
+//        {
+//            savePoint(points.get(p));
+//        }
+    }
 }
