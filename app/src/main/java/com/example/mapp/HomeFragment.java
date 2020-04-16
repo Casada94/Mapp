@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -82,7 +83,7 @@ public class HomeFragment extends Fragment {
 
     private CardView reportCard;
     private Spinner reasons;
-    private TextView other;
+    private EditText other;
 
     private Polygon currentBuilding;
     private View previousView;

@@ -81,7 +81,7 @@
                 app:layout_constraintTop_toBottomOf="@id/reasonLabel"
                 android:layout_marginStart="6dp"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/otherReason"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

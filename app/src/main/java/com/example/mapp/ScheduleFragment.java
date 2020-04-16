@@ -22,6 +22,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -39,6 +42,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ScheduleFragment extends Fragment {
 
@@ -50,11 +54,16 @@ public class ScheduleFragment extends Fragment {
     private ArrayList<Classes> tdaySchedule = new ArrayList<>();
     private RecyclerView todaySchedule;
 
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private HomeViewModel homeViewModel;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_schedule, container, false);
+
+        homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
 
         /* Hides search button in action bar */
         Toolbar toolbar = ((MainActivity) getActivity()).findViewById(R.id.toolBar);
@@ -104,11 +113,31 @@ public class ScheduleFragment extends Fragment {
         myAdapter2 = new MyAdapter(getContext(), tdaySchedule);
         todaySchedule.setAdapter(myAdapter2);
 
+        /*  TESTING GROUND
+        Button go = root.findViewById(R.id.todayDirections);
+        go.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                final ArrayList<String> destinations = new ArrayList<>();
+                ArrayList<Classes> schedule = myAdapter2.getClasses();
+
+                for(int i = 0; i < myAdapter2.getItemCount(); i++){
+                     destinations.add("b-" + schedule.get(i).getLocation());
+                }
+
+                homeViewModel.setPath(destinations);
+
+                NavController navController = Navigation.findNavController(Objects.requireNonNull(getActivity()).findViewById(R.id.nav_host_fragment));
+                navController.navigate(R.id.nav_home);
+            }
+        });*/
+
 
 
         /* Get Users Schedule */
         final FirebaseUser currUser = FirebaseAuth.getInstance().getCurrentUser();
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         CollectionReference collRef = db.collection("users");
         final Calendar calendar = Calendar.getInstance();
         int day= 0;

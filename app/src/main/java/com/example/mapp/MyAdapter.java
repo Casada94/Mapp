@@ -128,4 +128,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public int getItemCount() {
         return schedule.size();
     }
+
+    public ArrayList<Classes> getClasses(){ return schedule;}
 }
