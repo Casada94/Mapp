@@ -591,7 +591,8 @@ public class HomeFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
                     DocumentSnapshot documentSnapshot = task.getResult();
-                    buildingName.setText(documentSnapshot.get("name").toString());
+                    String finalBuildingName = documentSnapshot.get("name").toString() + " (" + documentSnapshot.get("abbr").toString() + ")";
+                    buildingName.setText(finalBuildingName);
                     List<Double> temp = (List<Double>) documentSnapshot.get("Hours");
                     String avail = temp.get(0).intValue() + "am - " + (temp.get(1).intValue())%12 + "pm";
                     hours.setText(avail);
