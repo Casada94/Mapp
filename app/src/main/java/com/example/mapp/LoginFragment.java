@@ -2,9 +2,15 @@ package com.example.mapp;
 
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -47,6 +54,36 @@ import java.util.regex.Pattern;
 
 public class LoginFragment extends Fragment {
 
+    //class to create dialog for forgot password feature
+    public class ForgotPasswordDialog extends Dialog implements
+            android.view.View.OnClickListener {
+
+        public Activity c;
+        public Dialog d;
+        public Button ok;
+
+        public ForgotPasswordDialog(Activity a) {
+            super(a);
+            // TODO Auto-generated constructor stub
+            this.c = a;
+        }
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            setContentView(R.layout.custom_dialog);
+            ok = (Button) findViewById(R.id.btn_ok);
+            ok.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            dismiss();
+        }
+
+    }
 
     private EditText username;
     private EditText password;
@@ -75,89 +112,45 @@ public class LoginFragment extends Fragment {
         final FirebaseFirestore database = FirebaseFirestore.getInstance();
         final DocumentReference users_emails = database.document("users/users_emails");
 
-        /* Sets the click functionality of the text*/
+        /* Sets the click functionality of the forgot password text*/
         forgotPass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
-                final String userPasser = username.getText().toString();
-                SharedPreferences.Editor editor = getContext().getSharedPreferences("emailForForgotPassword",  getContext().MODE_PRIVATE).edit();
-                if(Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", userPasser) && (userPasser.contains("@csulb.edu" )|| userPasser.contains("@student.csulb.edu"))){
-                    editor.putString("key", userPasser);
-                    editor.apply();
-                }
-                else {
-                    editor.putString("key", "");
-                    editor.apply();
-                }
-                username.clearComposingText();
-                password.clearComposingText();
-                //NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
-                //navController.navigate(R.id.action_login_to_forgotPassword);
-
-                LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-                View popupView = layoutInflater.inflate(R.layout.fragment_forgotpassword, null);
-                int width = LinearLayout.LayoutParams.WRAP_CONTENT;
-                int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-                final PopupWindow popupWindow = new PopupWindow(popupView, width, height, true);
-                popupWindow.setTouchable(true);
-                popupWindow.setElevation(40);
-                popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, -600);
-
-                SharedPreferences prefs = getContext().getSharedPreferences("emailForForgotPassword", getContext().MODE_PRIVATE);
-                String loadedString = prefs.getString("key", null);
-                EditText email = null;
-                email = (EditText) popupView.findViewById(R.id.emailForPw);
-                email.setText(loadedString);
-
-                final EditText finalEmail = email;
-
-                ((Button) popupView.findViewById(R.id.confirmBtn)).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final String user = finalEmail.getText().toString();
-                        if (Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user) && (user.contains("@csulb.edu") || user.contains("@student.csulb.edu"))) {
-                            finalEmail.clearComposingText();
-                            finalEmail.onEditorAction(EditorInfo.IME_ACTION_DONE);
-                            try {
-                                mAuth.fetchSignInMethodsForEmail(user).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
-                                                boolean isNewUser = task.getResult().getSignInMethods().isEmpty();
-
-                                                if (isNewUser) {
-                                                    Log.e("TAG", "Is New User!");
-                                                    Toast.makeText(getContext(), "Account does not exist", Toast.LENGTH_LONG).show();
-                                                } else {
-                                                    Log.e("TAG", "Is existing User!");
-                                                    mAuth.sendPasswordResetEmail(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            if (task.isSuccessful()) {
-                                                                Log.d(TAG, "Email sent.");
-                                                                Toast.makeText(getContext(), "Email sent!", Toast.LENGTH_SHORT).show();
-                                                                //NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
-                                                                //navController.navigate(R.id.action_forgotPassword_to_forgotPasswordEmail);
-                                                                popupWindow.dismiss();
-                                                            } else {
-                                                                Log.d(TAG, "Sending email failed.");
-                                                                Toast.makeText(getContext(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
-                                                            }
-                                                        }
-                                                    });
-                                                }
-
+                final String user = username.getText().toString();
+                if (Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user) && (user.contains("@csulb.edu") || user.contains("@student.csulb.edu"))) {
+                    try {
+                        mAuth.fetchSignInMethodsForEmail(user).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
+                                boolean isNewUser = task.getResult().getSignInMethods().isEmpty();
+                                if (isNewUser) {
+                                    Log.e("TAG", "Is New User!");
+                                    Toast.makeText(getContext(), "Account does not exist", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Log.e("TAG", "Is existing User!");
+                                    mAuth.sendPasswordResetEmail(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Log.d(TAG, "Email sent.");
+                                                ForgotPasswordDialog cdd=new ForgotPasswordDialog(getActivity());
+                                                cdd.show();
+                                            } else {
+                                                Log.d(TAG, "Sending email failed.");
+                                                Toast.makeText(getContext(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
                                             }
-                                        });
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                                        }
+                                    });
+                                }
                             }
-                        } else {
-                            Toast.makeText(getContext(), "Username incorrect format", Toast.LENGTH_LONG).show();
-                        }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                });
-
+                } else {
+                    Toast.makeText(getContext(), "Please enter correct user in the email field", Toast.LENGTH_LONG).show();
+                }
             }
         });
 

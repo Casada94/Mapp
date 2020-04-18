@@ -20,42 +20,7 @@
         android:name="com.example.mapp.LoginFragment"
         android:label="Login"
         tools:layout="@layout/fragment_login">
-        <action
-            android:id="@+id/action_login_to_forgotPassword"
-            app:destination="@+id/forgotPassword_frag"
-            app:launchSingleTop="true"
-            app:popUpTo="@id/login_frag"
-            app:popUpToInclusive="false" />
     </fragment>
-
-    <fragment
-        android:id="@+id/forgotPassword_frag"
-        android:name="com.example.mapp.ForgotPasswordFragment"
-        android:label="Forget Password"
-        tools:layout="@layout/fragment_forgotpassword">
-
-        <action
-            android:id="@+id/action_forgotPassword_to_forgotPasswordEmail"
-            app:destination="@+id/forgotPasswordEmail_frag"
-            app:launchSingleTop="true"
-            app:popUpTo="@id/login_frag"
-            app:popUpToInclusive="false" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/forgotPasswordEmail_frag"
-        android:name="com.example.mapp.ForgotPasswordEmailFragment"
-        android:label="Forget Password Email"
-        tools:layout="@layout/fragment_forgotpasswordemail">
-
-        <action
-            android:id="@+id/action_forgotPasswordEmail_to_login"
-            app:destination="@+id/login_frag"
-            app:launchSingleTop="true"
-            app:popUpTo="@id/nav_home"
-            app:popUpToInclusive="false" />
-    </fragment>
-
 
 
     <fragment
