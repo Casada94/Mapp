@@ -10,7 +10,7 @@
         android:id="@+id/a"
         android:gravity="center"
         android:background="@color/colorPrimary"
-        android:src="@drawable/ic_launcherNoGreen"
+        android:src="@drawable/ic_launcher_nogreen"
         android:scaleType="fitCenter" />
 
     <TextView
