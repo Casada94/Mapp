@@ -16,7 +16,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Email sent to change password! Please check your inbox and junk/spam folders before making another request."
         android:id="@+id/text_dialog"
         android:layout_below="@+id/a"
         android:layout_marginTop="20dp"

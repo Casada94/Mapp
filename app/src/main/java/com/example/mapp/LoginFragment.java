@@ -54,37 +54,6 @@ import java.util.regex.Pattern;
 
 public class LoginFragment extends Fragment {
 
-    //class to create dialog for forgot password feature
-    public class ForgotPasswordDialog extends Dialog implements
-            android.view.View.OnClickListener {
-
-        public Activity c;
-        public Dialog d;
-        public Button ok;
-
-        public ForgotPasswordDialog(Activity a) {
-            super(a);
-            // TODO Auto-generated constructor stub
-            this.c = a;
-        }
-
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-            getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            setContentView(R.layout.custom_dialog);
-            ok = (Button) findViewById(R.id.btn_ok);
-            ok.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            dismiss();
-        }
-
-    }
-
     private EditText username;
     private EditText password;
     private Button login;
@@ -134,8 +103,8 @@ public class LoginFragment extends Fragment {
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
                                                 Log.d(TAG, "Email sent.");
-                                                ForgotPasswordDialog cdd=new ForgotPasswordDialog(getActivity());
-                                                cdd.show();
+                                                DialogVerify forgotPwDialog = new DialogVerify(getActivity(), "Email sent to change password! Please check your inbox and junk/spam folders before making another request.");
+                                                forgotPwDialog.show();
                                             } else {
                                                 Log.d(TAG, "Sending email failed.");
                                                 Toast.makeText(getContext(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
