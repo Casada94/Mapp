@@ -2,6 +2,7 @@ package com.example.mapp;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -81,7 +84,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-
+    private LocationManager locationManager;
+    private LocationListener locationListener;
     /* Set up for getting user location and user permissions */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -112,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+    @SuppressLint("ServiceCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -203,9 +208,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         checkLocationPermission();
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListenerGPS);
+        Log.d("ken", locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).toString());
 
     }
+    LocationListener locationListenerGPS = new LocationListener(){
+        public void onLocationChanged(Location location)
+        {
+            double latitude=location.getLatitude();
+            double longitude=location.getLongitude();
+            String msg="New Latitude: "+latitude + "New Longitude: "+longitude;
+            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
+            Log.d("ken", "long,lat : "+ location.getLongitude() + ", " + location.getLatitude());
+        }
 
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+    };
 
     /** sets up the options in the toolbar and the rest of its visual aspects**/
     @Override
@@ -285,7 +314,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         if (client == null) {
                             buildGoogleApiClient();
                         }
-                        //mMap.setMyLocationEnabled(true);
+//                        mMap.setMyLocationEnabled(true);//
                     }
                 } else {
 
