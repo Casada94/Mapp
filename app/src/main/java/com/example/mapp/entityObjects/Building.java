@@ -12,6 +12,11 @@ public class Building extends point{
 		super(str);
 		availability = true;
 	}
+	public Building(String str, double x, double y)
+	{
+		super(str, x, y);
+		availability = true;
+	}
 
 	public boolean getAvailability()
 	{

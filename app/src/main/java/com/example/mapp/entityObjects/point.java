@@ -8,7 +8,7 @@ import java.util.List;
 public class point{
     private double x;
     private double y;
-    private List<String> neighbors;
+    private ArrayList<String> neighbors;
     private String name;
 
     public point()
@@ -50,23 +50,19 @@ public class point{
     {
         return x;
     }
-    public double getY()
-    {
-        return y;
-    }
     public void setX(double x)
     {
         this.x = x;
+    }
+    public double getY()
+    {
+        return y;
     }
     public void setY(double y)
     {
         this.y = y;
     }
-    public void addNeighbor(point p)
-    {
-        neighbors.add(p.getName());
-    }
-    public List<String> getNeighbors()
+    public ArrayList<String> getNeighbors()
     {
         return neighbors;
     }
@@ -74,14 +70,11 @@ public class point{
     {
         this.neighbors = neighbors;
     }
-//    public void setIndex(int i)
-//    {
-//        this.index = i;
-//    }
-//    public int getIndex()
-//    {
-//        return this.index;
-//    }
+    public void addNeighbor(point p)
+    {
+        if(!neighbors.contains(p.name))
+            neighbors.add(p.getName());
+    }
     public double distance(point p)
     {
         return Math.sqrt(Math.pow((this.x - p.getX()),2) + Math.pow((this.y - p.getY()), 2));

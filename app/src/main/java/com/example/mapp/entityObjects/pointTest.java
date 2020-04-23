@@ -27,6 +27,7 @@ public class pointTest{
     {
         points = new HashMap<>();
         updatePoints();
+        checkEdges();
         writePoints();
         System.exit(0);
         readPointsA();
@@ -218,14 +219,14 @@ public class pointTest{
         while((st = br.readLine()) != null)
         {
             String [] txt = st.split("//");
-            String name = txt[0];
+            String doc = txt[0];
             Double x = 0.0;
             Double y = 0.0;
             ArrayList<String> neighbors = new ArrayList<>();
-            if(txt.length > 1)
+            x = Double.valueOf(txt[1]);
+            y = Double.valueOf(txt[2]);
+            if(txt.length > 3)
             {
-                x = Double.valueOf(txt[1]);
-                y = Double.valueOf(txt[2]);
                 String [] N = txt[3].split(";");
                 for(String n : N)
                 {
@@ -233,10 +234,36 @@ public class pointTest{
                     neighbors.add(n);
                 }
             }
-            point p = new point(name, x, y, neighbors);
-            points.put(name, p);
+            point p;
+            String name = doc.split("-")[1];
+            if(doc.split("-")[0].equals("p"))
+            {
+                p = new point(name, x, y, neighbors);
+            }
+            else
+                p = new Building(name, x, y);
+            points.put(doc, p);
         }
+    }
 
+    public static void checkEdges(){
+        Set<String> S = points.keySet();
+        for(String name : S)
+        {
+            point p = points.get(name);
+            for(String n : p.getNeighbors())
+            {
+                try{
+                    int index = Integer.parseInt(n);
+                    System.out.println("p-" + n);
+                    points.get("p-" + n).addNeighbor(p);
+                } catch( NumberFormatException nfe)
+                {
+                    System.out.println(p.getName() + "b-" + n);
+                    points.get("b-" + n).addNeighbor(p);
+                }
+            }
+        }
     }
 }
 

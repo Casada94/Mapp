@@ -302,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //saves to SharedPreferences
-    public void savePoint(point p)
+    public void savePoint(point p, String doc)
     {
         SharedPreferences mPrefs = getSharedPreferences("points", 0);
 //        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -318,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         else
             docName += "p-";
         docName += p.getName();
-        prefsEditor.putString(docName, gson.toJson(p));
+        prefsEditor.putString(doc, gson.toJson(p));
         prefsEditor.commit();
 //        Log.d("ken", "SavePoint " + p.toString());
     }
@@ -328,7 +328,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     {
         HashMap<String, point> points = new HashMap<>();
         SharedPreferences mPrefs = con.getSharedPreferences("points", 0);
-//        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(con);
         Gson gson = new Gson();
         Map<String, ?> keys = mPrefs.getAll();
         Log.d("ken", "points in sp: " + keys.size());
@@ -375,10 +374,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void readPointsDB()
     {
         SharedPreferences mPrefs = getSharedPreferences("points", 0);
-//        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
         prefsEditor.clear().commit();
-        CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("points");
+        CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("points2");
         pointsDB.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -390,11 +388,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         switch(type){
                             case "b": p = document.toObject(Building.class);
                         break;
-                            case "u": p = document.toObject(Utility.class);
-                            break;
+//                            case "u": p = document.toObject(Utility.class);
+//                            break;
                             default: p = document.toObject(point.class);
                         }
-                        savePoint(p);
+                        savePoint(p, document.getId());
                     }
                 } else {
                     Log.d("point", "Error getting documents: ", task.getException());
@@ -418,10 +416,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     {
                         Gson gson = new Gson();
                         HashMap<String, point> points = gson.fromJson((String) document.get("test"), new TypeToken<HashMap<String, point>>(){}.getType());
-                        Log.d("ken", Integer.toString(points.keySet().size()));
+                        Log.d("ken2", Integer.toString(points.keySet().size()));
                         for(String p : points.keySet())
                         {
-                            savePoint(points.get(p));
+                            savePoint(points.get(p), p);
                         }
                     }
                 } else {

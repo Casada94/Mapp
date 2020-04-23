@@ -10,6 +10,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 
+import com.example.mapp.entityObjects.point;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +38,21 @@ public class RouteDrawer {
         mPaint.setStrokeWidth(7f);
 
         points = new ArrayList<Point>(listOfPoints);
+    }
+
+    public RouteDrawer(ArrayList<point> points)
+    {
+        mPaint.setAntiAlias(true);
+        mPaint.setColor(Color.BLUE);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeJoin(Paint.Join.ROUND);
+        mPaint.setStrokeWidth(7f);
+
+        this.points = new ArrayList<Point>();
+        for(point p : points)
+        {
+            this.points.add(new Point((int) p.getX(), (int) p.getY()));
+        }
     }
 
     public void addPoint(Point point) {

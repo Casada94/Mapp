@@ -13,6 +13,7 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -37,7 +38,9 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 
+import com.example.mapp.entityObjects.Building;
 import com.example.mapp.entityObjects.Report;
+import com.example.mapp.entityObjects.Utility;
 import com.example.mapp.entityObjects.point;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -193,6 +196,84 @@ public class HomeFragment extends Fragment {
             mapMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
 
             map.setImageBitmap(mapMap);
+
+            //temporarily here for seeing the paths
+            // Uncomment readPointsDB in main activity to update the sharedPreferences
+            //then set the following to true to draw map
+            if(false)
+            {
+                HashMap<String, point> points = new HashMap<>();
+                SharedPreferences mPrefs = getActivity().getSharedPreferences("points", 0);
+                Gson gson = new Gson();
+                Map<String, ?> keys = mPrefs.getAll();
+                for(String name : keys.keySet())
+                {
+                    String json = keys.get(name).toString();
+                    point p = null;
+                    switch(name.split("-")[0]){
+                        case "b": p = gson.fromJson(json, new TypeToken<Building>(){}.getType());
+                            break;
+                        case "u" : p = gson.fromJson(json, new TypeToken<Utility>(){}.getType());
+                            break;
+                        default:
+                            p = gson.fromJson(json, new TypeToken<point>(){}.getType());
+                    }
+                    points.put(p.getName(), p);
+                }
+                float scalingFactorX = 0.87637f;
+                float scalingFactorY = 0.87344f;
+
+                for(String p : points.keySet())
+                    Log.d("ken", p);
+                for(String p : points.keySet())
+                {
+                    ArrayList<Float> pointsf = new ArrayList<>();
+                    for(String n : points.get(p).getNeighbors()) {
+                        point p1 = points.get(p);
+//                        try{
+//                            Double.parseDouble(n);
+//                            n = "p-n;
+//                        }catch (NumberFormatException nfe)
+//                        {
+//                            n = "b-" + n;
+//                        }
+                        point p2 = points.get(n);
+
+                        Log.d("ken", p + " " + n);
+                        float x1 = (float) p1.getX();
+                        float y1 = (float) p1.getY();
+                        float x2 = (float) p2.getX();
+                        float y2 = (float) p2.getY();
+
+                        if(p1.getClass() == Building.class)
+                        {
+                            x1 /= scalingFactorX;
+                            y1 /= scalingFactorY;
+                        }else
+                        {
+//                            x1 += 20;
+//                            y1 -= 20;
+                        }
+                        if(p2.getClass() == Building.class)
+                        {
+                            x2 /= scalingFactorX;
+                            y2/= scalingFactorY;
+                        }else
+                        {
+//                            x2 += 20;
+//                            y2 -= 20;
+                        }
+                        pointsf.add(x1);
+                        pointsf.add(y1);
+                        pointsf.add(x2);
+                        pointsf.add(y2);
+                    }
+                    float[] pts = new float[pointsf.size()];
+                    for(int i = 0; i < pts.length; i++)
+                        pts[i] = pointsf.get(i);
+                    drawRoute(mapMap, pts);
+                }
+            }
 
             /* Logic for deciding how to initialize the bounds of buildings */
             if (upToDate("lastUpdateBounds")) {
