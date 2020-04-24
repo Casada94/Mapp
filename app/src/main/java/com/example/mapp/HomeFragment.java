@@ -301,8 +301,9 @@ public class HomeFragment extends Fragment {
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListenerGPS);;
 //                    findNearestPoint(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
                     Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    loc.setLongitude(-118.113265);
-                    loc.setLatitude(33.778486);
+                    // Set in locations below manually if you want to test GPS location tracking
+//                    loc.setLongitude(-118.113265);
+//                    loc.setLatitude(33.778486);
                     point p = findNearestPoint(loc);
                     Log.d("ken_GPS",  "closest point is " + p.getName());
                 }
