@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class HomeFragment extends Fragment {
 
@@ -917,5 +918,74 @@ public class HomeFragment extends Fragment {
             return points;
         }
     }
+
+    /*finds path based on points of the schedule as an input
+    returns points as an float[] for the draw function*/
+    public float[] getSchedulePath(HashMap<String, point> points, ArrayList<point> schedule){
+        ArrayList<point> path = new ArrayList<>();
+        for(int i = 0; i < schedule.size() - 1; i++)
+        {
+            path.addAll(findPath(points, schedule.get(i), schedule.get(i+1)));
+        }
+        float [] schedulePath = new float[path.size()*2];
+        for (int i = 0; i < schedulePath.length; i++)
+        {
+            if( i % 2 == 0)
+                schedulePath[i] = (float) path.get(i/2).getX();
+            else
+                schedulePath[i] = (float) path.get(i/2).getY();
+        }
+        return schedulePath;
+    }
+    //finds path from point start to point dest based on the graph defined by points
+    public static ArrayList<point> findPath(HashMap<String, point> points, point start, point dest)
+    {
+        ArrayList<point> neighbors = new ArrayList<point>();
+        neighbors.add(start);
+        HashMap<String, point> parent = new HashMap<String, point>();
+        HashMap<String, Double> distance = new HashMap<String, Double>();
+        Set<String> keys = points.keySet();
+        for(String key : keys)
+        {
+            distance.put(key, Double.MAX_VALUE);
+            parent.put(key, null);
+        }
+        distance.put(start.getName(), 0.0);
+        System.out.println("Distance: " );
+        for(String x : distance.keySet())
+        {
+            System.out.println(x + " " + distance.get(x));
+        }
+        while(neighbors.size() > 0)
+        {
+            point curr = neighbors.get(0);
+            neighbors.remove(curr);
+            for(String p : curr.getNeighbors())
+            {
+                if(parent.get(p) == null && points.get(p) != start)
+                {
+                    neighbors.add(points.get(p));
+                }
+                double newDistance = Double.MAX_VALUE;
+                if(points.get(p) != null && distance.get(curr.getName()) != null)
+                    newDistance = curr.distance(points.get(p)) + distance.get(curr.getName());
+                if(newDistance < distance.get(p))
+                {
+                    distance.put(p, newDistance);
+                    parent.put(p, curr);
+                }
+            }
+        }
+
+        ArrayList<point> path = new ArrayList<point>();
+        while(dest != start)
+        {
+            path.add(0, dest);
+            dest = parent.get(dest.getName());
+        }
+        path.add(0, start);
+        return path;
+    }
+
 }
 
