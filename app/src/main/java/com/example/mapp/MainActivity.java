@@ -445,7 +445,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     {
                         Gson gson = new Gson();
                         HashMap<String, point> points = gson.fromJson((String) document.get("test"), new TypeToken<HashMap<String, point>>(){}.getType());
-                        Log.d("ken2", Integer.toString(points.keySet().size()));
+//                        Log.d("ken2", Integer.toString(points.keySet().size()));
                         for(String p : points.keySet())
                         {
                             savePoint(points.get(p), p);
@@ -456,14 +456,5 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
-
-        Log.d("ken1", "done");
-//        Gson gson = new Gson();
-//        HashMap<String, point> points = gson.fromJson(json[0], new TypeToken<HashMap<String, point>>(){}.getType());
-//        Log.d("Ken", "wait");
-//        for(String p : points.keySet())
-//        {
-//            savePoint(points.get(p));
-//        }
     }
 }

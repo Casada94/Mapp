@@ -43,7 +43,7 @@ public class pointTest{
                     break;
                 case 2: viewPoints();
                     break;
-                case 3: FindPath();
+                case 3: FindPath(points);
                     break;
                 case 0:
                     break;
@@ -94,7 +94,7 @@ public class pointTest{
         }
     }
 
-    public static void FindPath()
+    public static void FindPath(HashMap<String, point> points)
     {
         int n = points.keySet().size();
         List<point> pointsA = new ArrayList<point>(n);
