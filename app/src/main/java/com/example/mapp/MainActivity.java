@@ -218,8 +218,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         {
             double latitude=location.getLatitude();
             double longitude=location.getLongitude();
-            String msg="New Latitude: "+latitude + "New Longitude: "+longitude;
-            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
+//            String msg="New Latitude: "+latitude + "New Longitude: "+longitude;
+//            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
             Log.d("ken", "long,lat : "+ location.getLongitude() + ", " + location.getLatitude());
         }
 
@@ -359,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         SharedPreferences mPrefs = con.getSharedPreferences("points", 0);
         Gson gson = new Gson();
         Map<String, ?> keys = mPrefs.getAll();
-        Log.d("ken", "points in sp: " + keys.size());
+//        Log.d("ken", "points in sp: " + keys.size());
         for(String name : keys.keySet())
         {
             String json = keys.get(name).toString();

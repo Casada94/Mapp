@@ -1,9 +1,11 @@
 package com.example.mapp;
 
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -11,6 +13,9 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -28,10 +33,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -91,15 +98,24 @@ public class HomeFragment extends Fragment {
     private Polygon currentBuilding;
     private View previousView;
     private HomeViewModel homeViewModel;
+    private LocationManager locationManager;
+    private static final double left_long = -118.123707;
+    private static final double right_long = -118.107734;
+    private static final double top_lat = 33.788961;
+    private static final double bot_lat = 33.774842;
+    private static final int mapSize_x = 4700;
+    private static final int mapSize_y = 5008;
+    private static float scalingFactorX = 0.87637f;
+    private static float scalingFactorY = 0.87344f;
 
 
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        if(previousView != null){
+        if (previousView != null) {
             inflater.inflate(R.layout.fragment_home, (ViewGroup) previousView, false);
-        }else {
+        } else {
 
             /* Initializations of UI elements */
             final View root = inflater.inflate(R.layout.fragment_home, container, false);
@@ -108,7 +124,7 @@ public class HomeFragment extends Fragment {
             homeViewModel.incrementCount();
 
             /* Hides search button in action bar */
-            if(homeViewModel.getCount().getValue() > 1){
+            if (homeViewModel.getCount().getValue() > 1) {
                 Toolbar toolbar = ((MainActivity) Objects.requireNonNull(getActivity())).findViewById(R.id.toolBar);
                 MenuItem menuItem = toolbar.getMenu().getItem(0);
                 menuItem.setVisible(true);
@@ -147,43 +163,43 @@ public class HomeFragment extends Fragment {
                     final String[][] tokens = new String[1][];
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                        try {
-                            while((line = bReader.readLine())  != null) {
-                                Map<String, Object> data = new HashMap<>();
+                    try {
+                        while ((line = bReader.readLine()) != null) {
+                            Map<String, Object> data = new HashMap<>();
 
-                                tokens[0] = line.split(",");
+                            tokens[0] = line.split(",");
 
-                                if(tokens[0][0].contains(".")){
-                                    String[] tempSuper = tokens[0][0].split("[.]");
-                                    System.out.println(tempSuper[0]);
-                                    data.put("name", tempSuper[0].toUpperCase());
-                                } else{
-                                    System.out.println(tokens[0][0]);
-                                    data.put("name", tokens[0][0].toUpperCase());
-                                }
-
-                                data.put("coord1x", tokens[0][1]);
-                                data.put("coord1y", tokens[0][2]);
-                                data.put("coord2x", tokens[0][3]);
-                                data.put("coord2y", tokens[0][4]);
-                                data.put("coord3x", tokens[0][5]);
-                                data.put("coord3y", tokens[0][6]);
-                                data.put("coord4x", tokens[0][7]);
-                                data.put("coord4y", tokens[0][8]);
-
-                                db.collection("polygons").document(tokens[0][0].toLowerCase()).set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if(task.isSuccessful()){
-                                            System.out.println("added to db");
-                                        }
-                                    }
-                                });
-
+                            if (tokens[0][0].contains(".")) {
+                                String[] tempSuper = tokens[0][0].split("[.]");
+                                System.out.println(tempSuper[0]);
+                                data.put("name", tempSuper[0].toUpperCase());
+                            } else {
+                                System.out.println(tokens[0][0]);
+                                data.put("name", tokens[0][0].toUpperCase());
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
+
+                            data.put("coord1x", tokens[0][1]);
+                            data.put("coord1y", tokens[0][2]);
+                            data.put("coord2x", tokens[0][3]);
+                            data.put("coord2y", tokens[0][4]);
+                            data.put("coord3x", tokens[0][5]);
+                            data.put("coord3y", tokens[0][6]);
+                            data.put("coord4x", tokens[0][7]);
+                            data.put("coord4y", tokens[0][8]);
+
+                            db.collection("polygons").document(tokens[0][0].toLowerCase()).set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        System.out.println("added to db");
+                                    }
+                                }
+                            });
+
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
 
@@ -209,29 +225,29 @@ public class HomeFragment extends Fragment {
                     SharedPreferences mPrefs = getActivity().getSharedPreferences("points", 0);
                     Gson gson = new Gson();
                     Map<String, ?> keys = mPrefs.getAll();
-                    for(String name : keys.keySet())
-                    {
+                    for (String name : keys.keySet()) {
                         String json = keys.get(name).toString();
                         point p = null;
-                        switch(name.split("-")[0]){
-                            case "b": p = gson.fromJson(json, new TypeToken<Building>(){}.getType());
+                        switch (name.split("-")[0]) {
+                            case "b":
+                                p = gson.fromJson(json, new TypeToken<Building>() {
+                                }.getType());
                                 break;
-                            case "u" : p = gson.fromJson(json, new TypeToken<Utility>(){}.getType());
+                            case "u":
+                                p = gson.fromJson(json, new TypeToken<Utility>() {
+                                }.getType());
                                 break;
                             default:
-                                p = gson.fromJson(json, new TypeToken<point>(){}.getType());
+                                p = gson.fromJson(json, new TypeToken<point>() {
+                                }.getType());
                         }
                         points.put(p.getName(), p);
                     }
-                    float scalingFactorX = 0.87637f;
-                    float scalingFactorY = 0.87344f;
 
-                    for(String p : points.keySet())
-                        Log.d("ken", p);
-                    for(String p : points.keySet())
-                    {
+
+                    for (String p : points.keySet()) {
                         ArrayList<Float> pointsf = new ArrayList<>();
-                        for(String n : points.get(p).getNeighbors()) {
+                        for (String n : points.get(p).getNeighbors()) {
                             point p1 = points.get(p);
 //                        try{
 //                            Double.parseDouble(n);
@@ -242,27 +258,23 @@ public class HomeFragment extends Fragment {
 //                        }
                             point p2 = points.get(n);
 
-                            Log.d("ken", p + " " + n);
+//                            Log.d("ken", p + " " + n);
                             float x1 = (float) p1.getX();
                             float y1 = (float) p1.getY();
                             float x2 = (float) p2.getX();
                             float y2 = (float) p2.getY();
 
-                            if(p1.getClass() == Building.class)
-                            {
+                            if (p1.getClass() == Building.class) {
                                 x1 /= scalingFactorX;
                                 y1 /= scalingFactorY;
-                            }else
-                            {
+                            } else {
 //                            x1 += 20;
 //                            y1 -= 20;
                             }
-                            if(p2.getClass() == Building.class)
-                            {
+                            if (p2.getClass() == Building.class) {
                                 x2 /= scalingFactorX;
-                                y2/= scalingFactorY;
-                            }else
-                            {
+                                y2 /= scalingFactorY;
+                            } else {
 //                            x2 += 20;
 //                            y2 -= 20;
                             }
@@ -272,12 +284,32 @@ public class HomeFragment extends Fragment {
                             pointsf.add(y2);
                         }
                         float[] pts = new float[pointsf.size()];
-                        for(int i = 0; i < pts.length; i++)
+                        for (int i = 0; i < pts.length; i++)
                             pts[i] = pointsf.get(i);
                         drawRoute(mapMap, pts);
                     }
+                    locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                    }else
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListenerGPS);;
+//                    findNearestPoint(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+                    Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    loc.setLongitude(-118.113265);
+                    loc.setLatitude(33.778486);
+                    point p = findNearestPoint(loc);
+                    Log.d("ken_GPS",  "closest point is " + p.getName());
                 }
-                });
+            });
+
+
+
 
 
             /* Logic for deciding how to initialize the bounds of buildings */
@@ -566,6 +598,85 @@ public class HomeFragment extends Fragment {
 
         return previousView;
     }
+
+    private point findNearestPoint(Location loc) {
+        point closest = null;
+        if(loc != null)
+        {
+            Double curr_lat = loc.getLatitude();
+            Double curr_long = loc.getLongitude();
+            if(!(curr_lat > top_lat || curr_lat < bot_lat || curr_long < left_long || curr_long > right_long)) {
+                int mapCord_x = (int) ((left_long - curr_long) * mapSize_x / (left_long - right_long));
+                int mapCord_y = (int) ((top_lat - curr_lat) * mapSize_y / (top_lat - bot_lat));
+                point currGPS = new point("curr", mapCord_x, mapCord_y);
+                HashMap<String, point> points = new HashMap<>();
+                SharedPreferences mPrefs = getActivity().getSharedPreferences("points", 0);
+                Gson gson = new Gson();
+                Map<String, ?> keys = mPrefs.getAll();
+                for (String name : keys.keySet()) {
+                    String json = keys.get(name).toString();
+                    point p = null;
+                    switch (name.split("-")[0]) {
+                        case "b":
+                            p = gson.fromJson(json, new TypeToken<Building>() {
+                            }.getType());
+                            break;
+                        case "u":
+                            p = gson.fromJson(json, new TypeToken<Utility>() {
+                            }.getType());
+                            break;
+                        default:
+                            p = gson.fromJson(json, new TypeToken<point>() {
+                            }.getType());
+                    }
+                    points.put(p.getName(), p);
+                }
+                closest = new point("default", Double.MAX_VALUE, Double.MAX_VALUE);
+//                Log.d("ken_GPS" , );
+                Log.d("ken_GPS", Double.toString(currGPS.distance(points.get("596"))));
+                double minDistance = currGPS.distance(closest);
+                for (String p : points.keySet()) {
+//                    Log.d("ken_GPS", "minDistance: " + minDistance + " evaluating " + points.get(p).getName());
+                    double distance = currGPS.distance(points.get(p));
+                    if(points.get(p).getClass() == Building.class)
+                        distance = Math.sqrt(Math.pow(currGPS.getX() - (points.get(p).getX() / scalingFactorX) , 2)
+                                + Math.pow(currGPS.getX() - (points.get(p).getY() / scalingFactorY) , 2));
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closest = points.get(p);
+                        Log.d("ken_GPS", "closest is now " + closest.getName() +" " +  minDistance);
+                    }
+                }
+            } else
+            {
+                String msg="GPS Location off campus";
+                Toast.makeText(getActivity(),msg,Toast.LENGTH_LONG).show();
+            }
+        }
+        return closest;
+    }
+
+    LocationListener locationListenerGPS = new LocationListener(){
+        public void onLocationChanged(Location location)
+        {
+            double latitude=location.getLatitude();
+            double longitude=location.getLongitude();
+            String msg="New Latitude: "+latitude + "New Longitude: "+longitude;
+            Toast.makeText(getActivity().getApplicationContext(),msg,Toast.LENGTH_LONG).show();
+         }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+    };
 
 
     public Bitmap drawRoute(Bitmap routeMap, float[] points){
