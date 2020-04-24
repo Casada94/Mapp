@@ -28,6 +28,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mapp.entityObjects.Building;
 import com.example.mapp.entityObjects.point;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -219,12 +220,17 @@ public class ScheduleFragment extends Fragment {
         final EditText className = root.findViewById(R.id.className);
         HashMap<String, point> points = new HashMap<>();
         points = MainActivity.readData(getContext());
-        final String[] buildings = new String[points.size()];
+        ArrayList<point> b = new ArrayList<>();
+        for(String p : points.keySet())
+        {
+            if(points.get(p).getClass() == Building.class)
+            b.add(points.get(p));
+        }
+        final String[] buildings = new String[b.size()];
         for(int i = 0; i < buildings.length; i++)
         {
-            buildings[i] = points.get(i).getName();
+            buildings[i] = b.get(i).getName();
         }
-
 
         /* Set up for auto complete text view of location
         * This ensures that the user selects a valid, known location */
