@@ -8,7 +8,7 @@ public class Report {
 	private String description;
 	private String reason;
 	private String facility;
-//	private Date reportTime;
+	private Date reportDateTime;
 //	private Date solvedTime;
 
 	public Report() {}
@@ -28,7 +28,7 @@ public class Report {
 		this.description = description;
 		this.reason = reason;
 		this.facility = facility;
-//		reportTime = new Date();
+		reportDateTime = new Date();
 //		solvedTime = null;
 	}
 

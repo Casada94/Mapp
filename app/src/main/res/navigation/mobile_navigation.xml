@@ -19,8 +19,13 @@
         android:id="@+id/login_frag"
         android:name="com.example.mapp.LoginFragment"
         android:label="Login"
-        tools:layout="@layout/fragment_login">
-    </fragment>
+        tools:layout="@layout/fragment_login"/>
+    <fragment
+        android:id="@+id/report_frag"
+        android:name="com.example.mapp.ReportsFragment"
+        android:label="Reports"
+        tools:layout="@layout/fragment_reports"/>
+
 
 
     <fragment

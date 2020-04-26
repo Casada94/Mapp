@@ -43,10 +43,127 @@
     </string-array>
 
     <string-array name="reportReasons">
-        <item>Closed</item>
         <item>Broken</item>
         <item>Dirty</item>
         <item>No Stock</item>
         <item>Other</item>
     </string-array>
+
+    <string-array name="reportedReasons">
+        <item>All</item>
+        <item>Broken</item>
+        <item>Dirty</item>
+        <item>No Stock</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="status">
+        <item>All</item>
+        <item>Active</item>
+        <item>Closed</item>
+    </string-array>
+
+    <string-array name="buildings">
+        <item>AS</item>
+        <item>ANNEX</item>
+        <item>BAC</item>
+        <item>BKS</item>
+        <item>BH</item>
+        <item>COB</item>
+        <item>CAFE</item>
+        <item>CDC</item>
+        <item>CLA</item>
+        <item>CPIE</item>
+        <item>CPAC</item>
+        <item>CP</item>
+        <item>CORP</item>
+        <item>DC</item>
+        <item>DESN</item>
+        <item>ED2</item>
+        <item>EED</item>
+        <item>EN2</item>
+        <item>EN3</item>
+        <item>EN4</item>
+        <item>ECS</item>
+        <item>ET</item>
+        <item>FM</item>
+        <item>FO2</item>
+        <item>FO3</item>
+        <item>FO4</item>
+        <item>FO5</item>
+        <item>FCS</item>
+        <item>FA1</item>
+        <item>FA2</item>
+        <item>FA3</item>
+        <item>FA4</item>
+        <item>FND</item>
+        <item>HSCI</item>
+        <item>HHS2</item>
+        <item>HSC</item>
+        <item>HC</item>
+        <item>HRL</item>
+        <item>HSD</item>
+        <item>IH</item>
+        <item>JG</item>
+        <item>KCAM</item>
+        <item>KIN</item>
+        <item>LAB</item>
+        <item>LH</item>
+        <item>LA1</item>
+        <item>LA2</item>
+        <item>LA3</item>
+        <item>LA4</item>
+        <item>LA5</item>
+        <item>LIB</item>
+        <item>LAH</item>
+        <item>LCH</item>
+        <item>MHB</item>
+        <item>MIC</item>
+        <item>MLSC</item>
+        <item>MMC</item>
+        <item>NUR</item>
+        <item>OP</item>
+        <item>PTS</item>
+        <item>PCS</item>
+        <item>PH1</item>
+        <item>PSY</item>
+        <item>PYR</item>
+        <item>RC</item>
+        <item>REPR</item>
+        <item>SSPA</item>
+        <item>SOR</item>
+        <item>SHS</item>
+        <item>SRWC</item>
+        <item>SSC</item>
+        <item>SSCH</item>
+        <item>TA</item>
+        <item>UMC</item>
+        <item>UP</item>
+        <item>USU</item>
+        <item>UTC</item>
+        <item>UT</item>
+        <item>VIC</item>
+        <item>VEC</item>
+        <item>PSD</item>
+        <item>PSG</item>
+        <item>PSH</item>
+        <item>PSJ</item>
+        <item>PSK</item>
+        <item>PSL</item>
+        <item>PSM</item>
+        <item>PSN</item>
+        <item>PSP</item>
+        <item>PSQ</item>
+        <item>PSC</item>
+        <item>HSDA</item>
+        <item>HSDB</item>
+        <item>HSDC</item>
+        <item>HSDD</item>
+        <item>HSDN</item>
+        <item>HD</item>
+        <item>HSDE</item>
+        <item>HSDF</item>
+    </string-array>
+
+
 </resources>

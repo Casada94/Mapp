@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/filtering_cardview"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:cardElevation="15dp"
+        >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/search_cardview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:cardElevation="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
+                app:cardCornerRadius="5dp"
+                app:contentPadding="8dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/report_search"
+                        android:layout_width="250dp"
+                        android:layout_height="48dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <Button
+                        android:id="@+id/report_search_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorWhite"
+                        android:background="@color/colorPrimaryDark"
+                        android:text="Search"
+                        app:layout_constraintStart_toEndOf="@id/report_search"
+                        app:layout_constraintTop_toTopOf="@id/report_search"
+                        app:layout_constraintBottom_toBottomOf="@id/report_search"/>
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/typeTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimaryDark"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:text="Type"
+                app:layout_constraintStart_toStartOf="@id/search_cardview"
+                app:layout_constraintTop_toBottomOf="@id/search_cardview"
+                android:layout_marginTop="8dp"/>
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/type_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@id/typeTxt"
+                app:layout_constraintTop_toBottomOf="@id/typeTxt"/>
+
+            <TextView
+                android:id="@+id/status_Txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimaryDark"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:text="Status"
+                app:layout_constraintStart_toEndOf="@id/type_spinner"
+                app:layout_constraintTop_toTopOf="@id/typeTxt"
+                android:layout_marginStart="8dp"/>
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/status_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@id/status_Txt"
+                app:layout_constraintTop_toBottomOf="@id/status_Txt"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/report_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/filtering_cardview"
+        app:layout_constraintStart_toStartOf="parent"
+        android:isScrollContainer="true"/>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/report_details_card"
+        android:layout_width="match_parent"
+        android:layout_height="190dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="parent"
+        app:cardCornerRadius="20dp"
+        app:contentPadding="15dp"
+        app:cardElevation="50dp"
+        >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/building_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="@color/colorPrimaryDark"
+                android:textStyle="bold"
+                android:text="Temporary"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/report_reasonTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reason: "
+                app:layout_constraintTop_toBottomOf="@+id/building_name"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="10dp"/>
+
+            <TextView
+                android:id="@+id/reason_changeable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/report_reasonTxt"
+                app:layout_constraintTop_toTopOf="@id/report_reasonTxt"
+                android:layout_marginStart="5dp"
+                android:textColor="@color/colorBlack"
+                android:text="Broken"/>
+
+            <TextView
+                android:id="@+id/report_descriptionTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Description: "
+                app:layout_constraintTop_toBottomOf="@id/reason_changeable"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="10dp"/>
+
+            <TextView
+                android:id="@+id/description_changeable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/report_descriptionTxt"
+                app:layout_constraintTop_toTopOf="@id/report_descriptionTxt"
+                android:layout_marginStart="5dp"
+                android:textColor="@color/colorBlack"
+                android:text="its broken blah blah blah "/>
+
+            <TextView
+                android:id="@+id/report_reported_onTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reported on: "
+                app:layout_constraintTop_toBottomOf="@+id/description_changeable"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="10dp"/>
+
+            <TextView
+                android:id="@+id/reported_on_changeable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/report_reported_onTxt"
+                app:layout_constraintTop_toTopOf="@id/report_reported_onTxt"
+                android:layout_marginStart="5dp"
+                android:textColor="@color/colorBlack"
+                android:text="04/22/2020  10:00am"/>
+
+            <TextView
+                android:id="@+id/report_reported_byTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reported by: "
+                app:layout_constraintTop_toBottomOf="@+id/reported_on_changeable"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="10dp"/>
+
+            <TextView
+                android:id="@+id/reported_by_changeable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/report_reported_byTxt"
+                app:layout_constraintTop_toTopOf="@id/report_reported_byTxt"
+                android:layout_marginStart="5dp"
+                android:textColor="@color/colorBlack"
+                android:text="clayton.asada@student.csulb.edu "/>
+
+            <TextView
+                android:id="@+id/closedOnTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Closed On: "
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="10dp"
+                app:layout_constraintTop_toBottomOf="@id/reported_by_changeable"/>
+
+            <TextView
+                android:id="@+id/closedOn_changeable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/closedOnTxt"
+                android:layout_marginStart="5dp"
+                android:textColor="@color/colorBlack"
+                app:layout_constraintTop_toTopOf="@id/closedOnTxt"/>
+
+            <TextView
+                android:id="@+id/closedByTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Closed By: "
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="10dp"
+                app:layout_constraintTop_toBottomOf="@id/closedOnTxt"/>
+
+            <TextView
+                android:id="@+id/closedBy_changeable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/closedByTxt"
+                android:layout_marginStart="5dp"
+                android:textColor="@color/colorBlack"
+                app:layout_constraintTop_toTopOf="@id/closedByTxt"/>
+
+
+            <Button
+                android:id="@+id/resolved_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorWhite"
+                android:background="@color/colorPrimaryDark"
+                android:text="Resolve"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

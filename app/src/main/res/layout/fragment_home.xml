@@ -46,7 +46,8 @@
         app:layout_constraintTop_toBottomOf="parent"
         app:cardElevation="35dp"
         app:cardCornerRadius="30dp"
-        android:padding="10dp">
+        android:padding="10dp"
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -62,7 +63,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:textColor="@color/colorPrimary"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textStyle="bold"/>
 
             <TextView
@@ -72,21 +73,24 @@
                 android:text="Reason"
                 app:layout_constraintStart_toStartOf="@id/reportTitle"
                 app:layout_constraintTop_toBottomOf="@id/reportTitle"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginStart="15dp"
+                android:textSize="15sp"
+                android:layout_marginTop="10dp"/>
 
             <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/reportReasons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="@id/reasonLabel"
-                app:layout_constraintTop_toBottomOf="@id/reasonLabel"
+                app:layout_constraintStart_toEndOf="@id/reasonLabel"
+                app:layout_constraintTop_toTopOf="@id/reasonLabel"
+                app:layout_constraintBottom_toBottomOf="@id/reasonLabel"
                 android:layout_marginStart="6dp"/>
 
             <EditText
                 android:id="@+id/otherReason"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="If other"
+                android:hint="Elaborate if necessary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toTopOf="@id/submitReport"
@@ -103,7 +107,9 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp"
+                android:textColor="@color/colorWhite"
+                android:background="@color/colorPrimaryDark"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

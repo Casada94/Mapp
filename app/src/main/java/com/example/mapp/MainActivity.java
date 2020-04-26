@@ -60,6 +60,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -151,11 +152,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
 
+        final boolean[] showReports = new boolean[1];
+
+
         /* sets up the drawer layout**/
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.schedule_frag, R.id.login_frag, R.id.signup_frag)
+                R.id.nav_home, R.id.schedule_frag, R.id.report_frag, R.id.login_frag, R.id.signup_frag)
                 .setDrawerLayout(drawer)
                 .build();
+
+
+
 
         /* sets up the navigation controller
           used to change fragments**/
@@ -171,7 +178,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         TextView home = (TextView) navigationView.getHeaderView(0).findViewById(R.id.nav_home);
         Menu menu = (Menu) navigationView.getMenu();
         MenuItem login = menu.findItem(R.id.login_frag);
-        MenuItem schedule = menu.findItem(R.id.schedule_frag);
+        final MenuItem schedule = menu.findItem(R.id.schedule_frag);
+        final MenuItem reports = menu.findItem(R.id.report_frag);
         MenuItem signup = menu.findItem(R.id.signup_frag);
         MenuItem signout = menu.findItem(R.id.signout_frag);
 
@@ -189,11 +197,37 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        if(currentUser != null) {
+            db.collection("users").document(currentUser.getEmail()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if(task.isSuccessful()){
+                        DocumentSnapshot result = task.getResult();
+                        if(result.contains("admin")){
+                            if(result.getBoolean("admin")){
+                                showReports[0] = true;
+                                System.out.println("______________SHOW REPORTS__________________");
+                                updateNavigation(reports, schedule, showReports[0]);
+                            }
+                        }else {
+                            showReports[0] = false;
+                            updateNavigation(reports, schedule, showReports[0]);
+                        }
+                    }
+                }
+            });
+        }else {
+            showReports[0] = false;
+            updateNavigation(reports, schedule, showReports[0]);
+        }
+
+
         /* determines what is shown in the drawer layout (navigation menu; top left)**/
         if(currentUser == null){
             userInNav.setTextSize(18);
             userInNav.setText("Hey, who are you!?");
             schedule.setVisible(false);
+            reports.setVisible(false);
             login.setVisible(true);
             signup.setVisible(true);
             signout.setVisible(false);
@@ -201,10 +235,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         else {
             userInNav.setText(currentUser.getEmail().split("\\.")[0]);
             userInNav.setVisibility(View.VISIBLE);
-            schedule.setVisible(true);
             login.setVisible(false);
             signup.setVisible(false);
             signout.setVisible(true);
+            schedule.setVisible(false);
+            reports.setVisible(false);
         }
 
         checkLocationPermission();
@@ -213,6 +248,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d("ken", locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).toString());
 
     }
+
+    public void updateNavigation(MenuItem reports, MenuItem schedule, boolean showReports){
+        if(showReports){
+            System.out.println("----------------SHOWING REPORTS------------------");
+            schedule.setVisible(false);
+            reports.setVisible(true);
+        }
+        else{
+            System.out.println("----------------NOT SHOWING REPORTS----------------------");
+            schedule.setVisible(true);
+            reports.setVisible(false);
+        }
+
+    }
+
     LocationListener locationListenerGPS = new LocationListener(){
         public void onLocationChanged(Location location)
         {

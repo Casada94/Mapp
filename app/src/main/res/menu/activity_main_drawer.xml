@@ -11,6 +11,9 @@
             android:id="@+id/schedule_frag"
             android:title="Schedule" />
         <item
+            android:id="@+id/report_frag"
+            android:title="Reports"/>
+        <item
             android:id="@+id/signup_frag"
             android:title="Sign Up"/>
         <item
@@ -19,5 +22,6 @@
         <item
             android:id="@+id/signout_frag"
             android:title="Sign Out"/>
+
     </group>
 </menu>

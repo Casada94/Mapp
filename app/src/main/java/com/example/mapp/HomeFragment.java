@@ -2,6 +2,7 @@ package com.example.mapp;
 
 
 import android.Manifest;
+import android.accessibilityservice.AccessibilityService;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -13,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -26,6 +28,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,6 +54,7 @@ import com.example.mapp.entityObjects.Utility;
 import com.example.mapp.entityObjects.point;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -65,6 +69,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -99,6 +104,10 @@ public class HomeFragment extends Fragment {
     private Polygon currentBuilding;
     private View previousView;
     private HomeViewModel homeViewModel;
+
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
     private LocationManager locationManager;
     private static final double left_long = -118.123707;
     private static final double right_long = -118.107734;
@@ -311,7 +320,30 @@ public class HomeFragment extends Fragment {
             });
 
 
+            /* Slides the card up when the keyboard is opened so that its not hidden behind it */
+            final boolean cardAtBottom[] = new boolean[1];
+            cardAtBottom[0] = true;
+            root.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    Rect r = new Rect();
+                    root.getWindowVisibleDisplayFrame(r);
 
+                    int heightDiff = root.getRootView().getHeight() - (r.bottom - r.top);
+                    ViewPropertyAnimator animate = reportCard.animate();
+                    if(heightDiff > 270 && cardAtBottom[0]){
+                        animate.translationYBy(-(heightDiff - (float)(r.top*1.5)));
+                        animate.setDuration(200);
+                        animate.start();
+                        cardAtBottom[0] = false;
+                    }else if(heightDiff < 270 && !cardAtBottom[0]){
+                        animate.translationY(heightDiff);
+                        animate.setDuration(200);
+                        animate.start();
+                        cardAtBottom[0] = true;
+                    }
+                }
+            });
 
 
             /* Logic for deciding how to initialize the bounds of buildings */
@@ -394,15 +426,26 @@ public class HomeFragment extends Fragment {
                 public void onClick(View v) {
                     String reason = reasons.getSelectedItem().toString();
                     String typedReason = other.getText().toString();
-
+                    Date date = Calendar.getInstance().getTime();
                     //so you can add the report to the right building
-                    String currBuilding = currentBuilding.name;
+                    String currUser;
+                    if(mAuth.getCurrentUser() != null){
+                         currUser = mAuth.getCurrentUser().getEmail();
+                    }
+                    else
+                        currUser = "N/A";
 
-                    /* Ken please add the functionality to write to the database */
-                    Report r = new Report(reason, typedReason, currBuilding);
-                    Gson gson = new Gson();
-                    FirebaseFirestore.getInstance().collection("activeReports").add(r);
-//                    FirebaseFirestore.getInstance().collection("report").add(r);
+
+                    System.out.println(currentBuilding.name );
+                    HashMap<String, Object> report = new HashMap<>();
+                    report.put("facility", currentBuilding.name);
+                    report.put("reason", reason);
+                    report.put("description", typedReason);
+                    report.put("reportedOn", date.toString());
+                    report.put("reportedBy", currUser);
+                    report.put("status", "active");
+                    /* Ken please add the functionality to write to the database*/
+                    db.collection("activeReports").document().set(report);
 
                     reasons.setSelection(0);
                     other.clearComposingText();
@@ -706,7 +749,6 @@ public class HomeFragment extends Fragment {
     /* Sets up the clickable areas for building details
     * pulls from firestore and saves into shared preferences */
     private void upDateOutlines(){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("polygons").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -783,8 +825,6 @@ public class HomeFragment extends Fragment {
     /* Sets all the textViews and info for building details card view */
     private void buildingInfo(Polygon building){
         currentBuilding = building;
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("facilities").document(building.name).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -867,7 +907,6 @@ public class HomeFragment extends Fragment {
         } else {
             /* pull from db */
             final ArrayList<point> points = new ArrayList<>();
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
             db.collection("streetViewLocations").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
