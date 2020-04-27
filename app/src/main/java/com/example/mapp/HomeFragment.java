@@ -825,16 +825,18 @@ public class HomeFragment extends Fragment {
     /* Sets all the textViews and info for building details card view */
     private void buildingInfo(Polygon building){
         currentBuilding = building;
-        db.collection("facilities").document(building.name).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        String name = "b-" + building.name;
+        db.collection("points2").document(name).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
                     DocumentSnapshot documentSnapshot = task.getResult();
-                    String finalBuildingName = documentSnapshot.get("name").toString() + " (" + documentSnapshot.get("abbr").toString() + ")";
-                    buildingName.setText(finalBuildingName);
-                    List<Double> temp = (List<Double>) documentSnapshot.get("Hours");
-                    String avail = temp.get(0).intValue() + "am - " + (temp.get(1).intValue())%12 + "pm";
-                    hours.setText(avail);
+                    //String finalBuildingName = documentSnapshot.get("name").toString() + " (" + documentSnapshot.get("abbr").toString() + ")";
+                    //buildingName.setText(finalBuildingName);
+                    buildingName.setText(documentSnapshot.get("name").toString());
+                    //List<Double> temp = (List<Double>) documentSnapshot.get("Hours");
+                    //String avail = temp.get(0).intValue() + "am - " + (temp.get(1).intValue())%12 + "pm";
+                    //hours.setText(avail);
                 }
             }
         });
