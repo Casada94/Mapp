@@ -54,6 +54,7 @@ import com.example.mapp.entityObjects.Utility;
 import com.example.mapp.entityObjects.point;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -118,6 +119,9 @@ public class HomeFragment extends Fragment {
     private static float scalingFactorX = 0.87637f;
     private static float scalingFactorY = 0.87344f;
 
+    private FloatingActionButton water;
+    private FloatingActionButton bathroom;
+
 
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -132,6 +136,15 @@ public class HomeFragment extends Fragment {
             final PanoViewModel panoViewModel = new ViewModelProvider(requireActivity()).get(PanoViewModel.class);
             homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
             homeViewModel.incrementCount();
+
+            water = root.findViewById(R.id.waterBtn);
+            bathroom = root.findViewById(R.id.bathroomBtn);
+
+            BitmapFactory.Options options1 = new BitmapFactory.Options();
+            Bitmap temp = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.droplet, options1);
+            water.setImageBitmap(temp);
+            water.setElevation(25);
+
 
             /* Hides search button in action bar */
             if (homeViewModel.getCount().getValue() > 1) {
@@ -155,63 +168,6 @@ public class HomeFragment extends Fragment {
             other = root.findViewById(R.id.otherReason);
             Button submit = root.findViewById(R.id.submitReport);
 
-            //TEMP JUST FOR DB FILLING
-            Button dbFiller = root.findViewById(R.id.dbLoader);
-            dbFiller.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    InputStream in = null;
-                    BufferedReader bReader = null;
-                    try {
-                        in = getActivity().getAssets().open("dbFiller.txt");
-                        bReader = new BufferedReader(new InputStreamReader(in));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    String line = "";
-                    final String[][] tokens = new String[1][];
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-                    try {
-                        while ((line = bReader.readLine()) != null) {
-                            Map<String, Object> data = new HashMap<>();
-
-                            tokens[0] = line.split(",");
-
-                            if (tokens[0][0].contains(".")) {
-                                String[] tempSuper = tokens[0][0].split("[.]");
-                                System.out.println(tempSuper[0]);
-                                data.put("name", tempSuper[0].toUpperCase());
-                            } else {
-                                System.out.println(tokens[0][0]);
-                                data.put("name", tokens[0][0].toUpperCase());
-                            }
-
-                            data.put("coord1x", tokens[0][1]);
-                            data.put("coord1y", tokens[0][2]);
-                            data.put("coord2x", tokens[0][3]);
-                            data.put("coord2y", tokens[0][4]);
-                            data.put("coord3x", tokens[0][5]);
-                            data.put("coord3y", tokens[0][6]);
-                            data.put("coord4x", tokens[0][7]);
-                            data.put("coord4y", tokens[0][8]);
-
-                            db.collection("polygons").document(tokens[0][0].toLowerCase()).set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        System.out.println("added to db");
-                                    }
-                                }
-                            });
-
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
 
             /* Sets up the map */
             map = root.findViewById(R.id.map);
