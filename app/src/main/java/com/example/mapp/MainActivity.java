@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                db.collection("facilities")
+                db.collection("points2")
                             .whereEqualTo("name", searchView.getQuery().toString())
                             .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
