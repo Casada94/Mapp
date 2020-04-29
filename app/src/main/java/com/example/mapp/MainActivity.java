@@ -444,7 +444,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 docName += "p-";
             docName += p;
 //            Log.d("ken", "writepoint at " + docName);
-            FirebaseFirestore.getInstance().collection("points2").document(docName).set(points.get(p));
+            FirebaseFirestore.getInstance().collection("points").document(docName).set(points.get(p));
         }
     }
 
@@ -466,8 +466,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         switch(type){
                             case "b": p = document.toObject(Building.class);
                         break;
-                            case "u": p = document.toObject(Utility.class);
-                            break;
+//                            case "u": p = document.toObject(Utility.class);
+//                            break;
                             default: p = document.toObject(point.class);
                         }
                         savePoint(p, document.getId());
@@ -499,35 +499,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         {
                             savePoint(points.get(p), p);
                         }
-                    }
-                } else {
-                    Log.d("ken", "Error getting documents: ", task.getException());
-                }
-            }
-        });
-    }
-    public void KENupdateDB2()
-    {
-        CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("points2");
-        pointsDB.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()){
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    for(QueryDocumentSnapshot document : task.getResult())
-                    {
-                        Map<String, Object> hash = document.getData();
-                        point p = null;
-                        String name = (String) hash.get("name");
-                        double x = ((Number) hash.get("x")).doubleValue();
-                        double y = ((Number) hash.get("y")).doubleValue();
-                        ArrayList<String> neighbors = (ArrayList<String>) hash.get("neighbors");
-                        ArrayList<String> utilities = new ArrayList<String>(Arrays.asList("Restroom", "Water Fountain"));
-                        if(hash.size() == 5)
-                            p = new Building(name, x, y, neighbors, utilities);
-                        else
-                            p = new point(name, x, y, neighbors);
-                        db.collection("points").document(document.getId()).set(p);
                     }
                 } else {
                     Log.d("ken", "Error getting documents: ", task.getException());

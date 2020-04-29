@@ -98,6 +98,16 @@ public class point{
     {
         return Math.sqrt(Math.pow((this.x - p.getX()),2) + Math.pow((this.y - p.getY()), 2));
     }
+    public boolean hasUtility(String utility)
+    {
+        if(this.utilities.size() != 0)
+            for(String str : utilities)
+            {
+                if(str.toLowerCase().charAt(0) == utility.toLowerCase().charAt(0))
+                    return true;
+            }
+        return false;
+    }
     public String toString()
     {
         String neighborString = "";
