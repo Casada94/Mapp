@@ -78,8 +78,7 @@ public class LoginFragment extends Fragment {
         menuItem.setVisible(false);
 
         final FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        final FirebaseFirestore database = FirebaseFirestore.getInstance();
-        final DocumentReference users_emails = database.document("users/users_emails");
+
 
         /* Sets the click functionality of the forgot password text*/
         forgotPass.setOnClickListener(new View.OnClickListener() {
@@ -176,10 +175,5 @@ public class LoginFragment extends Fragment {
         return root;
     }
 
-
-    /* Checks the user input against DB login info */
-    private boolean checkCredentials(String username, String password){
-        return true;
-    }
 
 }

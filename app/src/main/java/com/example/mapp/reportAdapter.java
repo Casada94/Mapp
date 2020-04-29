@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
@@ -13,8 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
 public class reportAdapter extends RecyclerView.Adapter<reportAdapter.MyViewHolder>{
     private ArrayList<HashMap<String, String>> reports = new ArrayList<>();
     private Context context;
@@ -45,16 +42,17 @@ public class reportAdapter extends RecyclerView.Adapter<reportAdapter.MyViewHold
 
         }
 
+        /* Click call back interface to recognize clicks on individual elements of the recycler view */
         @Override
         public void onClick(View view){
             mListener.onClick(view, getAdapterPosition());
         }
 
+        /* Setters for the textviews of the individual elements within a given line in the recycler
+        * view */
         public void setBuildingName(String buildingName) { this.buildingName.setText(buildingName); }
         public void setReason(String reason) { this.reportReason.setText(reason); }
-        public void setStatus(String status){
-            this.status.setText(status);
-        }
+        public void setStatus(String status){ this.status.setText(status); }
         public void setStatusColor(String statusColor){
             if(statusColor.equals("red"))
                 this.status.setTextColor(Color.RED);

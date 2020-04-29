@@ -142,7 +142,6 @@ public class ScheduleFragment extends Fragment {
         /* Get Users Schedule */
         final FirebaseUser currUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        CollectionReference collRef = db.collection("users");
         final Calendar calendar = Calendar.getInstance();
         int day= 0;
         final TextView none = root.findViewById(R.id.none);
@@ -296,8 +295,6 @@ public class ScheduleFragment extends Fragment {
 
                 /* adds to current schedule locally and closes extraneous UI */
                 schedule.add(new Classes(cName, cLocation, days,time, amPM));
-                //className.clearComposingText();
-                //location.clearComposingText();
                 className.onEditorAction(EditorInfo.IME_ACTION_DONE);
                 location.onEditorAction(EditorInfo.IME_ACTION_DONE);
                 addClass.setVisibility(View.INVISIBLE);

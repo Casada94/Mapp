@@ -30,24 +30,22 @@ public class PanoFragment extends Fragment {
 
     private VrPanoramaView streetView;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
-
-    //private StorageReference ref = storage.getReference("images_360");
     private PanoViewModel panoViewModel;
-//    StorageReference storageRef = storage.getReference();
-//    StorageReference imageRef = storageRef.child("a360.jpg");
-//    StorageReference storageRef = storage.getReferenceFromUrl("gs://mapp-d533c/a360.jpg");
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         final View root = inflater.inflate(R.layout.fragment_pano, container, false);
-        final StorageReference ref = storage.getReference("images_360");//.child("tester.jpg");
+        final StorageReference ref = storage.getReference("images_360");
 
         /* Connects the view in XML with the java code */
         streetView = root.findViewById(R.id.panoView);
 
         panoViewModel = new ViewModelProvider(requireActivity()).get(PanoViewModel.class);
-        //ref = ref.child(panoViewModel.getPoint().getValue().getName() + "_360");
+
+        /* Observer, watching for changes in the point data of the 360 view
+        * onChange, pulls the associated picture from the database */
         final long ONE_MEGABYTE = 1024 * 1024;
         panoViewModel.getPoint().observe(getViewLifecycleOwner(), new Observer<point>() {
             @Override
