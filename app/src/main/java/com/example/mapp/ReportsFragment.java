@@ -69,25 +69,26 @@ public class ReportsFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.fragment_reports, container, false);
 
-        /* Connect the xml and the  code */
+        /* Connect the XML and Java code
+        * Elements of search/filter at the top of the app page */
         buildingSearch = root.findViewById(R.id.report_search);
         search = root.findViewById(R.id.report_search_btn);
         reportsList = root.findViewById(R.id.report_recyclerview);
         reasonSpinner = root.findViewById(R.id.type_spinner);
         status = root.findViewById(R.id.status_spinner);
 
+        /* Connect the XML and Java code
+        * Elements of the report details card that slides up from the bottom of the screen */
         reportDetailsCard = root.findViewById(R.id.report_details_card);
         buildingNameChange = root.findViewById(R.id.building_name);
         reasonChange = root.findViewById(R.id.reason_changeable);
         descriptionChange = root.findViewById(R.id.description_changeable);
         reportedDateChange = root.findViewById(R.id.reported_on_changeable);
         reportedByChange = root.findViewById(R.id.reported_by_changeable);
-
         resolvedByTxt = root.findViewById(R.id.closedByTxt);
         resolvedByChange = root.findViewById(R.id.closedBy_changeable);
         resolvedOnTxt = root.findViewById(R.id.closedOnTxt);
         resolvedOnChange = root.findViewById(R.id.closedOn_changeable);
-
         resolve = root.findViewById(R.id.resolved_button);
 
         /* Array adapters for the spinners and the auto complete text box */
@@ -103,20 +104,27 @@ public class ReportsFragment extends Fragment {
         final ArrayList<HashMap<String, String>> solvedReports = new ArrayList<>();
         final ArrayList<HashMap<String, String>> filteredReports = new ArrayList<>();
 
+        /* Layout Manager set up used for the recycler view of reports */
         LinearLayoutManager layoutManager = new LinearLayoutManager(root.getContext());
         reportsList.setLayoutManager(layoutManager);
 
+        /* Variables needed for determining the position of the report details card
+        * and tracking which element in the recycler view the details card is pertaining to */
         final boolean[] detailsShowing = new boolean[1];
         detailsShowing[0] = false;
         final String[] currentDocID = new String [1];
         final int[] currentPosition = new int[1];
+
+        /* Click listener for when an element of the recycler view is selected by the user
+        * may/may not slide the report details card up into view, depending on current visibility state
+        * populates the report details card with information associated with the selected report */
         RecyclerViewClickListener listener = new RecyclerViewClickListener() {
             @Override
             public void onClick(View view, int position) {
 
                 HashMap<String, String> filler = filteredReports.get(position);
                 currentPosition[0] = position;
-                //reportDetailsCard
+
 
                 buildingNameChange.setText(filler.get("facility"));
                 reasonChange.setText(filler.get("reason"));
@@ -124,7 +132,8 @@ public class ReportsFragment extends Fragment {
                 reportedDateChange.setText(filler.get("reportedOn").toString());
                 reportedByChange.setText(filler.get("reportedBy"));
 
-
+                /* Logic to change the visibility/layout of element in the report details card
+                * according to the status of the report */
                 if(filler.get("status").equals("active")){
                     resolvedByTxt.setVisibility(View.INVISIBLE);
                     resolvedByChange.setVisibility(View.INVISIBLE);
@@ -146,6 +155,7 @@ public class ReportsFragment extends Fragment {
                 currentDocID[0] = Objects.requireNonNull(filler.get("docID"));
                 System.out.println(currentDocID[0]);
 
+                /* animates the upward movement of the report card if its not currently visible */
                 if(!detailsShowing[0]){
                     detailsShowing[0] = true;
                     ViewPropertyAnimator animation = reportDetailsCard.animate();
@@ -157,10 +167,12 @@ public class ReportsFragment extends Fragment {
             }
         };
 
-
+        /* Initializes and sets the adapter for the recycler view of reports */
         myAdapter = new reportAdapter(getContext(), filteredReports, listener);
         reportsList.setAdapter(myAdapter);
 
+        /* Gets all of the active reports currently in the database
+        * stores them temporarily into memory */
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("activeReports").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -189,6 +201,8 @@ public class ReportsFragment extends Fragment {
             }
         });
 
+        /* Gets all of the solved reports from the database
+        * stores them temporarily into the database */
         db.collection("solvedReports").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -217,13 +231,11 @@ public class ReportsFragment extends Fragment {
             }
         });
 
-
-
-
+        /* Validates the user input search
+        * verifies that the user input is a building on campus */
         buildingSearch.setValidator(new AutoCompleteTextView.Validator() {
             @Override
             public boolean isValid(CharSequence text) {
-                boolean found = false;
                 for(int i = 0; i < textAdapter.getCount(); i ++){
                     if(text.equals(textAdapter.getItem(i))){
                         buildingSearch.setText(textAdapter.getItem(i));
@@ -233,6 +245,7 @@ public class ReportsFragment extends Fragment {
                 return false;
             }
 
+            /* Changes the user search data to the closest matching verified building data */
             @Override
             public CharSequence fixText(CharSequence invalidText) {
                 String temp = "oo";
@@ -249,6 +262,7 @@ public class ReportsFragment extends Fragment {
             }
         });
 
+        /* Trigger for the verification and text fixing of the search view */
         buildingSearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -257,6 +271,10 @@ public class ReportsFragment extends Fragment {
             }
         });
 
+        /* search button click listener
+        * performs validation
+        * filters reports
+        * updates recycler view accordingly */
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -270,6 +288,9 @@ public class ReportsFragment extends Fragment {
             }
         });
 
+        /* Listener for the dropdown menu
+        * filters reports
+        * updates report list accordingly */
         reasonSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -287,6 +308,9 @@ public class ReportsFragment extends Fragment {
             }
         });
 
+        /* Listener for the dropdown menu
+         * filters reports
+         * updates report list accordingly */
         status.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -302,7 +326,11 @@ public class ReportsFragment extends Fragment {
         });
 
 
-
+        /* Resolve button click listener
+        * gets all of the needed data of the active report
+        * adds addition data for moving the report to solvedReports
+        * writes the report to solvedReport collection
+        * removes report from activeReport collection */
         resolve.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -375,6 +403,7 @@ public class ReportsFragment extends Fragment {
             }
         });
 
+        /* TouchListener needed for swipe down to hide functionality of the report details card */
         final float[] y2 = new float[2];
         reportDetailsCard.setOnTouchListener(new View.OnTouchListener(){
             @Override
@@ -387,6 +416,7 @@ public class ReportsFragment extends Fragment {
                     case MotionEvent.ACTION_UP:
                         y2[1] = event.getY();
 
+                        /* animated transition */
                         if ((y2[0] - y2[1]) < -300) {
                             ViewPropertyAnimator animate = reportDetailsCard.animate();
                             animate.translationY(reportDetailsCard.getHeight());
@@ -406,14 +436,12 @@ public class ReportsFragment extends Fragment {
         return root;
     }
 
+    /* Filters reports for the recycler view of reports according to the currently selected
+    * drop down menu options and the user search criteria */
     public ArrayList<HashMap<String,String>> filter(ArrayList<HashMap<String, String>> active, ArrayList<HashMap<String, String>> solved, String userInput, String reason, String status){
         ArrayList<HashMap<String,String>> filtered = new ArrayList<>();
         ArrayList<HashMap<String, String>> total = new ArrayList<>();
 
-        System.out.println("___________FILTER CALLED------------");
-        System.out.println("user input: " + userInput);
-        System.out.println("reason: " + reason);
-        System.out.println("status: " + status);
         if(userInput == null || userInput.isEmpty()) {
             if (reason.toLowerCase().equals("all")) {
                 if (status.toLowerCase().equals("all")) {
@@ -423,7 +451,6 @@ public class ReportsFragment extends Fragment {
                 }
             }
         }
-
 
         if(status.equals("All")){
             for(int i = 0; i < active.size(); i++){

@@ -73,11 +73,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.BufferedReader;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -155,20 +150,23 @@ public class HomeFragment extends Fragment {
                 menuItem.setVisible(true);
             }
 
+            /* Connecting XML of Building Details to Java Code */
             buildingDetails = root.findViewById(R.id.buildingDetails);
             buildingDetails.setContentPadding(40, 20, 40, 20);
             buildingName = root.findViewById(R.id.bName);
             hours = root.findViewById(R.id.hours);
             ImageButton report = root.findViewById(R.id.report);
 
+            /* Connecting XML of Report card to Java Code */
             reportCard = root.findViewById(R.id.reportCard);
             reportCard.setContentPadding(40, 20, 40, 20);
             reasons = root.findViewById(R.id.reportReasons);
-            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.reportReasons, android.R.layout.simple_spinner_dropdown_item);
-            reasons.setAdapter(adapter);
-
             other = root.findViewById(R.id.otherReason);
             Button submit = root.findViewById(R.id.submitReport);
+
+            /* Set the values of report reason spinner */
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.reportReasons, android.R.layout.simple_spinner_dropdown_item);
+            reasons.setAdapter(adapter);
 
             water = root.findViewById(R.id.waterBtn);
             bathroom = root.findViewById(R.id.bathroomBtn);
@@ -181,38 +179,17 @@ public class HomeFragment extends Fragment {
             options.inMutable = true;
             final Bitmap mapMap;
             mapMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
-
             map.setImageBitmap(mapMap);
 
 
             final HashMap<String, point> allPoints = new HashMap<>(getAllPoints());
 
-
-            BitmapFactory.Options options1 = new BitmapFactory.Options();
-            Bitmap temp = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.droplet, options1);
-            water.setImageBitmap(temp);
-            water.setElevation(25);
-
+            /* Functionality for quick search find water floating action button */
             water.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                    }else
-                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListenerGPS);;
-//                    findNearestPoint(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
-                    Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    // Set in locations below manually if you want to test GPS location tracking
-//                    loc.setLongitude(-118.113265);
-//                    loc.setLatitude(33.778486);
-                    //point me = findNearestPoint(loc);
+                    Location loc = getLocation();
+
                     point me = allPoints.get("99");
 
                     String wanted = "water fountain";
@@ -222,12 +199,6 @@ public class HomeFragment extends Fragment {
                     map.setImageBitmap(drawRoute(mapMap, path));
                 }
             });
-
-
-            temp = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.toilet, options1);
-            bathroom.setImageBitmap(temp);
-            bathroom.setElevation(25);
-
 
 
             //temporarily here for seeing the paths
@@ -364,7 +335,7 @@ public class HomeFragment extends Fragment {
 
             final float y[] = new float[2];
 
-            /*Set onClickListeners for clickable UI elements*/
+            /*Set OnTouchListener for building details so that it may be swiped down to hide*/
             buildingDetails.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -391,6 +362,7 @@ public class HomeFragment extends Fragment {
                 }
             });
 
+            /* OnTouchListener for report card so that it may be swiped down to hide */
             final float[] y2 = new float[2];
             reportCard.setOnTouchListener(new View.OnTouchListener() {
                 @Override
@@ -417,7 +389,8 @@ public class HomeFragment extends Fragment {
                 }
             });
 
-
+            /* ClickListener to raise the report card into view
+            * animated move */
             report.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -428,6 +401,7 @@ public class HomeFragment extends Fragment {
                 }
             });
 
+            /* Caputres user input data and writes it to database */
             submit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -465,12 +439,12 @@ public class HomeFragment extends Fragment {
             });
 
 
+            /* Various variables needed for map movement touch functionality */
             final long[] startTime = {0};
             final long[] duration = {0};
             final int[] count = {0};
             final PointF firstXY = new PointF();
             final PointF secondXY = new PointF();
-
             final Handler handler = new Handler();
             final Runnable[] longPressed = new Runnable[1];
 
@@ -495,7 +469,7 @@ public class HomeFragment extends Fragment {
 
                             /* Sets up and initializes long press function  */
                             matrix.getValues(f);
-                            longPressed[0] = new Runn(new SimplePoint((int) (-f[2] / f[0] + event.getX() / f[0]), (int) (-f[5] / f[0] + event.getY() / f[0])), bOutlines);
+                            longPressed[0] = new Runn((int) (-f[2] / f[0] + event.getX() / f[0]), (int) (-f[5] / f[0] + event.getY() / f[0]), bOutlines);
                             handler.postDelayed(longPressed[0], ViewConfiguration.getLongPressTimeout());
 
                             break;
@@ -529,7 +503,7 @@ public class HomeFragment extends Fragment {
                                 if (f[Matrix.MSCALE_X] == 3) {
                                     if (distance < 30) {
                                         if (duration[0] <= 750) {
-                                            openStreetView(filtered, new SimplePoint((int) (-f[2] / f[0] + event.getX() / f[0]), (int) (-f[5] / f[0] + event.getY() / f[0])), panoViewModel);
+                                            openStreetView(filtered, (int) (-f[2] / f[0] + event.getX() / f[0]), (int) (-f[5] / f[0] + event.getY() / f[0]), panoViewModel);
                                         }
                                     }
                                 }
@@ -639,6 +613,7 @@ public class HomeFragment extends Fragment {
                     return (float) Math.sqrt(x * x + y * y);
                 }
 
+                /* Calculates where exactly on the screen the user wants to zoom in */
                 private void midPoint(PointF point, MotionEvent event) {
                     float x = event.getX(0) + event.getX(1);
                     float y = event.getY(0) + event.getY(1);
@@ -652,6 +627,21 @@ public class HomeFragment extends Fragment {
         return previousView;
     }
 
+    /* gets the current/Last known location of the user */
+    private Location getLocation(){
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+        }else
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListenerGPS);;
+
+        Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        return loc;
+    }
+
+    /* finds the closest point on the compass map according to the users location data
+    * used to find the starting point for direction/path finding */
     private point findNearestPoint(Location loc) {
         point closest = null;
         if(loc != null)
@@ -709,6 +699,11 @@ public class HomeFragment extends Fragment {
         return closest;
     }
 
+    /* moves the map to a destination point; typically a building
+    * first: scales image back to 1
+    * second: matrix translation to desired destination
+    * last: zoom into the location
+    * may add pin drop functionality */
     public void moveTo(point dest){
         float[] f = new float[9];
         matrix.getValues(f);
@@ -730,6 +725,7 @@ public class HomeFragment extends Fragment {
         savedMatrix.set(matrix);
     }
 
+    /* Needed location listener for finding users current location */
     LocationListener locationListenerGPS = new LocationListener(){
         public void onLocationChanged(Location location)
         {
@@ -752,7 +748,7 @@ public class HomeFragment extends Fragment {
         }
     };
 
-
+    /* draws lines on the map for direction purposes */
     public Bitmap drawRoute(Bitmap routeMap, float[] points){
         Canvas canvas = new Canvas(routeMap);
         Paint p = new Paint();
@@ -764,6 +760,9 @@ public class HomeFragment extends Fragment {
         return routeMap;
     }
 
+    /* Draws lines on the map for direction purposes
+    * better than above because it handles parsing of float array and setting up the proper order
+    * and repitiion of points */
     public Bitmap drawRoute(Bitmap routeMap, ArrayList<point> points){
         Canvas canvas = new Canvas((routeMap));
         Paint p = new Paint();
@@ -898,6 +897,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        /* Animation of building details card sliding up */
         ViewPropertyAnimator animation = buildingDetails.animate();
         animation.translationY(-buildingDetails.getHeight());
         animation.setDuration(750);
@@ -906,26 +906,29 @@ public class HomeFragment extends Fragment {
 
     /* Runnable class so that a variable can be passed to the runnable and open the building details card view */
     class Runn implements Runnable{
-        SimplePoint user;
+        int x;
+        int y;
         Polygon[] bOutlines;
-        Runn(SimplePoint user, Polygon[] bOutlines){
-            this.user = user;
+        Runn(int x, int y, Polygon[] bOutlines){
+            this.x = x;
+            this.y = y;
             this.bOutlines = bOutlines;
         }
 
         @Override
         public void run(){
-            System.out.println("User selected (" + user.x + ", " + user.y + ")");
+
             for (Polygon bOutline : bOutlines) {
-                if (bOutline.contains(user.x, user.y)) {
+                if (bOutline.contains(x, y)) {
                     buildingInfo(bOutline);
                 }
             }
         }
     }
 
-    /*  */
-    private void openStreetView(ArrayList<point> streetViews, SimplePoint userTouch, PanoViewModel pano){
+    /* Determines where the user has double clicked and which streetview is closest to that
+    * updates the viewmodel of the panorama class and navigates to that fragment */
+    private void openStreetView(ArrayList<point> streetViews, int userX, int userY, PanoViewModel pano){
         if(streetViews.isEmpty()){
             streetViews = readData();
         }
@@ -936,7 +939,7 @@ public class HomeFragment extends Fragment {
         for(int i = 0; i < streetViews.size(); i++){
             streetX = (float)streetViews.get(i).getX();
             streetY = (float)streetViews.get(i).getY();
-            testDistance = (float) Math.sqrt(Math.pow((userTouch.x - streetX),2) + Math.pow(userTouch.y - streetY, 2));
+            testDistance = (float) Math.sqrt(Math.pow((userX - streetX),2) + Math.pow(userY - streetY, 2));
             if(testDistance < bestDistance){
                 bestDistance = testDistance;
                 closest = streetViews.get(i);
@@ -947,7 +950,8 @@ public class HomeFragment extends Fragment {
         navController.navigate(R.id.panoramaview);
     }
 
-    /*  */
+    /* Reads streetview points data into memory from either shared preferences of the DB depending
+    * on when the last update was */
     private ArrayList<point> readData() {
         if (upToDate("lastUpdateStreetViewPoints")) {
             /* pull from shared preferences */
@@ -1017,6 +1021,8 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    /* reads all of the map points into memory from shared Preferences
+    * the returned data is used for direction and search functionality */
     public HashMap<String, point> getAllPoints(){
         HashMap<String, point> points = new HashMap<>();
         SharedPreferences mPrefs = getActivity().getSharedPreferences("points", 0);
@@ -1043,6 +1049,7 @@ public class HomeFragment extends Fragment {
         return  points;
     }
 
+    /* Used to find the closest point of user interest */
     public point findDestination(HashMap<String, point> allPoints, point me, String wanted){
         point closest = new point();
         float distance = 10000;
@@ -1076,7 +1083,7 @@ public class HomeFragment extends Fragment {
         }
         return schedulePath;
     }
-    //finds path from point start to point dest based on the graph defined by points
+    /* finds path from point start to point dest based on the graph defined by points */
     public static ArrayList<point> findPath(HashMap<String, point> points, point start, point dest)
     {
         ArrayList<point> neighbors = new ArrayList<point>();

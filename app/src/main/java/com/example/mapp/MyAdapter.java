@@ -6,12 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.mapp.Classes;
 import androidx.recyclerview.widget.RecyclerView;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -54,24 +50,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             }
         }
 
+        /* Click listener callback interface for recognizing clicks each element of the
+        * recycler view for schedule */
         @Override
         public void onClick(View view){
             mListener.onClick(view, getAdapterPosition());
         }
 
-        public void setClassName(String className) {
-            this.className.setText(className);
-        }
-
-        public void setLocation(String location) {
-            this.location.setText(location);
-        }
-        public void setDays(String days){
-            this.days.setText(days);
-        }
-        public void setTime(String time){
-            this.time.setText(time);
-        }
+        /* setters for textviews in each row of the schedule recylcer view*/
+        public void setClassName(String className) { this.className.setText(className); }
+        public void setLocation(String location) { this.location.setText(location); }
+        public void setDays(String days){ this.days.setText(days); }
+        public void setTime(String time){ this.time.setText(time); }
         public void setIsPm(Boolean isPm){
             if(isPm)
                 this.isPm.setText("PM");

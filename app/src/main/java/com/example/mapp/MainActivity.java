@@ -161,9 +161,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .setDrawerLayout(drawer)
                 .build();
 
-
-
-
         /* sets up the navigation controller
           used to change fragments**/
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
@@ -172,11 +169,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         NavigationUI.setupWithNavController(navigationView,navController);
 
 
-
         /* connects all the XML elements to the java code**/
-        TextView userInNav = (TextView) navigationView.getHeaderView(0).findViewById(R.id.whoIsIt);
-        TextView home = (TextView) navigationView.getHeaderView(0).findViewById(R.id.nav_home);
-        Menu menu = (Menu) navigationView.getMenu();
+        TextView userInNav = navigationView.getHeaderView(0).findViewById(R.id.whoIsIt);
+        TextView home = navigationView.getHeaderView(0).findViewById(R.id.nav_home);
+        Menu menu = navigationView.getMenu();
         MenuItem login = menu.findItem(R.id.login_frag);
         final MenuItem schedule = menu.findItem(R.id.schedule_frag);
         final MenuItem reports = menu.findItem(R.id.report_frag);
@@ -249,14 +245,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    /* Updates the navigation slider view to show/hide reports and schedule */
     public void updateNavigation(MenuItem reports, MenuItem schedule, boolean showReports){
         if(showReports){
-            System.out.println("----------------SHOWING REPORTS------------------");
             schedule.setVisible(false);
             reports.setVisible(true);
         }
         else{
-            System.out.println("----------------NOT SHOWING REPORTS----------------------");
             schedule.setVisible(true);
             reports.setVisible(false);
         }
@@ -302,6 +297,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 searchManager.getSearchableInfo(getComponentName()));
 
 
+        /* Getting user search data */
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {

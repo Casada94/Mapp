@@ -37,7 +37,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="8dp"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:src="@drawable/droplet"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/bathroomBtn"
@@ -47,6 +48,7 @@
         android:layout_marginEnd="8dp"
         app:layout_constraintTop_toBottomOf="@id/waterBtn"
         android:layout_marginTop="8dp"
+        android:src="@drawable/toilet"
         />
 
 
@@ -138,7 +140,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
             <TextView
@@ -167,8 +169,7 @@
                 android:id="@+id/report"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
+
                 android:background="#00FFFFFF"
                 android:src="@drawable/report_sign"
                 android:tint="#00FFFFFF"
@@ -208,13 +209,11 @@
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
                 android:text="go"
-                android:textColor="#FFFFFF"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:textColor="@color/colorWhite"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.85" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="20dp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -224,10 +223,9 @@
         android:id="@+id/Draw"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
         android:layout_marginBottom="30dp"
         android:text="Draw"
-        app:layout_constraintBottom_toTopOf="@+id/reportCard"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

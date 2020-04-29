@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.mapp.entityObjects.point;
 
+/* Panorama view model used for inter-fragment communication */
 public class PanoViewModel extends ViewModel {
     private final MutableLiveData<point> streetViewPoint = new MutableLiveData<>();
 
