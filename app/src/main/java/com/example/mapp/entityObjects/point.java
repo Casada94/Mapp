@@ -10,6 +10,7 @@ public class point{
     private double y;
     private ArrayList<String> neighbors;
     private String name;
+    private ArrayList<String> utilities;
 
     public point()
     {
@@ -21,6 +22,7 @@ public class point{
         this.x = 0;
         this.y = 0;
         neighbors = new ArrayList<String>();
+        utilities = new ArrayList<String>();
     }
     public point(String name, double x, double y)
     {
@@ -28,6 +30,7 @@ public class point{
         this.x = x;
         this.y = y;
         neighbors = new ArrayList<String>();
+        utilities = new ArrayList<String>();
     }
     public point(String name, double x, double y, ArrayList<String> neighbors)
     {
@@ -35,6 +38,15 @@ public class point{
         this.x = x;
         this.y = y;
         this.neighbors = neighbors;
+        this.utilities = new ArrayList<>();
+    }
+    public point(String name, double x, double y, ArrayList<String> neighbors, ArrayList<String> utilities)
+    {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+        this.neighbors = neighbors;
+        this.utilities = utilities;
     }
 
 
@@ -75,9 +87,26 @@ public class point{
         if(!neighbors.contains(p.name))
             neighbors.add(p.getName());
     }
-    public double distance(point p)
+    public ArrayList<String> getUtilities()
+    {
+        return utilities;
+    }
+    public void setUtilities(ArrayList<String> utilities)
+    {
+        this.utilities = utilities;
+    }    public double distance(point p)
     {
         return Math.sqrt(Math.pow((this.x - p.getX()),2) + Math.pow((this.y - p.getY()), 2));
+    }
+    public boolean hasUtility(String utility)
+    {
+        if(this.utilities.size() != 0)
+            for(String str : utilities)
+            {
+                if(str.toLowerCase().charAt(0) == utility.toLowerCase().charAt(0))
+                    return true;
+            }
+        return false;
     }
     public String toString()
     {
