@@ -135,7 +135,7 @@
         android:padding="10dp"
         app:cardCornerRadius="30dp"
         app:cardElevation="25dp"
-        app:layout_constraintTop_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -159,17 +159,28 @@
                 android:id="@+id/hours"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="Hours"
+                android:text="Hours: "
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="@id/bName"
-                app:layout_constraintTop_toBottomOf="@id/bName" />
+                app:layout_constraintTop_toBottomOf="@id/bName"
+                android:layout_marginTop="10dp"/>
+
+            <TextView
+                android:id="@+id/hours_changeable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@id/hours"
+                app:layout_constraintBottom_toBottomOf="@id/hours"
+                app:layout_constraintStart_toEndOf="@id/hours"
+                android:layout_marginStart="5dp"
+                android:text="10am - 10pm"
+                android:textColor="@color/colorBlack"
+                android:textSize="18sp"/>
 
             <ImageButton
                 android:id="@+id/report"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
                 android:background="#00FFFFFF"
                 android:src="@drawable/report_sign"
                 android:tint="#00FFFFFF"
@@ -177,38 +188,65 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/numActiveReports"
+                android:id="@+id/current_ReportsTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Active Reports:"
+                android:text="@string/current_reports"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="@id/hours"
-                app:layout_constraintTop_toBottomOf="@id/hours" />
+                app:layout_constraintTop_toBottomOf="@id/hours"
+                android:layout_marginTop="10dp"/>
 
             <TextView
-                android:id="@+id/bStatus"
+                android:id="@+id/broken_reportsTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Building Status"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="@id/numActiveReports"
-                app:layout_constraintTop_toBottomOf="@id/numActiveReports" />
+                android:textSize="16sp"
+                android:text="Broken: "
+                app:layout_constraintTop_toBottomOf="@id/current_ReportsTxt"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="25dp"
+                />
 
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/buildingStatus"
+            <TextView
+                android:id="@+id/broken_changeable"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="7dp"
-                app:layout_constraintBottom_toBottomOf="@id/bStatus"
-                app:layout_constraintStart_toEndOf="@id/bStatus"
-                app:layout_constraintTop_toTopOf="@id/bStatus" />
+                app:layout_constraintStart_toEndOf="@id/broken_reportsTxt"
+                app:layout_constraintTop_toTopOf="@id/broken_reportsTxt"
+                app:layout_constraintBottom_toBottomOf="@id/broken_reportsTxt"
+                android:text="10"
+                android:textSize="16sp"
+                android:textColor="@color/colorBlack"/>
+
+            <TextView
+                android:id="@+id/other_reportsTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:text="Other: "
+                app:layout_constraintTop_toTopOf="@id/broken_reportsTxt"
+                app:layout_constraintStart_toEndOf="@id/broken_reportsTxt"
+                android:layout_marginStart="40dp"/>
+
+            <TextView
+                android:id="@+id/other_changeable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/colorBlack"
+                android:text="2"
+                app:layout_constraintStart_toEndOf="@id/other_reportsTxt"
+                app:layout_constraintTop_toTopOf="@id/other_reportsTxt"
+                app:layout_constraintBottom_toBottomOf="@id/other_reportsTxt"/>
+
 
             <Button
                 android:id="@+id/directionsToBuildingButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
-                android:text="go"
+                android:text="go to"
                 android:textColor="@color/colorWhite"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
