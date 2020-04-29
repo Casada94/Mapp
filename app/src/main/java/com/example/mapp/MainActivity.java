@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //        KENupdateDB();
 //        Log.d("Ken", " success!");
         //Reads points from the database and stores it in the SharedPreference
-//        readPointsDB();
+//       readPointsDB();
 //        writePointsDB();
         final PanoViewModel panoViewModel = new ViewModelProvider(this).get(PanoViewModel.class);
         final HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
@@ -467,8 +467,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         switch(type){
                             case "b": p = document.toObject(Building.class);
                         break;
-//                            case "u": p = document.toObject(Utility.class);
-//                            break;
+                            case "u": p = document.toObject(Utility.class);
+                            break;
                             default: p = document.toObject(point.class);
                         }
                         savePoint(p, document.getId());

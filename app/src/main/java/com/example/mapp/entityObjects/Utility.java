@@ -11,12 +11,19 @@ public class Utility extends point{
 	private ArrayList<String> contents;
 	private Building building;
 
+	public Utility()
+	{
+		super();
+		contents = new ArrayList<String>();
+	}
+
 	public Utility(Type type)
 	{
 		super();
 		this.type = type;
 		contents = new ArrayList<String>();
 	}
+	public String getName(){ return "water fountain"; }
 	public void addContent(String content)
 	{
 		contents.add(content);

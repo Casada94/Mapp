@@ -3,6 +3,9 @@ package com.example.mapp;
 
 import android.Manifest;
 import android.accessibilityservice.AccessibilityService;
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -13,11 +16,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -29,6 +34,9 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -39,8 +47,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -137,14 +147,6 @@ public class HomeFragment extends Fragment {
             homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
             homeViewModel.incrementCount();
 
-            water = root.findViewById(R.id.waterBtn);
-            bathroom = root.findViewById(R.id.bathroomBtn);
-
-            BitmapFactory.Options options1 = new BitmapFactory.Options();
-            Bitmap temp = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.droplet, options1);
-            water.setImageBitmap(temp);
-            water.setElevation(25);
-
 
             /* Hides search button in action bar */
             if (homeViewModel.getCount().getValue() > 1) {
@@ -168,6 +170,9 @@ public class HomeFragment extends Fragment {
             other = root.findViewById(R.id.otherReason);
             Button submit = root.findViewById(R.id.submitReport);
 
+            water = root.findViewById(R.id.waterBtn);
+            bathroom = root.findViewById(R.id.bathroomBtn);
+
 
             /* Sets up the map */
             map = root.findViewById(R.id.map);
@@ -178,6 +183,52 @@ public class HomeFragment extends Fragment {
             mapMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
 
             map.setImageBitmap(mapMap);
+
+
+            final HashMap<String, point> allPoints = new HashMap<>(getAllPoints());
+
+
+            BitmapFactory.Options options1 = new BitmapFactory.Options();
+            Bitmap temp = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.droplet, options1);
+            water.setImageBitmap(temp);
+            water.setElevation(25);
+
+            water.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                    }else
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListenerGPS);;
+//                    findNearestPoint(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+                    Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    // Set in locations below manually if you want to test GPS location tracking
+//                    loc.setLongitude(-118.113265);
+//                    loc.setLatitude(33.778486);
+                    //point me = findNearestPoint(loc);
+                    point me = allPoints.get("99");
+
+                    String wanted = "water fountain";
+                    point destination = findDestination(allPoints, me, wanted);
+                    ArrayList<point> path = findPath(allPoints, me, destination);
+
+                    map.setImageBitmap(drawRoute(mapMap, path));
+                }
+            });
+
+
+            temp = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.toilet, options1);
+            bathroom.setImageBitmap(temp);
+            bathroom.setElevation(25);
+
+
 
             //temporarily here for seeing the paths
             // Uncomment readPointsDB in main activity to update the sharedPreferences
@@ -488,6 +539,7 @@ public class HomeFragment extends Fragment {
 
                         case MotionEvent.ACTION_POINTER_UP:
                             mode = NONE;
+
                             break;
 
                         case MotionEvent.ACTION_MOVE:
@@ -657,6 +709,27 @@ public class HomeFragment extends Fragment {
         return closest;
     }
 
+    public void moveTo(point dest){
+        float[] f = new float[9];
+        matrix.getValues(f);
+        matrix.postScale(1/f[Matrix.MSCALE_X],1/f[Matrix.MSCALE_Y]);
+
+        matrix.getValues(f);
+        float transX = f[Matrix.MTRANS_X];
+        float transY = f[Matrix.MTRANS_Y];
+
+        float moveXBy = (float)(1040 - (dest.getX() + transX));
+        float moveYBy = (float)(900 - (dest.getY() + transY));
+
+        matrix.postScale(1/f[Matrix.MSCALE_X],1/f[Matrix.MSCALE_Y]);
+
+        matrix.postTranslate(moveXBy,moveYBy);
+
+        matrix.postScale(2/f[Matrix.MSCALE_X],2/f[Matrix.MSCALE_Y], 545, 604);
+        map.setImageMatrix(matrix);
+        savedMatrix.set(matrix);
+    }
+
     LocationListener locationListenerGPS = new LocationListener(){
         public void onLocationChanged(Location location)
         {
@@ -688,6 +761,34 @@ public class HomeFragment extends Fragment {
         p.setStyle(Paint.Style.STROKE);
         p.setStrokeWidth(3);
         canvas.drawLines(points, p);
+        return routeMap;
+    }
+
+    public Bitmap drawRoute(Bitmap routeMap, ArrayList<point> points){
+        Canvas canvas = new Canvas((routeMap));
+        Paint p = new Paint();
+        p.setColor(Color.BLUE);
+        p.setAntiAlias(true);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(3);
+
+        ArrayList<Float> path = new ArrayList<>();
+
+        for(int i = 0; i< points.size(); i++){
+            path.add((float)points.get(i).getX());
+            path.add((float)points.get(i).getY());
+
+            if(i != 0 || i!= points.size()-1){
+                path.add((float)points.get(i).getX());
+                path.add((float)points.get(i).getY());
+            }
+        }
+        float[] finishedPath = new float[path.size()];
+        for(int i = 0; i < path.size(); i++){
+            finishedPath[i] = path.get(i);
+        }
+
+        canvas.drawLines(finishedPath,p);
         return routeMap;
     }
 
@@ -914,6 +1015,47 @@ public class HomeFragment extends Fragment {
 
             return points;
         }
+    }
+
+    public HashMap<String, point> getAllPoints(){
+        HashMap<String, point> points = new HashMap<>();
+        SharedPreferences mPrefs = getActivity().getSharedPreferences("points", 0);
+        Gson gson = new Gson();
+        Map<String, ?> keys = mPrefs.getAll();
+        for (String name : keys.keySet()) {
+            String json = keys.get(name).toString();
+            point p = null;
+            switch (name.split("-")[0]) {
+                case "b":
+                    p = gson.fromJson(json, new TypeToken<Building>() {
+                    }.getType());
+                    break;
+                case "u":
+                    p = gson.fromJson(json, new TypeToken<Utility>() {
+                    }.getType());
+                    break;
+                default:
+                    p = gson.fromJson(json, new TypeToken<point>() {
+                    }.getType());
+            }
+            points.put(p.getName(), p);
+        }
+        return  points;
+    }
+
+    public point findDestination(HashMap<String, point> allPoints, point me, String wanted){
+        point closest = new point();
+        float distance = 10000;
+        for(String p : allPoints.keySet()){
+            if(wanted.equals(allPoints.get(p).getName())){
+                float currDist = (float)Math.sqrt(Math.pow((me.getX()-allPoints.get(p).getX()),2) - Math.pow((me.getY() - allPoints.get(p).getY()),2));
+                if(currDist < distance){
+                    distance = currDist;
+                    closest = allPoints.get(p);
+                }
+            }
+        }
+        return closest;
     }
 
     /*finds path based on points of the schedule as an input
