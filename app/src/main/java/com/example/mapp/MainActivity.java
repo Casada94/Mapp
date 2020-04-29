@@ -68,9 +68,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -127,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
-//        KENupdateDB();
+//        KENupdateDB2();
 //        Log.d("Ken", " success!");
         //Reads points from the database and stores it in the SharedPreference
 //        readPointsDB();
@@ -392,8 +394,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         String docName = "";
         if(p.getClass() == Building.class)
             docName += "b-";
-        else if(p.getClass() == Utility.class)
-            docName += "u-";
+//        else if(p.getClass() == Utility.class)
+//            docName += "u-";
         else
             docName += "p-";
         docName += p.getName();
@@ -417,8 +419,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             switch(name.split("-")[0]){
                 case "b": p = gson.fromJson(json, new TypeToken<Building>(){}.getType());
                    break;
-                case "u" : p = gson.fromJson(json, new TypeToken<Utility>(){}.getType());
-                    break;
+//                case "u" : p = gson.fromJson(json, new TypeToken<Utility>(){}.getType());
+//                    break;
                 default:
                     p = gson.fromJson(json, new TypeToken<point>(){}.getType());
             }
@@ -439,8 +441,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if(points.get(p).getClass() == Building.class)
             {
                 docName += "b-";
-            }else if(points.get(p).getClass() == Utility.class)
-                docName += "u-";
+            }
+//            else if(points.get(p).getClass() == Utility.class)
+//                docName += "u-";
             else
                 docName += "p-";
             docName += p;
@@ -455,7 +458,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         SharedPreferences mPrefs = getSharedPreferences("points", 0);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
         prefsEditor.clear().commit();
-        CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("points2");
+        CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("points");
         pointsDB.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -500,6 +503,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         {
                             savePoint(points.get(p), p);
                         }
+                    }
+                } else {
+                    Log.d("ken", "Error getting documents: ", task.getException());
+                }
+            }
+        });
+    }
+    public void KENupdateDB2()
+    {
+        CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("points2");
+        pointsDB.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()){
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    for(QueryDocumentSnapshot document : task.getResult())
+                    {
+                        Map<String, Object> hash = document.getData();
+                        point p = null;
+                        String name = (String) hash.get("name");
+                        double x = ((Number) hash.get("x")).doubleValue();
+                        double y = ((Number) hash.get("y")).doubleValue();
+                        ArrayList<String> neighbors = (ArrayList<String>) hash.get("neighbors");
+                        ArrayList<String> utilities = new ArrayList<String>(Arrays.asList("Restroom", "Water Fountain"));
+                        if(hash.size() == 5)
+                            p = new Building(name, x, y, neighbors, utilities);
+                        else
+                            p = new point(name, x, y, neighbors);
+                        db.collection("points").document(document.getId()).set(p);
                     }
                 } else {
                     Log.d("ken", "Error getting documents: ", task.getException());

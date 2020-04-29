@@ -199,10 +199,10 @@ public class HomeFragment extends Fragment {
                                 p = gson.fromJson(json, new TypeToken<Building>() {
                                 }.getType());
                                 break;
-                            case "u":
-                                p = gson.fromJson(json, new TypeToken<Utility>() {
-                                }.getType());
-                                break;
+//                            case "u":
+//                                p = gson.fromJson(json, new TypeToken<Utility>() {
+//                                }.getType());
+//                                break;
                             default:
                                 p = gson.fromJson(json, new TypeToken<point>() {
                                 }.getType());
@@ -215,39 +215,35 @@ public class HomeFragment extends Fragment {
                         ArrayList<Float> pointsf = new ArrayList<>();
                         for (String n : points.get(p).getNeighbors()) {
                             point p1 = points.get(p);
-//                        try{
-//                            Double.parseDouble(n);
-//                            n = "p-n;
-//                        }catch (NumberFormatException nfe)
-//                        {
-//                            n = "b-" + n;
-//                        }
+
                             point p2 = points.get(n);
+//                            if(p2 != null) {
+                                float x1 = (float) p1.getX();
+                                float y1 = (float) p1.getY();
+                                float x2 = (float) p2.getX();
+                                float y2 = (float) p2.getY();
 
-//                            Log.d("ken", p + " " + n);
-                            float x1 = (float) p1.getX();
-                            float y1 = (float) p1.getY();
-                            float x2 = (float) p2.getX();
-                            float y2 = (float) p2.getY();
-
-                            if (p1.getClass() == Building.class) {
-                                x1 /= scalingFactorX;
-                                y1 /= scalingFactorY;
-                            } else {
-//                            x1 += 20;
-//                            y1 -= 20;
-                            }
-                            if (p2.getClass() == Building.class) {
-                                x2 /= scalingFactorX;
-                                y2 /= scalingFactorY;
-                            } else {
-//                            x2 += 20;
-//                            y2 -= 20;
-                            }
-                            pointsf.add(x1);
-                            pointsf.add(y1);
-                            pointsf.add(x2);
-                            pointsf.add(y2);
+                                if (p1.getClass() == Building.class) {
+                                    x1 /= scalingFactorX;
+                                    y1 /= scalingFactorY;
+                                } else {
+    //                            x1 += 20;
+    //                            y1 -= 20;
+                                }
+                                if (p2.getClass() == Building.class) {
+                                    x2 /= scalingFactorX;
+                                    y2 /= scalingFactorY;
+                                } else {
+    //                            x2 += 20;
+    //                            y2 -= 20;
+                                }
+                                pointsf.add(x1);
+                                pointsf.add(y1);
+                                pointsf.add(x2);
+                                pointsf.add(y2);
+//                            }
+//                            else
+//                                Log.d("ken", "p2 is null" + (p2 == null) + "for p = " + p + " and n = " + n);
                         }
                         float[] pts = new float[pointsf.size()];
                         for (int i = 0; i < pts.length; i++)
@@ -268,8 +264,8 @@ public class HomeFragment extends Fragment {
 //                    findNearestPoint(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
                     Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                     // Set in locations below manually if you want to test GPS location tracking
-//                    loc.setLongitude(-118.113265);
-//                    loc.setLatitude(33.778486);
+                    loc.setLongitude(-118.113265);
+                    loc.setLatitude(33.778486);
                     point p = findNearestPoint(loc);
                     Log.d("ken_GPS",  "closest point is " + p.getName());
                 }
@@ -622,10 +618,10 @@ public class HomeFragment extends Fragment {
                             p = gson.fromJson(json, new TypeToken<Building>() {
                             }.getType());
                             break;
-                        case "u":
-                            p = gson.fromJson(json, new TypeToken<Utility>() {
-                            }.getType());
-                            break;
+//                        case "u":
+//                            p = gson.fromJson(json, new TypeToken<Utility>() {
+//                            }.getType());
+//                            break;
                         default:
                             p = gson.fromJson(json, new TypeToken<point>() {
                             }.getType());
@@ -634,7 +630,7 @@ public class HomeFragment extends Fragment {
                 }
                 closest = new point("default", Double.MAX_VALUE, Double.MAX_VALUE);
 //                Log.d("ken_GPS" , );
-                Log.d("ken_GPS", Double.toString(currGPS.distance(points.get("596"))));
+//                Log.d("ken_GPS", Double.toString(currGPS.distance(points.get("596"))));
                 double minDistance = currGPS.distance(closest);
                 for (String p : points.keySet()) {
 //                    Log.d("ken_GPS", "minDistance: " + minDistance + " evaluating " + points.get(p).getName());
@@ -782,7 +778,7 @@ public class HomeFragment extends Fragment {
     private void buildingInfo(Polygon building){
         currentBuilding = building;
         String name = "b-" + building.name;
-        db.collection("points2").document(name).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        db.collection("points").document(name).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
