@@ -1,11 +1,6 @@
 package com.example.mapp;
 
-
 import android.Manifest;
-import android.accessibilityservice.AccessibilityService;
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -16,13 +11,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -34,9 +27,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -47,20 +37,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-
 import com.example.mapp.entityObjects.Building;
-import com.example.mapp.entityObjects.Report;
-import com.example.mapp.entityObjects.Utility;
 import com.example.mapp.entityObjects.point;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -122,7 +108,7 @@ public class HomeFragment extends Fragment {
     private static final int mapSize_x = 4700;
     private static final int mapSize_y = 5008;
     private static float scalingFactorX = 0.87637f;
-    private static float scalingFactorY = 0.87344f;
+    private static float scalingFactorY = 0.8734f;
 
     private FloatingActionButton water;
     private FloatingActionButton bathroom;
@@ -182,7 +168,8 @@ public class HomeFragment extends Fragment {
             map.setImageBitmap(mapMap);
 
 
-            final HashMap<String, point> allPoints = new HashMap<>(getAllPoints());
+            final HashMap<String, point> allPoints = getAllPoints();
+
 
             /* Functionality for quick search find water floating action button */
             water.setOnClickListener(new View.OnClickListener() {
@@ -190,15 +177,51 @@ public class HomeFragment extends Fragment {
                 public void onClick(View v) {
                     Location loc = getLocation();
 
-                    point me = allPoints.get("99");
+                    /* Only for demonstration purposes because we are not on campus */
+                    loc.setLongitude(-118.113265);
+                    loc.setLatitude(33.778486);
 
-                    String wanted = "water fountain";
+                    point me = findNearestPoint(loc);
+
+                    String wanted = "Water Fountain";
                     point destination = findDestination(allPoints, me, wanted);
                     float [] path = findPath(allPoints, me, destination);
                     map.setImageBitmap(drawRoute(mapMap, path));
+                    moveTo(destination);
                 }
             });
 
+            bathroom.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Location loc = getLocation();
+
+                    /* Only for demonstration purposes because we are not on campus */
+                    loc.setLongitude(-118.113265);
+                    loc.setLatitude(33.778486);
+
+                    point me = findNearestPoint(loc);
+
+                    String wanted = "restroom";
+                    point destination = findDestination(allPoints, me, wanted);
+                    float [] path = findPath(allPoints, me, destination);
+                    map.setImageBitmap(drawRoute(mapMap, path));
+                    moveTo(destination);
+                }
+            });
+
+            homeViewModel.getClasses().observe(getViewLifecycleOwner(), new Observer<ArrayList<Classes>>() {
+                @Override
+                public void onChanged(ArrayList<Classes> classes) {
+                    ArrayList<point> schedulePoints = new ArrayList<>();
+
+                    for(int i = 0; i < classes.size(); i++){
+                        schedulePoints.add(getPoint(allPoints, classes.get(i)));
+                    }
+
+                    drawSchedulePath(allPoints, schedulePoints, mapMap);
+                }
+            });
 
             //temporarily here for seeing the paths
             // Uncomment readPointsDB in main activity to update the sharedPreferences
@@ -248,15 +271,15 @@ public class HomeFragment extends Fragment {
                                     x1 /= scalingFactorX;
                                     y1 /= scalingFactorY;
                                 } else {
-    //                            x1 += 20;
-    //                            y1 -= 20;
+                                x1 += 7;
+                                y1 -= 33;
                                 }
                                 if (p2.getClass() == Building.class) {
                                     x2 /= scalingFactorX;
                                     y2 /= scalingFactorY;
                                 } else {
-    //                            x2 += 20;
-    //                            y2 -= 20;
+                                x2 += 7;
+                                y2 -= 33;
                                 }
                                 pointsf.add(x1);
                                 pointsf.add(y1);
@@ -396,7 +419,7 @@ public class HomeFragment extends Fragment {
                 }
             });
 
-            /* Caputres user input data and writes it to database */
+            /* Captures user input data and writes it to database */
             submit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -711,7 +734,7 @@ public class HomeFragment extends Fragment {
         float moveXBy = (float)(1040 - (dest.getX() + transX));
         float moveYBy = (float)(900 - (dest.getY() + transY));
 
-        matrix.postScale(1/f[Matrix.MSCALE_X],1/f[Matrix.MSCALE_Y]);
+
 
         matrix.postTranslate(moveXBy,moveYBy);
 
@@ -719,6 +742,16 @@ public class HomeFragment extends Fragment {
         map.setImageMatrix(matrix);
         savedMatrix.set(matrix);
     }
+
+    public point getPoint(HashMap<String, point> allPoints, Classes classes){
+
+        for(String p: allPoints.keySet()){
+            if(allPoints.get(p).getName().equals(classes.getLocation()))
+                return allPoints.get(p);
+        }
+        return null;
+    }
+
 
     /* Needed location listener for finding users current location */
     LocationListener locationListenerGPS = new LocationListener(){
@@ -1041,6 +1074,7 @@ public class HomeFragment extends Fragment {
             }
             points.put(p.getName(), p);
         }
+
         return  points;
     }
 
@@ -1048,6 +1082,7 @@ public class HomeFragment extends Fragment {
     public point findDestination(HashMap<String, point> allPoints, point me, String wanted){
         point closest = new point();
         float distance = 10000;
+
         for(String p : allPoints.keySet()){
             if(allPoints.get(p).hasUtility(wanted)){
                 float currDist = (float)Math.sqrt(Math.pow((me.getX()-allPoints.get(p).getX()),2) - Math.pow((me.getY() - allPoints.get(p).getY()),2));

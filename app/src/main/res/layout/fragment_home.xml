@@ -135,7 +135,7 @@
         android:padding="10dp"
         app:cardCornerRadius="30dp"
         app:cardElevation="25dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintTop_toBottomOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

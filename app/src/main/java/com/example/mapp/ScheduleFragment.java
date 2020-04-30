@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -34,19 +33,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 public class ScheduleFragment extends Fragment {
 
@@ -57,6 +53,9 @@ public class ScheduleFragment extends Fragment {
     private MyAdapter myAdapter2;
     private ArrayList<Classes> tdaySchedule = new ArrayList<>();
     private RecyclerView todaySchedule;
+
+    private Button todayDirections;
+    private Button fullDirections;
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private HomeViewModel homeViewModel;
@@ -107,6 +106,7 @@ public class ScheduleFragment extends Fragment {
         currSchedule.setLayoutManager(layoutManager);
         myAdapter = new MyAdapter(getContext(), schedule, listener);
         currSchedule.setAdapter(myAdapter);
+        fullDirections = root.findViewById(R.id.go_full_schedule);
 
 
         /* Set up for the list view of Todays classes in user schedule */
@@ -116,26 +116,82 @@ public class ScheduleFragment extends Fragment {
         todaySchedule.setLayoutManager(layoutManager2);
         myAdapter2 = new MyAdapter(getContext(), tdaySchedule);
         todaySchedule.setAdapter(myAdapter2);
+        todayDirections = root.findViewById(R.id.go_today_schedule);
 
-        /*  TESTING GROUND
-        Button go = root.findViewById(R.id.todayDirections);
-        go.setOnClickListener(new View.OnClickListener() {
+
+        todayDirections.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ArrayList<Classes> classes = myAdapter2.getClasses();
 
-                final ArrayList<String> destinations = new ArrayList<>();
-                ArrayList<Classes> schedule = myAdapter2.getClasses();
+                for(int i = 0; i < classes.size(); i++){
+                    for( int j = 0; j < classes.size()-1; j++){
+                        String tempI = classes.get(j).getTime();
+                        String[] split = tempI.split(":");
+                        float a = Integer.parseInt(split[0]);
+                        if(!split[1].equals("00")){
+                            a += .5;
+                        }
 
-                for(int i = 0; i < myAdapter2.getItemCount(); i++){
-                     destinations.add("b-" + schedule.get(i).getLocation());
+                        String tempJ = classes.get(j + 1).getTime();
+                        String[] split1 = tempJ.split(":");
+                        float b = Integer.parseInt(split1[0]);
+                        if(!split1[1].equals("00")){
+                            b += .5;
+                        }
+
+                        if(b < a){
+                           Classes temp = classes.get(j);
+                           classes.set(j, classes.get(j+1));
+                           classes.set(j+1, temp);
+                        }
+                    }
                 }
 
-                homeViewModel.setPath(destinations);
+                homeViewModel.setClasses(classes);
 
                 NavController navController = Navigation.findNavController(Objects.requireNonNull(getActivity()).findViewById(R.id.nav_host_fragment));
                 navController.navigate(R.id.nav_home);
             }
-        });*/
+        });
+
+        fullDirections.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<Classes> classes = myAdapter.getClasses();
+
+                for(int i = 0; i < classes.size(); i++){
+                    for( int j = 0; j < classes.size()-1; j++){
+                        String tempI = classes.get(j).getTime();
+                        String[] split = tempI.split(":");
+                        float a = Integer.parseInt(split[0]);
+                        if(!split[1].equals("00")){
+                            a += .5;
+                        }
+
+                        String tempJ = classes.get(j + 1).getTime();
+                        String[] split1 = tempJ.split(":");
+                        float b = Integer.parseInt(split1[0]);
+                        if(!split1[1].equals("00")){
+                            b += .5;
+                        }
+
+
+                        if(b < a){
+                            Classes temp = classes.get(j);
+                            classes.set(j, classes.get(j+1));
+                            classes.set(j+1, temp);
+                        }
+                    }
+                }
+
+                homeViewModel.setClasses(classes);
+
+                NavController navController = Navigation.findNavController(Objects.requireNonNull(getActivity()).findViewById(R.id.nav_host_fragment));
+                navController.navigate(R.id.nav_home);
+            }
+        });
+
 
 
 
@@ -217,49 +273,36 @@ public class ScheduleFragment extends Fragment {
 
         /* Connects editable fields with java code */
         final EditText className = root.findViewById(R.id.className);
-        HashMap<String, point> points = new HashMap<>();
-        points = MainActivity.readData(getContext());
-        ArrayList<point> b = new ArrayList<>();
-        for(String p : points.keySet())
-        {
-            if(points.get(p).getClass() == Building.class)
-            b.add(points.get(p));
-        }
-        final String[] buildings = new String[b.size()];
-        for(int i = 0; i < buildings.length; i++)
-        {
-            buildings[i] = b.get(i).getName();
-        }
+
 
         /* Set up for auto complete text view of location
         * This ensures that the user selects a valid, known location */
-        ArrayAdapter<String> textAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, buildings);
         final AutoCompleteTextView location = root.findViewById(R.id.classLocation);
+        final ArrayAdapter<CharSequence> textAdapter = ArrayAdapter.createFromResource(getContext(), R.array.buildings, android.R.layout.simple_dropdown_item_1line);
         location.setAdapter(textAdapter);
         location.setValidator(new AutoCompleteTextView.Validator() {
             @Override
             public boolean isValid(CharSequence text) {
-                boolean found = false;
-                for(int i = 0; i < buildings.length -1; i++){
-                    if(buildings[i].equals(text.toString())){
-                        location.setText(buildings[i]);
+                for(int i = 0; i < textAdapter.getCount(); i ++){
+                    if(text.equals(textAdapter.getItem(i))){
+                        location.setText(textAdapter.getItem(i));
                         return true;
                     }
                 }
                 return false;
             }
 
-            /* Changes user location input to the closest matching location; if needed */
+            /* Changes the user search data to the closest matching verified building data */
             @Override
             public CharSequence fixText(CharSequence invalidText) {
                 String temp = "oo";
                 int best  = 100;
                 int tested;
-                for(int i = 0; i < buildings.length; i++){
-                    tested =  invalidText.toString().compareTo(buildings[i]);
+                for(int i = 0; i < textAdapter.getCount(); i++){
+                    tested =  invalidText.toString().compareTo(textAdapter.getItem(i).toString());
                     if(Math.abs(tested) < best){
                         best = Math.abs(tested);
-                        temp = buildings[i];
+                        temp = textAdapter.getItem(i).toString();
                     }
                 }
                 return temp;

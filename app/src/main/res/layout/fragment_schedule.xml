@@ -24,12 +24,25 @@
             android:layout_marginBottom="10dp"
             app:layout_constraintHorizontal_bias=".1"/>
 
+        <Button
+            android:id="@+id/go_today_schedule"
+            android:layout_width="wrap_content"
+            android:layout_height="31dp"
+            app:layout_constraintTop_toTopOf="@id/TodayScheduleTxt"
+            app:layout_constraintBottom_toBottomOf="@id/TodayScheduleTxt"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="15dp"
+            android:text="Go"
+            android:textColor="@color/colorWhite"
+            android:background="@color/colorPrimary"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/todaySchedule"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/TodayScheduleTxt"
             android:isScrollContainer="false"/>
+
 
         <TextView
             android:id="@+id/none"
@@ -55,6 +68,18 @@
             android:layout_marginTop="30dp"
             android:layout_marginBottom="10dp"
             app:layout_constraintHorizontal_bias=".1"/>
+
+        <Button
+            android:id="@+id/go_full_schedule"
+            android:layout_width="wrap_content"
+            android:layout_height="31dp"
+            app:layout_constraintTop_toTopOf="@id/CurrScheduleTxt"
+            app:layout_constraintBottom_toBottomOf="@id/CurrScheduleTxt"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="15dp"
+            android:text="Go"
+            android:textColor="@color/colorWhite"
+            android:background="@color/colorPrimary"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/currentSchedule"
