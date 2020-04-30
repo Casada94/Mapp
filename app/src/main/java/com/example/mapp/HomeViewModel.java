@@ -11,12 +11,13 @@ import java.util.ArrayList;
 public class HomeViewModel extends ViewModel {
     private final MutableLiveData<Integer> count = new MutableLiveData<>();
     private final MutableLiveData<ArrayList<Classes>> classes = new MutableLiveData<>();
-
+    private final MutableLiveData<String> userInput = new MutableLiveData<>();
 
     public HomeViewModel(){
         super();
         count.setValue(0);
         classes.setValue(new ArrayList<Classes>());
+        userInput.setValue("");
     }
 
     public LiveData<Integer> getCount() {
@@ -31,4 +32,8 @@ public class HomeViewModel extends ViewModel {
     public void incrementCount(){
         count.setValue(count.getValue()+1);
     }
+
+    public LiveData<String> getUserInput() { return userInput; }
+
+    public void setUserInput(String input) { userInput.setValue(input); }
 }

@@ -227,6 +227,15 @@ public class HomeFragment extends Fragment {
                 }
             });
 
+            homeViewModel.getUserInput().observe(getViewLifecycleOwner(), new Observer<String>() {
+                @Override
+                public void onChanged(String s) {
+                    System.out.println("search: " + s);
+//                    point searchedPoint = allPoints.get(s);
+//                    moveTo(searchedPoint);
+                }
+            });
+
             //temporarily here for seeing the paths
             // Uncomment readPointsDB in main activity to update the sharedPreferences
             //then tap draw to draw map
@@ -972,7 +981,9 @@ public class HomeFragment extends Fragment {
 
         @Override
         public void run(){
-
+//            //Yosselin's coordinates to views ECS building details
+//            this.x = 3500;
+//            this.y = 1600;
             for (Polygon bOutline : bOutlines) {
                 if (bOutline.contains(x, y)) {
                     buildingInfo(bOutline);

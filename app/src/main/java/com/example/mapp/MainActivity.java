@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FirebaseFirestore db;
     private LocationManager locationManager;
     private LocationListener locationListener;
+    private HomeViewModel homeViewModel;
     /* Set up for getting user location and user permissions */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //       readPointsDB();
 //        writePointsDB();
         final PanoViewModel panoViewModel = new ViewModelProvider(this).get(PanoViewModel.class);
-        final HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
         /* Checks if this activity was launched from a previous activity. for login status purposes**/
         Intent loginStatus = getIntent();
@@ -308,14 +309,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                db.collection("points2")
+                db.collection("points")
                             .whereEqualTo("name", searchView.getQuery().toString())
                             .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if(task.isSuccessful()) {
                                     for (QueryDocumentSnapshot document : task.getResult())
-                                        System.out.println(document);
+                                        System.out.println("successful");
+                                        homeViewModel.setUserInput(searchView.getQuery().toString());
                                 } else
                                     System.out.println("failed");
                             }
