@@ -207,6 +207,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 System.out.println("______________SHOW REPORTS__________________");
                                 updateNavigation(reports, schedule, showReports[0]);
                             }
+                            else{
+                                showReports[0] = false;
+                                updateNavigation(reports, schedule, showReports[0]);
+                            }
+
                         }else {
                             showReports[0] = false;
                             updateNavigation(reports, schedule, showReports[0]);

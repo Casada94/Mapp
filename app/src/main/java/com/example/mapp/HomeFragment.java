@@ -161,12 +161,12 @@ public class HomeFragment extends Fragment {
 
             /* Sets up the map */
             map = root.findViewById(R.id.map);
-            BitmapFactory.Options options = new BitmapFactory.Options();
+            final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inScaled = false;
             options.inMutable = true;
-            final Bitmap mapMap;
-            mapMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
-            map.setImageBitmap(mapMap);
+            final Bitmap[] mapMap = new Bitmap[1];
+            mapMap[0] = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
+            map.setImageBitmap(mapMap[0]);
 
 
             final HashMap<String, point> allPoints = getAllPoints();
@@ -187,8 +187,9 @@ public class HomeFragment extends Fragment {
                     String wanted = "Water Fountain";
                     point destination = findDestination(allPoints, me, wanted);
                     float [] path = findPath(allPoints, me, destination);
-                    map.setImageBitmap(drawRoute(mapMap, path));
+                    map.setImageBitmap(drawRoute(mapMap[0], path));
                     moveTo(destination);
+                    mapMap[0] = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
                 }
             });
 
@@ -203,11 +204,12 @@ public class HomeFragment extends Fragment {
 
                     point me = findNearestPoint(loc);
 
-                    String wanted = "restroom";
+                    String wanted = "Restroom";
                     point destination = findDestination(allPoints, me, wanted);
                     float [] path = findPath(allPoints, me, destination);
-                    map.setImageBitmap(drawRoute(mapMap, path));
+                    map.setImageBitmap(drawRoute(mapMap[0], path));
                     moveTo(destination);
+                    mapMap[0] = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
                 }
             });
 
@@ -220,7 +222,8 @@ public class HomeFragment extends Fragment {
                         schedulePoints.add(getPoint(allPoints, classes.get(i)));
                     }
 
-                    drawSchedulePath(allPoints, schedulePoints, mapMap);
+                    drawSchedulePath(allPoints, schedulePoints, mapMap[0]);
+                    mapMap[0] = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
                 }
             });
 
@@ -293,7 +296,7 @@ public class HomeFragment extends Fragment {
                         float[] pts = new float[pointsf.size()];
                         for (int i = 0; i < pts.length; i++)
                             pts[i] = pointsf.get(i);
-                        drawRoute(mapMap, pts);
+                        drawRoute(mapMap[0], pts);
                     }
                     locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
                     if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -460,7 +463,13 @@ public class HomeFragment extends Fragment {
             go.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    point me = findNearestPoint(getLocation());
+                    Location loc = getLocation();
+
+                    /* Only for demonstration purposes because we are not on campus */
+                    loc.setLongitude(-118.113265);
+                    loc.setLatitude(33.778486);
+
+                    point me = findNearestPoint(loc);
                     point dest = allPoints.get(currentBuilding.name);
 //                    for(String str : allPoints.keySet())
 //                    {
@@ -469,7 +478,8 @@ public class HomeFragment extends Fragment {
 //                            Log.d("ken", str + " " + allPoints.get(str).getName() );
 //                        }
 //                    }
-                    drawRoute(mapMap, findPath(allPoints, me, dest));
+                    map.setImageBitmap(drawRoute(mapMap[0], findPath(allPoints, me, dest)));
+                    mapMap[0] = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
                 }
             } );
 
