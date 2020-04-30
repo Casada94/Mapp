@@ -157,6 +157,7 @@ public class HomeFragment extends Fragment {
             water = root.findViewById(R.id.waterBtn);
             bathroom = root.findViewById(R.id.bathroomBtn);
 
+            Button go = root.findViewById(R.id.directionsToBuildingButton);
 
             /* Sets up the map */
             map = root.findViewById(R.id.map);
@@ -225,7 +226,7 @@ public class HomeFragment extends Fragment {
 
             //temporarily here for seeing the paths
             // Uncomment readPointsDB in main activity to update the sharedPreferences
-            //then set the following to true to draw map
+            //then tap draw to draw map
 
             Button drawMap = root.findViewById(R.id.Draw);
             drawMap.setOnClickListener(new View.OnClickListener() {
@@ -456,6 +457,22 @@ public class HomeFragment extends Fragment {
                 }
             });
 
+            go.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    point me = findNearestPoint(getLocation());
+                    point dest = allPoints.get(currentBuilding.name);
+//                    for(String str : allPoints.keySet())
+//                    {
+//                        if (allPoints.get(str).getClass() == Building.class)
+//                        {
+//                            Log.d("ken", str + " " + allPoints.get(str).getName() );
+//                        }
+//                    }
+                    drawRoute(mapMap, findPath(allPoints, me, dest));
+                }
+            } );
+
 
             /* Various variables needed for map movement touch functionality */
             final long[] startTime = {0};
@@ -661,7 +678,7 @@ public class HomeFragment extends Fragment {
     /* finds the closest point on the compass map according to the users location data
     * used to find the starting point for direction/path finding */
     private point findNearestPoint(Location loc) {
-        point closest = null;
+        point closest = getAllPoints().get("261");
         if(loc != null)
         {
             Double curr_lat = loc.getLatitude();
