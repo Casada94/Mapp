@@ -20,20 +20,19 @@ public class HomeViewModel extends ViewModel {
         userInput.setValue("");
     }
 
-    public LiveData<Integer> getCount() {
-        return count;
-    }
+    /* Getters */
+    public LiveData<Integer> getCount() { return count; }
     public LiveData<ArrayList<Classes>> getClasses() { return classes; }
+    public LiveData<String> getUserInput() { return userInput; }
 
-    public void setClasses(ArrayList<Classes> classes){
-        this.classes.setValue(classes);
-    }
-
+    /* Setters */
+    public void setClasses(ArrayList<Classes> classes){ this.classes.setValue(classes); }
+    public void setUserInput(String input) { userInput.setValue(input); }
     public void incrementCount(){
         count.setValue(count.getValue()+1);
     }
 
-    public LiveData<String> getUserInput() { return userInput; }
 
-    public void setUserInput(String input) { userInput.setValue(input); }
+
+
 }

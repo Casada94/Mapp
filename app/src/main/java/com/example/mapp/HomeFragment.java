@@ -230,9 +230,18 @@ public class HomeFragment extends Fragment {
             homeViewModel.getUserInput().observe(getViewLifecycleOwner(), new Observer<String>() {
                 @Override
                 public void onChanged(String s) {
-                    System.out.println("search: " + s);
-//                    point searchedPoint = allPoints.get(s);
-//                    moveTo(searchedPoint);
+                    if(allPoints.containsKey(s)) {
+                        point searchedPoint = new point();
+                        searchedPoint = allPoints.get(s);
+                        moveTo(searchedPoint);
+                        buildingInfo(searchedPoint);
+                    }
+                    else{
+                        if(!s.isEmpty()) {
+                            String toastMessage = "Sorry! We couldnt find \"" + s + "\"";
+                            Toast.makeText(getContext(), toastMessage, Toast.LENGTH_LONG).show();
+                        }
+                    }
                 }
             });
 
@@ -479,6 +488,7 @@ public class HomeFragment extends Fragment {
                     loc.setLatitude(33.778486);
 
                     point me = findNearestPoint(loc);
+                    System.out.println(currentBuilding.name);
                     point dest = allPoints.get(currentBuilding.name);
 //                    for(String str : allPoints.keySet())
 //                    {
@@ -767,14 +777,14 @@ public class HomeFragment extends Fragment {
         float transX = f[Matrix.MTRANS_X];
         float transY = f[Matrix.MTRANS_Y];
 
-        float moveXBy = (float)(1040 - (dest.getX() + transX));
-        float moveYBy = (float)(900 - (dest.getY() + transY));
+        float moveXBy = (float)(540 - (dest.getX() + transX));
+        float moveYBy = (float)(604 - (dest.getY() + transY));
 
 
 
         matrix.postTranslate(moveXBy,moveYBy);
 
-        matrix.postScale(2/f[Matrix.MSCALE_X],2/f[Matrix.MSCALE_Y], 545, 604);
+        matrix.postScale(2/f[Matrix.MSCALE_X],2/f[Matrix.MSCALE_Y], 540, 604);
         map.setImageMatrix(matrix);
         savedMatrix.set(matrix);
     }
@@ -960,6 +970,23 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
+
+        /* Animation of building details card sliding up */
+        ViewPropertyAnimator animation = buildingDetails.animate();
+        animation.translationY(-buildingDetails.getHeight());
+        animation.setDuration(750);
+        animation.start();
+    }
+
+    /* Sets all the textViews and info for building details card view */
+    private void buildingInfo(point building){
+
+
+        buildingName.setText(building.getName());
+        //List<Double> temp = (List<Double>) building.g;
+        //String avail = temp.get(0).intValue() + "am - " + (temp.get(1).intValue())%12 + "pm";
+        //hours.setText(avail);
+
 
         /* Animation of building details card sliding up */
         ViewPropertyAnimator animation = buildingDetails.animate();
