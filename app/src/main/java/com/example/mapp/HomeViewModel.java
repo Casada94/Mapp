@@ -4,8 +4,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.mapp.entityObjects.point;
-
 public class HomeViewModel extends ViewModel {
     private final MutableLiveData<Integer> count = new MutableLiveData<>();
 

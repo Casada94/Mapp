@@ -79,7 +79,7 @@ public class pointTest{
             }
         }
 //        p.setIndex(points.size());
-        points.put(p.getName(), p);
+        points.put(p.getAbbr(), p);
         System.out.println("point added!");
     }
 
@@ -90,7 +90,7 @@ public class pointTest{
         for(String key : keys)
         {
             point p = points.get(key);
-            System.out.println("(" + i++ + ") [" + p.getName() + "] " + p.getX() + "," + p.getY());
+            System.out.println("(" + i++ + ") [" + p.getAbbr() + "] " + p.getX() + "," + p.getY());
         }
     }
 
@@ -118,7 +118,7 @@ public class pointTest{
             distance.put(key, Double.MAX_VALUE);
             parent.put(key, null);
         }
-        distance.put(start.getName(), 0.0);
+        distance.put(start.getAbbr(), 0.0);
         System.out.println("Distance: " );
         for(String x : distance.keySet())
         {
@@ -135,8 +135,8 @@ public class pointTest{
                     neighbors.add(points.get(p));
                 }
                 double newDistance = Double.MAX_VALUE;
-                if(points.get(p) != null && distance.get(curr.getName()) != null)
-                    newDistance = curr.distance(points.get(p)) + distance.get(curr.getName());
+                if(points.get(p) != null && distance.get(curr.getAbbr()) != null)
+                    newDistance = curr.distance(points.get(p)) + distance.get(curr.getAbbr());
                 if(newDistance < distance.get(p))
                 {
                     distance.put(p, newDistance);
@@ -149,7 +149,7 @@ public class pointTest{
         while(dest != start)
         {
             path.add(0, dest);
-            dest = parent.get(dest.getName());
+            dest = parent.get(dest.getAbbr());
         }
         path.add(0, start);
         for(int i = 0; i < path.size()-1; i++)
@@ -165,7 +165,7 @@ public class pointTest{
                 dir += "west";
             else if(x < -50)
                 dir += "east";
-            System.out.println("Head " + dir + " towards: " + path.get(i+1).getName());
+            System.out.println("Head " + dir + " towards: " + path.get(i+1).getAbbr());
         }
         System.out.println("Destination reached!");
     }
@@ -180,7 +180,7 @@ public class pointTest{
         if(points == null)
             points = new HashMap<String, point>();
         for(point p : pointsA)
-            points.put(p.getName(), p);
+            points.put(p.getAbbr(), p);
         if(points == null)
             points = new HashMap<String, point>();
     }
@@ -195,7 +195,7 @@ public class pointTest{
         if(points == null)
             points = new HashMap<String, point>();
         for(point p : pointsA)
-            points.put(p.getName(), p);
+            points.put(p.getAbbr(), p);
         if(points == null)
             points = new HashMap<String, point>();
     }
@@ -259,7 +259,7 @@ public class pointTest{
                     points.get("p-" + n).addNeighbor(p);
                 } catch( NumberFormatException nfe)
                 {
-                    System.out.println(p.getName() + "b-" + n);
+                    System.out.println(p.getAbbr() + "b-" + n);
                     points.get("b-" + n).addNeighbor(p);
                 }
             }

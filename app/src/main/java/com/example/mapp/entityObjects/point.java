@@ -9,40 +9,40 @@ public class point{
     private double x;
     private double y;
     private ArrayList<String> neighbors;
-    private String name;
+    private String abbr;
     private ArrayList<String> utilities;
 
     public point()
     {
     }
 
-    public point(String name)
+    public point(String abbr)
     {
-        this.name = name;
+        this.abbr = abbr;
         this.x = 0;
         this.y = 0;
         neighbors = new ArrayList<String>();
         utilities = new ArrayList<String>();
     }
-    public point(String name, double x, double y)
+    public point(String abbr, double x, double y)
     {
-        this.name = name;
+        this.abbr = abbr;
         this.x = x;
         this.y = y;
         neighbors = new ArrayList<String>();
         utilities = new ArrayList<String>();
     }
-    public point(String name, double x, double y, ArrayList<String> neighbors)
+    public point(String abbr, double x, double y, ArrayList<String> neighbors)
     {
-        this.name = name;
+        this.abbr = abbr;
         this.x = x;
         this.y = y;
         this.neighbors = neighbors;
         this.utilities = new ArrayList<>();
     }
-    public point(String name, double x, double y, ArrayList<String> neighbors, ArrayList<String> utilities)
+    public point(String abbr, double x, double y, ArrayList<String> neighbors, ArrayList<String> utilities)
     {
-        this.name = name;
+        this.abbr = abbr;
         this.x = x;
         this.y = y;
         this.neighbors = neighbors;
@@ -50,13 +50,13 @@ public class point{
     }
 
 
-    public String getName()
+    public String getAbbr()
     {
-        return name;
+        return abbr;
     }
-    public void setName(String name)
+    public void setAbbr(String abbr)
     {
-        this.name = name;
+        this.abbr = abbr;
     }
     public double getX()
     {
@@ -84,8 +84,8 @@ public class point{
     }
     public void addNeighbor(point p)
     {
-        if(!neighbors.contains(p.name))
-            neighbors.add(p.getName());
+        if(!neighbors.contains(p.abbr))
+            neighbors.add(p.getAbbr());
     }
     public ArrayList<String> getUtilities()
     {
@@ -115,7 +115,7 @@ public class point{
         {
             neighborString += neighbors.get(i) + ",";
         }
-        return name + " (" + x + "," + y + "): " + neighborString;
+        return abbr + " (" + x + "," + y + "): " + neighborString;
     }
 
 }

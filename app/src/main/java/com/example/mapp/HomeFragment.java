@@ -178,9 +178,9 @@ public class HomeFragment extends Fragment {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inScaled = false;
             options.inMutable = true;
-            final Bitmap mapMap;
-            mapMap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
-            map.setImageBitmap(mapMap);
+            final Bitmap[] mapMap = new Bitmap[1];
+            mapMap[0] = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
+            map.setImageBitmap(mapMap[0]);
 
 
             final HashMap<String, point> allPoints = new HashMap<>(getAllPoints());
@@ -196,7 +196,7 @@ public class HomeFragment extends Fragment {
                     String wanted = "water fountain";
                     point destination = findDestination(allPoints, me, wanted);
                     float [] path = findPath(allPoints, me, destination);
-                    map.setImageBitmap(drawRoute(mapMap, path));
+                    map.setImageBitmap(drawRoute(mapMap[0], path));
                 }
             });
 
@@ -229,7 +229,7 @@ public class HomeFragment extends Fragment {
                                 p = gson.fromJson(json, new TypeToken<point>() {
                                 }.getType());
                         }
-                        points.put(p.getName(), p);
+                        points.put(p.getAbbr(), p);
                     }
 
 
@@ -249,15 +249,15 @@ public class HomeFragment extends Fragment {
                                     x1 /= scalingFactorX;
                                     y1 /= scalingFactorY;
                                 } else {
-    //                            x1 += 20;
-    //                            y1 -= 20;
+                                x1 += 7;
+                                y1 -= 30;
                                 }
                                 if (p2.getClass() == Building.class) {
                                     x2 /= scalingFactorX;
                                     y2 /= scalingFactorY;
                                 } else {
-    //                            x2 += 20;
-    //                            y2 -= 20;
+                                x2 += 7;
+                                y2 -= 30;
                                 }
                                 pointsf.add(x1);
                                 pointsf.add(y1);
@@ -270,7 +270,7 @@ public class HomeFragment extends Fragment {
                         float[] pts = new float[pointsf.size()];
                         for (int i = 0; i < pts.length; i++)
                             pts[i] = pointsf.get(i);
-                        drawRoute(mapMap, pts);
+                        drawRoute(mapMap[0], pts);
                     }
                     locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
                     if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -289,7 +289,7 @@ public class HomeFragment extends Fragment {
                     loc.setLongitude(-118.113265);
                     loc.setLatitude(33.778486);
                     point p = findNearestPoint(loc);
-                    Log.d("ken_GPS",  "closest point is " + p.getName());
+                    Log.d("ken_GPS",  "closest point is " + p.getAbbr());
                 }
             });
 
@@ -438,15 +438,21 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     point me = findNearestPoint(getLocation());
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inScaled = false;
+                    options.inMutable = true;
+                    mapMap[0] =  BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
+
                     point dest = allPoints.get(currentBuilding.name);
 //                    for(String str : allPoints.keySet())
 //                    {
 //                        if (allPoints.get(str).getClass() == Building.class)
 //                        {
-//                            Log.d("ken", str + " " + allPoints.get(str).getName() );
+//                    if(dest == null)
+//                        Log.d("ken", "dest is null" );
 //                        }
 //                    }
-                    drawRoute(mapMap, findPath(allPoints, me, dest));
+                    drawRoute(mapMap[0], findPath(allPoints, me, dest));
                 }
             } );
 
@@ -670,8 +676,15 @@ public class HomeFragment extends Fragment {
                 Map<String, ?> keys = mPrefs.getAll();
                 for (String name : keys.keySet()) {
                     String json = keys.get(name).toString();
+                    String type = "p";
+                    try {
+                        Integer.parseInt(name);
+                    }catch (NumberFormatException nfe)
+                    {
+                        type = "b";
+                    }
                     point p = null;
-                    switch (name.split("-")[0]) {
+                    switch (type) {
                         case "b":
                             p = gson.fromJson(json, new TypeToken<Building>() {
                             }.getType());
@@ -684,14 +697,14 @@ public class HomeFragment extends Fragment {
                             p = gson.fromJson(json, new TypeToken<point>() {
                             }.getType());
                     }
-                    points.put(p.getName(), p);
+                    points.put(p.getAbbr(), p);
                 }
                 closest = new point("default", Double.MAX_VALUE, Double.MAX_VALUE);
 //                Log.d("ken_GPS" , );
 //                Log.d("ken_GPS", Double.toString(currGPS.distance(points.get("596"))));
                 double minDistance = currGPS.distance(closest);
                 for (String p : points.keySet()) {
-//                    Log.d("ken_GPS", "minDistance: " + minDistance + " evaluating " + points.get(p).getName());
+//                    Log.d("ken_GPS", "minDistance: " + minDistance + " evaluating " + points.get(p).getAbbr());
                     double distance = currGPS.distance(points.get(p));
                     if(points.get(p).getClass() == Building.class)
                         distance = Math.sqrt(Math.pow(currGPS.getX() - (points.get(p).getX() / scalingFactorX) , 2)
@@ -699,7 +712,7 @@ public class HomeFragment extends Fragment {
                     if (distance < minDistance) {
                         minDistance = distance;
                         closest = points.get(p);
-                        Log.d("ken_GPS", "closest is now " + closest.getName() +" " +  minDistance);
+                        Log.d("ken_GPS", "closest is now " + closest.getAbbr() +" " +  minDistance);
                     }
                 }
             } else
@@ -893,8 +906,8 @@ public class HomeFragment extends Fragment {
     /* Sets all the textViews and info for building details card view */
     private void buildingInfo(Polygon building){
         currentBuilding = building;
-        String name = "b-" + building.name;
-        db.collection("points").document(name).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        String name = building.name;
+        db.collection("points2").document(name).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
@@ -1043,7 +1056,14 @@ public class HomeFragment extends Fragment {
         for (String name : keys.keySet()) {
             String json = keys.get(name).toString();
             point p = null;
-            switch (name.split("-")[0]) {
+            String type = "p";
+            try{
+                Integer.parseInt(name);
+            }catch (NumberFormatException nfe)
+            {
+                type = "b";
+            }
+            switch (type) {
                 case "b":
                     p = gson.fromJson(json, new TypeToken<Building>() {
                     }.getType());
@@ -1056,8 +1076,9 @@ public class HomeFragment extends Fragment {
                     p = gson.fromJson(json, new TypeToken<point>() {
                     }.getType());
             }
-            points.put(p.getName(), p);
+            points.put(p.getAbbr(), p);
         }
+        Log.d("ken4", "points size: " + points);
         return  points;
     }
 
@@ -1074,7 +1095,6 @@ public class HomeFragment extends Fragment {
                 }
             }
         }
-        Log.d("ken", wanted + " is at " + closest.getName());
         return closest;
     }
 
@@ -1100,7 +1120,7 @@ public class HomeFragment extends Fragment {
             distance.put(key, Double.MAX_VALUE);
             parent.put(key, null);
         }
-        distance.put(start.getName(), 0.0);
+        distance.put(start.getAbbr(), 0.0);
         while(neighbors.size() > 0)
         {
             point curr = neighbors.get(0);
@@ -1112,8 +1132,9 @@ public class HomeFragment extends Fragment {
                     neighbors.add(points.get(p));
                 }
                 double newDistance = Double.MAX_VALUE;
-                if(points.get(p) != null && distance.get(curr.getName()) != null)
-                    newDistance = curr.distance(points.get(p)) + distance.get(curr.getName());
+                if(points.get(p) != null && distance.get(curr.getAbbr()) != null)
+                    newDistance = curr.distance(points.get(p)) + distance.get(curr.getAbbr());
+                Log.d("kenP" , "p is " + p);
                 if(newDistance < distance.get(p))
                 {
                     distance.put(p, newDistance);
@@ -1125,8 +1146,9 @@ public class HomeFragment extends Fragment {
         ArrayList<point> path = new ArrayList<point>();
         while(dest != start)
         {
+            Log.d("ken", "finding path at " + dest.getAbbr());
             path.add(0, dest);
-            dest = parent.get(dest.getName());
+            dest = parent.get(dest.getAbbr());
         }
         path.add(0, start);
 
@@ -1144,11 +1166,13 @@ public class HomeFragment extends Fragment {
                 f = (float) p.get(i / 2).getX();
                 if(p.get(i/2).getClass() == Building.class)
                     scale = scalingFactorX;
+                else f += 7; // shifts point to right to offset scaling
             }
             else {
                 f = (float) p.get(i / 2).getY();
                 if(p.get(i/2).getClass() == Building.class)
                     scale = scalingFactorY;
+                else f -= 30; //shifts point down offset awkward scaling
             }
             pathf[i] = f / scale;
         }

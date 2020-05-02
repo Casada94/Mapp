@@ -228,7 +228,7 @@ public class ScheduleFragment extends Fragment {
         final String[] buildings = new String[b.size()];
         for(int i = 0; i < buildings.length; i++)
         {
-            buildings[i] = b.get(i).getName();
+            buildings[i] = b.get(i).getAbbr();
         }
 
         /* Set up for auto complete text view of location

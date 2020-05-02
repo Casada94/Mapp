@@ -50,7 +50,7 @@ public class PanoFragment extends Fragment {
         panoViewModel.getPoint().observe(getViewLifecycleOwner(), new Observer<point>() {
             @Override
             public void onChanged(point point) {
-                String picture = panoViewModel.getPoint().getValue().getName() + ".jpg";
+                String picture = panoViewModel.getPoint().getValue().getAbbr() + ".jpg";
 
                 ref.child(picture).getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                     @Override
