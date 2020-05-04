@@ -88,6 +88,8 @@ public class HomeFragment extends Fragment {
     private CardView buildingDetails;
     private TextView buildingName;
     private TextView hours;
+    private TextView brokenReports;
+    private TextView otherReports;
 
     private CardView reportCard;
     private Spinner reasons;
@@ -141,6 +143,8 @@ public class HomeFragment extends Fragment {
             buildingDetails.setContentPadding(40, 20, 40, 20);
             buildingName = root.findViewById(R.id.bName);
             hours = root.findViewById(R.id.hours);
+            brokenReports = root. findViewById(R.id.broken_changeable);
+            otherReports = root.findViewById(R.id.other_changeable);
             ImageButton report = root.findViewById(R.id.report);
 
             /* Connecting XML of Report card to Java Code */
@@ -972,7 +976,38 @@ public class HomeFragment extends Fragment {
                     DocumentSnapshot documentSnapshot = task.getResult();
                     //String finalBuildingName = documentSnapshot.get("name").toString() + " (" + documentSnapshot.get("abbr").toString() + ")";
                     //buildingName.setText(finalBuildingName);
-                    buildingName.setText(documentSnapshot.get("name").toString());
+                    String temp = documentSnapshot.get("name").toString() + "(" + documentSnapshot.get("abbr").toString() + ")";
+                    buildingName.setText(temp);
+
+                    db.collection("activeReports").whereEqualTo("facility", documentSnapshot.get("name").toString()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if(task.isSuccessful()){
+                                QuerySnapshot querySnapshot = task.getResult();
+                                if(!querySnapshot.isEmpty()){
+                                    List<DocumentSnapshot> docs = querySnapshot.getDocuments();
+                                    if(docs.isEmpty()){
+                                        brokenReports.setText("0");
+                                        otherReports.setText("0");
+                                    }else{
+                                        int brokenCount = 0;
+                                        int otherCount = 0;
+                                        for(int i = 0; i < docs.size(); i++){
+                                            if(docs.get(i).get("reason").toString().equals("Broken")){
+                                                brokenCount++;
+                                            }else
+                                                otherCount++;
+                                        }
+                                        brokenReports.setText(String.valueOf(brokenCount));
+                                        otherReports.setText(String.valueOf(otherCount));
+                                    }
+                                }
+                            }else{
+                                brokenReports.setText("0");
+                                otherReports.setText("0");
+                            }
+                        }
+                    });
                     //List<Double> temp = (List<Double>) documentSnapshot.get("Hours");
                     //String avail = temp.get(0).intValue() + "am - " + (temp.get(1).intValue())%12 + "pm";
                     //hours.setText(avail);
