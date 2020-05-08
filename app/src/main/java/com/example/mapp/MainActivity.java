@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return false;
             }
         });
-
+        /* displays reports in navigation bar for admin users only*/
         if(currentUser != null) {
             db.collection("users").document(currentUser.getEmail()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
@@ -312,22 +312,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 searchManager.getSearchableInfo(getComponentName()));
 
 
-        /* Getting user search data */
+        /* Gets user's search input data from search bar*/
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-
                 homeViewModel.setUserInput(searchView.getQuery().toString());
-
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
                 return false;
             }
         });
-
         return true;
     }
 

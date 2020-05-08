@@ -183,7 +183,7 @@ public class HomeFragment extends Fragment {
 
 
 
-            /* Functionality for quick search find water floating action button */
+            /* Functionality for quick search: find water floating action button */
             water.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -203,7 +203,7 @@ public class HomeFragment extends Fragment {
                     mapMap[0] = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
                 }
             });
-
+            /* Functionality for floating action button: restroom quick search */
             bathroom.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -239,6 +239,7 @@ public class HomeFragment extends Fragment {
                 }
             });
 
+            /* Searches array of points for point matching users search input */
             homeViewModel.getUserInput().observe(getViewLifecycleOwner(), new Observer<String>() {
                 @Override
                 public void onChanged(String s) {
