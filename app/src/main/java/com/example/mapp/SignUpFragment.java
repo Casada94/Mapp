@@ -1,6 +1,5 @@
 package com.example.mapp;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,22 +13,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.regex.Pattern;
 
@@ -72,7 +65,7 @@ public class SignUpFragment extends Fragment {
         menuItem.setVisible(false);
 
 
-        /* set functionality of the sign up button **/
+        /* set functionality of the sign up button */
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,7 +114,7 @@ public class SignUpFragment extends Fragment {
                     /* closes the keyboard **/
                     password.onEditorAction(EditorInfo.IME_ACTION_DONE);
 
-                    /* SOME DATABASE STUFF */
+                    /* Logic to send verification email to new user */
                     mAuth.createUserWithEmailAndPassword(user,pass).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
@@ -130,14 +123,15 @@ public class SignUpFragment extends Fragment {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
-                                            //Toast.makeText(getContext(), "Please check email for verification", Toast.LENGTH_SHORT).show();
-
-                                            /*Uses the activity's navigation controller to change fragments to the login fragment**/
                                             FirebaseAuth.getInstance().signOut();
                                             email.clearComposingText();
                                             password.clearComposingText();
+
+                                            /* Shows a dialog box to user to inform that sign up was successful */
                                             DialogVerify signUpDialog = new DialogVerify(getActivity(), "Email sent to confirm registration! Thanks for being part of the Mapp community! Please check your inbox and junk/spam folders before making another request.");
                                             signUpDialog.show();
+
+                                            /*Uses the activity's navigation controller to change fragments to the login fragment*/
                                             NavController navController = Navigation.findNavController((getActivity()).findViewById(R.id.nav_host_fragment));
                                             navController.navigate(R.id.action_signUp_to_login);
 
@@ -146,7 +140,7 @@ public class SignUpFragment extends Fragment {
                                         }
                                     }
                                 });
-                            }else{
+                            } else {
                                 if(task.getException() instanceof FirebaseAuthUserCollisionException)
                                     Toast.makeText(getContext(), "Email Already In Use", Toast.LENGTH_LONG).show();
                                 else

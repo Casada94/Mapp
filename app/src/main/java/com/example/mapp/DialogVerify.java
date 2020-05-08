@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
-//class to create dialog for forgot password feature
+/* Class to create a dialog box */
 public class DialogVerify extends Dialog implements
         android.view.View.OnClickListener {
 
@@ -28,6 +28,7 @@ public class DialogVerify extends Dialog implements
         this.text = textArg;
     }
 
+    /* Sets up the dialog box */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

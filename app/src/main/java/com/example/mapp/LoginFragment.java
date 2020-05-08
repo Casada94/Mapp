@@ -66,21 +66,25 @@ public class LoginFragment extends Fragment {
                 FirebaseAuth.getInstance().signOut();
                 final String user = username.getText().toString();
                 if (Pattern.matches("[\\w | \\. ]+\\@[\\w | \\. ]+", user) && (user.contains("@csulb.edu") || user.contains("@student.csulb.edu"))) {
+                    /* Logic to decide if the account already exists */
                     try {
                         mAuth.fetchSignInMethodsForEmail(user).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
                             @Override
                             public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
                                 boolean isNewUser = task.getResult().getSignInMethods().isEmpty();
                                 if (isNewUser) {
-                                    Log.e("TAG", "Is New User!");
+                                    Log.e("TAG", "Is a new User!");
                                     Toast.makeText(getContext(), "Account does not exist", Toast.LENGTH_LONG).show();
                                 } else {
-                                    Log.e("TAG", "Is existing User!");
+                                    Log.e("TAG", "Is an existing User!");
+
+                                    /* Sends email to change password */
                                     mAuth.sendPasswordResetEmail(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
                                                 Log.d(TAG, "Email sent.");
+                                                /* Display dialog box to user to inform that email has been sent */
                                                 DialogVerify forgotPwDialog = new DialogVerify(getActivity(), "Email sent to change password! Please check your inbox and junk/spam folders before making another request.");
                                                 forgotPwDialog.show();
                                             } else {
@@ -101,6 +105,7 @@ public class LoginFragment extends Fragment {
             }
         });
 
+        /* Functionality for the login button */
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,15 +126,16 @@ public class LoginFragment extends Fragment {
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser curr_user = mAuth.getCurrentUser();
 
+                                    /* Checks to see if the user has already verify account through email */
                                     if (curr_user.isEmailVerified())
                                     {
-                                        // user is verified, send to main activity
+                                        Log.d(TAG, "Email verified.");
                                         Intent loggedIn = new Intent(getContext(), MainActivity.class);
                                         startActivity(loggedIn);
                                         getActivity().finish();
                                     }
                                     else {
-                                        // email is not verified, so just prompt the message to the user
+                                        Log.d(TAG, "Email not verified");
                                         Toast.makeText(getContext(),"Email not verified", Toast.LENGTH_LONG).show();
                                         password.clearComposingText();
                                     }
