@@ -1,20 +1,16 @@
 package com.example.mapp;
 
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 
-
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -40,16 +36,11 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.util.Util;
 import com.example.mapp.entityObjects.Building;
-import com.example.mapp.entityObjects.Building2;
-import com.example.mapp.entityObjects.Utility;
 import com.example.mapp.entityObjects.point;
-import com.example.mapp.entityObjects.point2;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -70,7 +61,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -101,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public void onComplete(@NonNull Task task) {
                     if (task.isSuccessful()) {
                         Location currentLocation = (Location) task.getResult();
-                        Toast.makeText(MainActivity.this, "Getting Current Location", Toast.LENGTH_SHORT).show();;
+                        Toast.makeText(MainActivity.this, "Getting Current Location", Toast.LENGTH_SHORT).show();
 
                     } else {
                         Toast.makeText(MainActivity.this, "unable to get current location", Toast.LENGTH_SHORT).show();
@@ -127,13 +121,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
+        final PanoViewModel panoViewModel = new ViewModelProvider(this).get(PanoViewModel.class);
+        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+
 //        KENupdateDB2();
 //        Log.d("Ken", " success!");
         //Reads points from the database and stores it in the SharedPreference
-//       readPointsDB();
-//        writePointsDB();
-        final PanoViewModel panoViewModel = new ViewModelProvider(this).get(PanoViewModel.class);
-        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        if(!upToDate("lastPointsUpdate")){
+            readPointsDB();
+        }
+
+
+
 
         /* Checks if this activity was launched from a previous activity. for login status purposes**/
         Intent loginStatus = getIntent();
@@ -248,6 +247,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListenerGPS);
 //        Log.d("ken", locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).toString());
 
+    }
+
+    /* Checks to see when the last time building detail and bounds was updated */
+    private boolean upToDate(String key){
+        Context context = this.getApplicationContext();
+        SharedPreferences mPrefs = context.getSharedPreferences("com.example.mapp.upToDatePoints", Context.MODE_PRIVATE);
+
+        String last = mPrefs.getString(key, "00000000");
+        String today = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
+
+        return today.equals(last);
     }
 
     /* Updates the navigation slider view to show/hide reports and schedule */
@@ -482,8 +492,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } else {
                     Log.d("point", "Error getting documents: ", task.getException());
                 }
+
+                SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("com.example.mapp.upToDatePoints", Context.MODE_PRIVATE);
+                SharedPreferences.Editor prefEditor = mPrefs.edit();
+                prefEditor.clear();
+                prefEditor.putString("lastPointsUpdate", new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date()));
+                prefEditor.commit();
+                homeViewModel.setDone();
             }
         });
+
     }
 
     public void KENupdateDB()

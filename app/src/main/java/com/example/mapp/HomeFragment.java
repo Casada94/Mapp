@@ -114,7 +114,7 @@ public class HomeFragment extends Fragment {
 
     private FloatingActionButton water;
     private FloatingActionButton bathroom;
-
+    private HashMap<String, point> allPoints = new HashMap<>();
 
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -172,8 +172,15 @@ public class HomeFragment extends Fragment {
             mapMap[0] = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
             map.setImageBitmap(mapMap[0]);
 
+            homeViewModel.getDone().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+                @Override
+                public void onChanged(Boolean aBoolean) {
+                    if(aBoolean.booleanValue())
+                        allPoints = getAllPoints();
+                    System.out.println("________________i changed" + getAllPoints());
+                }
+            });
 
-            final HashMap<String, point> allPoints = getAllPoints();
 
 
             /* Functionality for quick search find water floating action button */
@@ -1052,9 +1059,6 @@ public class HomeFragment extends Fragment {
 
         @Override
         public void run(){
-//            //Yosselin's coordinates to views ECS building details
-//            this.x = 3500;
-//            this.y = 1600;
             for (Polygon bOutline : bOutlines) {
                 if (bOutline.contains(x, y)) {
                     buildingInfo(bOutline);
