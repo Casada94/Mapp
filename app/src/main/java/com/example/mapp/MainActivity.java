@@ -124,9 +124,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final PanoViewModel panoViewModel = new ViewModelProvider(this).get(PanoViewModel.class);
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
-//        KENupdateDB2();
-//        Log.d("Ken", " success!");
-        //Reads points from the database and stores it in the SharedPreference
+        /* Determines if the points on the mapp need to be updated from the database */
         if(!upToDate("lastPointsUpdate")){
             readPointsDB();
         }

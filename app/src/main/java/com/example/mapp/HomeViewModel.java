@@ -8,6 +8,7 @@ import com.example.mapp.entityObjects.point;
 
 import java.util.ArrayList;
 
+/* ViewModel class used for communication between fragments */
 public class HomeViewModel extends ViewModel {
     private final MutableLiveData<Integer> count = new MutableLiveData<>();
     private final MutableLiveData<ArrayList<Classes>> classes = new MutableLiveData<>();

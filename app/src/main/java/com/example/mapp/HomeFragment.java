@@ -130,13 +130,16 @@ public class HomeFragment extends Fragment {
             homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
             homeViewModel.incrementCount();
 
-
             /* Hides search button in action bar */
             if (homeViewModel.getCount().getValue() > 1) {
                 Toolbar toolbar = ((MainActivity) Objects.requireNonNull(getActivity())).findViewById(R.id.toolBar);
                 MenuItem menuItem = toolbar.getMenu().getItem(0);
                 menuItem.setVisible(true);
             }
+
+            /* Connects the quick search buttons to the Java Code */
+            water = root.findViewById(R.id.waterBtn);
+            bathroom = root.findViewById(R.id.bathroomBtn);
 
             /* Connecting XML of Building Details to Java Code */
             buildingDetails = root.findViewById(R.id.buildingDetails);
@@ -146,6 +149,7 @@ public class HomeFragment extends Fragment {
             brokenReports = root.findViewById(R.id.broken_changeable);
             otherReports = root.findViewById(R.id.other_changeable);
             ImageButton report = root.findViewById(R.id.report);
+            Button go = root.findViewById(R.id.directionsToBuildingButton);
 
             /* Connecting XML of Report card to Java Code */
             reportCard = root.findViewById(R.id.reportCard);
@@ -158,10 +162,7 @@ public class HomeFragment extends Fragment {
             ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.reportReasons, android.R.layout.simple_spinner_dropdown_item);
             reasons.setAdapter(adapter);
 
-            water = root.findViewById(R.id.waterBtn);
-            bathroom = root.findViewById(R.id.bathroomBtn);
 
-            Button go = root.findViewById(R.id.directionsToBuildingButton);
 
             /* Sets up the map */
             map = root.findViewById(R.id.map);
@@ -172,6 +173,8 @@ public class HomeFragment extends Fragment {
             mapMap[0] = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
             map.setImageBitmap(mapMap[0]);
 
+            /* Used to delay the setting of "allPoints" if the application needs to pull them from
+            * the database */
             homeViewModel.getDone().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
                 @Override
                 public void onChanged(Boolean aBoolean) {
@@ -180,7 +183,6 @@ public class HomeFragment extends Fragment {
 
                 }
             });
-
 
 
             /* Functionality for quick search: find water floating action button */
@@ -203,6 +205,7 @@ public class HomeFragment extends Fragment {
                     mapMap[0] = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
                 }
             });
+
             /* Functionality for floating action button: restroom quick search */
             bathroom.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -225,6 +228,8 @@ public class HomeFragment extends Fragment {
                 }
             });
 
+            /* Used to draw the route of the entire schedule or just todays schedule
+            * from the schedule page */
             homeViewModel.getClasses().observe(getViewLifecycleOwner(), new Observer<ArrayList<Classes>>() {
                 @Override
                 public void onChanged(ArrayList<Classes> classes) {
@@ -255,98 +260,6 @@ public class HomeFragment extends Fragment {
                             Toast.makeText(getContext(), toastMessage, Toast.LENGTH_LONG).show();
                         }
                     }
-                }
-            });
-
-            //temporarily here for seeing the paths
-            // Uncomment readPointsDB in main activity to update the sharedPreferences
-            //then tap draw to draw map
-
-            Button drawMap = root.findViewById(R.id.Draw);
-            drawMap.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    HashMap<String, point> points = new HashMap<>();
-                    SharedPreferences mPrefs = getActivity().getSharedPreferences("points", 0);
-                    Gson gson = new Gson();
-                    Map<String, ?> keys = mPrefs.getAll();
-                    for (String name : keys.keySet()) {
-                        String json = keys.get(name).toString();
-                        point p = null;
-                        switch (name.split("-")[0]) {
-                            case "b":
-                                p = gson.fromJson(json, new TypeToken<Building>() {
-                                }.getType());
-                                break;
-//                            case "u":
-//                                p = gson.fromJson(json, new TypeToken<Utility>() {
-//                                }.getType());
-//                                break;
-                            default:
-                                p = gson.fromJson(json, new TypeToken<point>() {
-                                }.getType());
-                        }
-                        points.put(p.getAbbr(), p);
-                    }
-
-
-                    for (String p : points.keySet()) {
-                        ArrayList<Float> pointsf = new ArrayList<>();
-                        for (String n : points.get(p).getNeighbors()) {
-                            point p1 = points.get(p);
-
-                            point p2 = points.get(n);
-//                            if(p2 != null) {
-                                float x1 = (float) p1.getX();
-                                float y1 = (float) p1.getY();
-                                float x2 = (float) p2.getX();
-                                float y2 = (float) p2.getY();
-
-                                if (p1.getClass() == Building.class) {
-                                    x1 /= scalingFactorX;
-                                    y1 /= scalingFactorY;
-                                } else {
-                                x1 += 7;
-                                y1 -= 33;
-                                }
-                                if (p2.getClass() == Building.class) {
-                                    x2 /= scalingFactorX;
-                                    y2 /= scalingFactorY;
-                                } else {
-                                x2 += 7;
-                                y2 -= 33;
-                                }
-                                pointsf.add(x1);
-                                pointsf.add(y1);
-                                pointsf.add(x2);
-                                pointsf.add(y2);
-//                            }
-//                            else
-//                                Log.d("ken", "p2 is null" + (p2 == null) + "for p = " + p + " and n = " + n);
-                        }
-                        float[] pts = new float[pointsf.size()];
-                        for (int i = 0; i < pts.length; i++)
-                            pts[i] = pointsf.get(i);
-                        drawRoute(mapMap[0], pts);
-                    }
-                    locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                    }else
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListenerGPS);;
-//                    findNearestPoint(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
-                    Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    // Set in locations below manually if you want to test GPS location tracking
-                    loc.setLongitude(-118.113265);
-                    loc.setLatitude(33.778486);
-                    point p = findNearestPoint(loc);
-                    Log.d("ken_GPS",  "closest point is " + p.getAbbr());
                 }
             });
 
@@ -491,6 +404,10 @@ public class HomeFragment extends Fragment {
                 }
             });
 
+            /* Functionality for the "GO TO" button in building details
+            * finds closest point to user
+            * finds destination point
+            * draws the route */
             go.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -507,14 +424,7 @@ public class HomeFragment extends Fragment {
                     System.out.println("____________________" + temp[0]);
 
                     point dest = allPoints.get(temp[0]);
-//                    for(String str : allPoints.keySet())
-//                    {
-//                        if (allPoints.get(str).getClass() == Building.class)
-//                        {
-//                    if(dest == null)
-//                        Log.d("ken", "dest is null" );
-//                        }
-//                    }
+
                     map.setImageBitmap(drawRoute(mapMap[0], findPath(allPoints, me, dest)));
                     mapMap[0] = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.map, options);
                 }

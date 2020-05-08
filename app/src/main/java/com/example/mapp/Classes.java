@@ -1,5 +1,6 @@
 package com.example.mapp;
 
+/* Simple class used for Classes in the schedule of a non admin user */
 public class Classes {
 
     private String className;
@@ -16,14 +17,11 @@ public class Classes {
         this.isPm = isPm;
     }
 
+    /* GETTERS */
     public String getClassName() { return className; }
-
     public String getLocation() { return location; }
-
     public String getDays() { return days; }
-
     public String getTime() { return time; }
-
     public boolean isPm() { return isPm; }
 }
 

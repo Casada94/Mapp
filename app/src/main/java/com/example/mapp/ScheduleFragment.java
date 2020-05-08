@@ -122,7 +122,8 @@ public class ScheduleFragment extends Fragment {
             todaySchedule.setAdapter(myAdapter2);
             todayDirections = root.findViewById(R.id.go_today_schedule);
 
-
+            /* sets homeviewModel classes array after ordering them
+             * navigates back to the home screen */
             todayDirections.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -160,6 +161,8 @@ public class ScheduleFragment extends Fragment {
                 }
             });
 
+            /* sets homeviewModel classes array after ordering them
+            * navigates back to the home screen */
             fullDirections.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
