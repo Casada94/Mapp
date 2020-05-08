@@ -143,7 +143,7 @@ public class HomeFragment extends Fragment {
             buildingDetails.setContentPadding(40, 20, 40, 20);
             buildingName = root.findViewById(R.id.bName);
             hours = root.findViewById(R.id.hours);
-            brokenReports = root. findViewById(R.id.broken_changeable);
+            brokenReports = root.findViewById(R.id.broken_changeable);
             otherReports = root.findViewById(R.id.other_changeable);
             ImageButton report = root.findViewById(R.id.report);
 
@@ -177,7 +177,7 @@ public class HomeFragment extends Fragment {
                 public void onChanged(Boolean aBoolean) {
                     if(aBoolean.booleanValue())
                         allPoints = getAllPoints();
-                    System.out.println("________________i changed" + getAllPoints());
+
                 }
             });
 
@@ -500,8 +500,12 @@ public class HomeFragment extends Fragment {
                     loc.setLatitude(33.778486);
 
                     point me = findNearestPoint(loc);
-                    System.out.println(currentBuilding.name);
-                    point dest = allPoints.get(currentBuilding.name);
+
+                    String[] temp = buildingName.getText().toString().split("\\(");
+                    temp[0] = temp[1].substring(0, temp[1].length()-1);
+                    System.out.println("____________________" + temp[0]);
+
+                    point dest = allPoints.get(temp[0]);
 //                    for(String str : allPoints.keySet())
 //                    {
 //                        if (allPoints.get(str).getClass() == Building.class)
@@ -800,8 +804,6 @@ public class HomeFragment extends Fragment {
         float moveXBy = (float)(540 - (dest.getX() + transX));
         float moveYBy = (float)(604 - (dest.getY() + transY));
 
-
-
         matrix.postTranslate(moveXBy,moveYBy);
 
         matrix.postScale(2/f[Matrix.MSCALE_X],2/f[Matrix.MSCALE_Y], 540, 604);
@@ -968,8 +970,6 @@ public class HomeFragment extends Fragment {
             String json = keys.get(String.valueOf(i)).toString();
             bOutlines[i] = gson.fromJson(json, new TypeToken<Polygon>(){}.getType());
         }
-
-
     }
 
     /* Sets all the textViews and info for building details card view */
@@ -981,12 +981,11 @@ public class HomeFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
                     DocumentSnapshot documentSnapshot = task.getResult();
-                    //String finalBuildingName = documentSnapshot.get("name").toString() + " (" + documentSnapshot.get("abbr").toString() + ")";
-                    //buildingName.setText(finalBuildingName);
+
                     String temp = documentSnapshot.get("name").toString() + "(" + documentSnapshot.get("abbr").toString() + ")";
                     buildingName.setText(temp);
 
-                    db.collection("activeReports").whereEqualTo("facility", documentSnapshot.get("name").toString()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    db.collection("activeReports").whereEqualTo("facility", documentSnapshot.get("abbr").toString()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if(task.isSuccessful()){
@@ -1008,6 +1007,9 @@ public class HomeFragment extends Fragment {
                                         brokenReports.setText(String.valueOf(brokenCount));
                                         otherReports.setText(String.valueOf(otherCount));
                                     }
+                                }else{
+                                    brokenReports.setText("0");
+                                    otherReports.setText("0");
                                 }
                             }else{
                                 brokenReports.setText("0");
@@ -1015,9 +1017,6 @@ public class HomeFragment extends Fragment {
                             }
                         }
                     });
-                    //List<Double> temp = (List<Double>) documentSnapshot.get("Hours");
-                    //String avail = temp.get(0).intValue() + "am - " + (temp.get(1).intValue())%12 + "pm";
-                    //hours.setText(avail);
                 }
             }
         });
@@ -1032,12 +1031,43 @@ public class HomeFragment extends Fragment {
     /* Sets all the textViews and info for building details card view */
     private void buildingInfo(point building){
 
+        Building current = (Building) building;
+        String temp = current.getName() + " (" + current.getAbbr() + ")";
 
-        buildingName.setText(building.getAbbr());
-        //List<Double> temp = (List<Double>) building.g;
-        //String avail = temp.get(0).intValue() + "am - " + (temp.get(1).intValue())%12 + "pm";
-        //hours.setText(avail);
+        buildingName.setText(temp);
 
+        db.collection("activeReports").whereEqualTo("facility", current.getAbbr()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()){
+                    QuerySnapshot querySnapshot = task.getResult();
+                    if(!querySnapshot.isEmpty()){
+                        List<DocumentSnapshot> docs = querySnapshot.getDocuments();
+                        if(docs.isEmpty()){
+                            brokenReports.setText("0");
+                            otherReports.setText("0");
+                        }else{
+                            int brokenCount = 0;
+                            int otherCount = 0;
+                            for(int i = 0; i < docs.size(); i++){
+                                if(docs.get(i).get("reason").toString().equals("Broken")){
+                                    brokenCount++;
+                                }else
+                                    otherCount++;
+                            }
+                            brokenReports.setText(String.valueOf(brokenCount));
+                            otherReports.setText(String.valueOf(otherCount));
+                        }
+                    }else{
+                        brokenReports.setText("0");
+                        otherReports.setText("0");
+                    }
+                }else{
+                    brokenReports.setText("0");
+                    otherReports.setText("0");
+                }
+            }
+        });
 
         /* Animation of building details card sliding up */
         ViewPropertyAnimator animation = buildingDetails.animate();

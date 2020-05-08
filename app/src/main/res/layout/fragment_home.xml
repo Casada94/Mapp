@@ -215,7 +215,6 @@
                 app:layout_constraintStart_toEndOf="@id/broken_reportsTxt"
                 app:layout_constraintTop_toTopOf="@id/broken_reportsTxt"
                 app:layout_constraintBottom_toBottomOf="@id/broken_reportsTxt"
-                android:text="10"
                 android:textSize="16sp"
                 android:textColor="@color/colorBlack"/>
 
@@ -235,7 +234,6 @@
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
                 android:textColor="@color/colorBlack"
-                android:text="2"
                 app:layout_constraintStart_toEndOf="@id/other_reportsTxt"
                 app:layout_constraintTop_toTopOf="@id/other_reportsTxt"
                 app:layout_constraintBottom_toBottomOf="@id/other_reportsTxt"/>

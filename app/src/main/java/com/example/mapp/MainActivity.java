@@ -130,6 +130,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(!upToDate("lastPointsUpdate")){
             readPointsDB();
         }
+        else{
+            homeViewModel.setDone();
+        }
 
 
 
