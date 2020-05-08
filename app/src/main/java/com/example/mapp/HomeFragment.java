@@ -858,7 +858,7 @@ public class HomeFragment extends Fragment {
 
     /* Draws lines on the map for direction purposes
     * better than above because it handles parsing of float array and setting up the proper order
-    * and repitiion of points */
+    * and repetition of points */
     public Bitmap drawRoute(Bitmap routeMap, ArrayList<point> points){
         Canvas canvas = new Canvas((routeMap));
         Paint p = new Paint();
