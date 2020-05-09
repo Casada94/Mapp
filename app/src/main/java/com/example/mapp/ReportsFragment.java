@@ -38,12 +38,14 @@ import java.util.Objects;
 
 public class ReportsFragment extends Fragment {
 
+    /* Variables needed for the UI of the reports page */
     private AutoCompleteTextView buildingSearch;
     private Button search;
     private Spinner reasonSpinner;
     private Spinner status;
     private RecyclerView reportsList;
 
+    /* Variables needed for the reports details cards */
     private CardView reportDetailsCard;
     private TextView buildingNameChange;
     private TextView reasonChange;

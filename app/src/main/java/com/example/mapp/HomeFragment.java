@@ -72,9 +72,9 @@ import java.util.Set;
 
 public class HomeFragment extends Fragment {
 
+    /* Variables needed for the map */
     private ImageView map;
     private Polygon[] bOutlines;
-
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
     private PointF startPoint = new PointF();
@@ -85,23 +85,26 @@ public class HomeFragment extends Fragment {
     private static final int ZOOM = 2;
     private int mode = NONE;
 
+    /* Variables needed for building details card */
     private CardView buildingDetails;
     private TextView buildingName;
     private TextView hours;
     private TextView brokenReports;
     private TextView otherReports;
 
+    /* Variables needed for reporting card */
     private CardView reportCard;
     private Spinner reasons;
     private EditText other;
 
+    /* General functionality variables */
     private Polygon currentBuilding;
     private View previousView;
     private HomeViewModel homeViewModel;
-
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
+    /* location variables */
     private LocationManager locationManager;
     private static final double left_long = -118.123707;
     private static final double right_long = -118.107734;
@@ -109,9 +112,12 @@ public class HomeFragment extends Fragment {
     private static final double bot_lat = 33.774842;
     private static final int mapSize_x = 4700;
     private static final int mapSize_y = 5008;
+
+    /* Variables for drawing on the map */
     private static float scalingFactorX = 0.87637f;
     private static float scalingFactorY = 0.8734f;
 
+    /* UI elements and variable for path finding */
     private FloatingActionButton water;
     private FloatingActionButton bathroom;
     private HashMap<String, point> allPoints = new HashMap<>();
@@ -163,7 +169,6 @@ public class HomeFragment extends Fragment {
             reasons.setAdapter(adapter);
 
 
-
             /* Sets up the map */
             map = root.findViewById(R.id.map);
             final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -183,7 +188,6 @@ public class HomeFragment extends Fragment {
 
                 }
             });
-
 
             /* Functionality for quick search: find water floating action button */
             water.setOnClickListener(new View.OnClickListener() {
@@ -234,6 +238,13 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onChanged(ArrayList<Classes> classes) {
                     ArrayList<point> schedulePoints = new ArrayList<>();
+
+                    Location loc = getLocation();
+                    loc.setLongitude(-118.113265);
+                    loc.setLatitude(33.778486);
+
+                    point me = findNearestPoint(loc);
+                    schedulePoints.add(me);
 
                     for(int i = 0; i < classes.size(); i++){
                         schedulePoints.add(getPoint(allPoints, classes.get(i)));
@@ -663,10 +674,6 @@ public class HomeFragment extends Fragment {
                             p = gson.fromJson(json, new TypeToken<Building>() {
                             }.getType());
                             break;
-//                        case "u":
-//                            p = gson.fromJson(json, new TypeToken<Utility>() {
-//                            }.getType());
-//                            break;
                         default:
                             p = gson.fromJson(json, new TypeToken<point>() {
                             }.getType());
@@ -674,11 +681,8 @@ public class HomeFragment extends Fragment {
                     points.put(p.getAbbr(), p);
                 }
                 closest = new point("default", Double.MAX_VALUE, Double.MAX_VALUE);
-//                Log.d("ken_GPS" , );
-//                Log.d("ken_GPS", Double.toString(currGPS.distance(points.get("596"))));
                 double minDistance = currGPS.distance(closest);
                 for (String p : points.keySet()) {
-//                    Log.d("ken_GPS", "minDistance: " + minDistance + " evaluating " + points.get(p).getAbbr());
                     double distance = currGPS.distance(points.get(p));
                     if(points.get(p).getClass() == Building.class)
                         distance = Math.sqrt(Math.pow(currGPS.getX() - (points.get(p).getX() / scalingFactorX) , 2)
@@ -722,6 +726,7 @@ public class HomeFragment extends Fragment {
         savedMatrix.set(matrix);
     }
 
+    /* Gets the point associated with the class data given */
     public point getPoint(HashMap<String, point> allPoints, Classes classes){
 
         for(String p: allPoints.keySet()){
@@ -731,15 +736,12 @@ public class HomeFragment extends Fragment {
         return null;
     }
 
-
     /* Needed location listener for finding users current location */
     LocationListener locationListenerGPS = new LocationListener(){
         public void onLocationChanged(Location location)
         {
             double latitude=location.getLatitude();
             double longitude=location.getLongitude();
-            String msg="New Latitude: "+latitude + "New Longitude: "+longitude;
-            Toast.makeText(getActivity().getApplicationContext(),msg,Toast.LENGTH_LONG).show();
          }
 
         @Override
@@ -764,37 +766,6 @@ public class HomeFragment extends Fragment {
         p.setStyle(Paint.Style.STROKE);
         p.setStrokeWidth(3);
         canvas.drawLines(points, p);
-        return routeMap;
-    }
-
-    /* Draws lines on the map for direction purposes
-    * better than above because it handles parsing of float array and setting up the proper order
-    * and repetition of points */
-    public Bitmap drawRoute(Bitmap routeMap, ArrayList<point> points){
-        Canvas canvas = new Canvas((routeMap));
-        Paint p = new Paint();
-        p.setColor(Color.BLUE);
-        p.setAntiAlias(true);
-        p.setStyle(Paint.Style.STROKE);
-        p.setStrokeWidth(3);
-
-        ArrayList<Float> path = new ArrayList<>();
-
-        for(int i = 0; i< points.size(); i++){
-            path.add((float)points.get(i).getX());
-            path.add((float)points.get(i).getY());
-
-            if(i != 0 || i!= points.size()-1){
-                path.add((float)points.get(i).getX());
-                path.add((float)points.get(i).getY());
-            }
-        }
-        float[] finishedPath = new float[path.size()];
-        for(int i = 0; i < path.size(); i++){
-            finishedPath[i] = path.get(i);
-        }
-
-        canvas.drawLines(finishedPath,p);
         return routeMap;
     }
 
@@ -1125,10 +1096,6 @@ public class HomeFragment extends Fragment {
                     p = gson.fromJson(json, new TypeToken<Building>() {
                     }.getType());
                     break;
-//                case "u":
-//                    p = gson.fromJson(json, new TypeToken<Utility>() {
-//                    }.getType());
-//                    break;
                 default:
                     p = gson.fromJson(json, new TypeToken<point>() {
                     }.getType());

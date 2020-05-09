@@ -7,14 +7,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
-
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-
 
 import com.example.mapp.entityObjects.point;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -23,8 +20,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import com.google.vr.sdk.widgets.pano.VrPanoramaView;
-
-
 
 public class PanoFragment extends Fragment {
 

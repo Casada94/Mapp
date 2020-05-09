@@ -1,7 +1,7 @@
 package com.example.mapp;
 
 /* Class used to define the bounds of buildings
-* has functionality to determing if a point is within the bounds of the building
+* has functionality to determining if a point is within the bounds of the building
 * used to recognize the long press on a building for building details*/
 public class Polygon {
 
@@ -11,11 +11,6 @@ public class Polygon {
     int maxY, minY;
     int n;
 
-
-    public Polygon(){
-        points = new SimplePoint[4];
-        n =0;
-    }
 
     public Polygon(int[] x, int y[], int n, String name){
         this.name = name;

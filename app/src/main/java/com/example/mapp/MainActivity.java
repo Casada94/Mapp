@@ -246,7 +246,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         checkLocationPermission();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListenerGPS);
-//        Log.d("ken", locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).toString());
 
     }
 
@@ -279,8 +278,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         {
             double latitude=location.getLatitude();
             double longitude=location.getLongitude();
-//            String msg="New Latitude: "+latitude + "New Longitude: "+longitude;
-//            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
             Log.d("ken", "long,lat : "+ location.getLongitude() + ", " + location.getLatitude());
         }
 
@@ -362,7 +359,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         if (client == null) {
                             buildGoogleApiClient();
                         }
-//                        mMap.setMyLocationEnabled(true);//
                     }
                 } else {
 
@@ -382,22 +378,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void savePoint(point p, String doc)
     {
         SharedPreferences mPrefs = getSharedPreferences("points", 0);
-//        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting();
         Gson gson = builder.create();
         String docName = "";
-//        if(p.getClass() == Building.class)
-//            docName += "b-";
-////        else if(p.getClass() == Utility.class)
-////            docName += "u-";
-//        else
-//            docName += "p-";
         docName += p.getAbbr();
         prefsEditor.putString(doc, gson.toJson(p));
         prefsEditor.commit();
-//        Log.d("ken", "SavePoint " + p.toString());
     }
 
     //Reads points from SharedPreferences
@@ -407,7 +395,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         SharedPreferences mPrefs = con.getSharedPreferences("points", 0);
         Gson gson = new Gson();
         Map<String, ?> keys = mPrefs.getAll();
-//        Log.d("ken", "points in sp: " + keys.size());
         for(String name : keys.keySet())
         {
             String json = keys.get(name).toString();
@@ -422,8 +409,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             switch(type){
                 case "b": p = gson.fromJson(json, new TypeToken<Building>(){}.getType());
                    break;
-//                case "u" : p = gson.fromJson(json, new TypeToken<Utility>(){}.getType());
-//                    break;
                 default:
                     p = gson.fromJson(json, new TypeToken<point>(){}.getType());
             }
@@ -441,16 +426,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d("ken", "maybe? " + points.size());
         for(String p : points.keySet()) {
             String docName = "";
-//            if(points.get(p).getClass() == Building.class)
-//            {
-//                docName += "b-";
-//            }
-////            else if(points.get(p).getClass() == Utility.class)
-////                docName += "u-";
-//            else
-//                docName += "p-";
             docName += p;
-//            Log.d("ken", "writepoint at " + docName);
             FirebaseFirestore.getInstance().collection("points").document(docName).set(points.get(p));
         }
     }
@@ -480,8 +456,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         switch(type){
                             case "b": p = document.toObject(Building.class);
                         break;
-//                            case "u": p = document.toObject(Utility.class);
-//                            break;
                             default: p = document.toObject(point.class);
                         }
                         savePoint(p, document.getId());
@@ -501,209 +475,4 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    public void KENupdateDB()
-    {
-        SharedPreferences prefs = getSharedPreferences("points", 0);
-        SharedPreferences.Editor prefsEditor = prefs.edit();
-        prefsEditor.clear().commit();
-        CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("test");
-        final String[] json = new String[1];
-        pointsDB.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()){
-                    for(QueryDocumentSnapshot document : task.getResult())
-                    {
-                        Gson gson = new Gson();
-                        HashMap<String, point> points = gson.fromJson((String) document.get("test"), new TypeToken<HashMap<String, point>>(){}.getType());
-//                        Log.d("ken2", Integer.toString(points.keySet().size()));
-                        for(String p : points.keySet())
-                        {
-                            savePoint(points.get(p), p);
-                        }
-                    }
-                } else {
-                    Log.d("ken", "Error getting documents: ", task.getException());
-                }
-            }
-        });
-    }
-    public void KENupdateDB2() {
-//        CollectionReference pointsDB = FirebaseFirestore.getInstance().collection("points");
-//        final CollectionReference points2DB = FirebaseFirestore.getInstance().collection("points2");
-//        final ArrayList<point2> points2 = new ArrayList<point2>();
-//        final HashMap<String, String> buildings = new HashMap<>();
-//        {
-//            buildings.put("AS", "Academic Services");
-//        buildings.put("AS.1", "Academic Services");
-//        buildings.put("ANNEX", "Art Annex");
-//        buildings.put("BAC", "Barrett Athletic Administration building");
-//        buildings.put("BKS", "Bookstore");
-//        buildings.put("BH", "Brothman Hall");
-//        buildings.put("COB", "College of Business");
-//        buildings.put("CAFE", "Cafeteria");
-//        buildings.put("CDC", "Child Development Center");
-//        buildings.put("CLA", "College of Liberal Atrs Administration");
-//        buildings.put("CPIE", "College of Professional and International Education");
-//        buildings.put("CPIE.2", "College of Professional and International Education");
-//        buildings.put("CPAC", "Carpenter Performing Arts Center");
-//        buildings.put("CP", "Central Plant");
-//        buildings.put("CORP", "Corporation Yard");
-//        buildings.put("DC", "Dance Center");
-//        buildings.put("DESN", "Design");
-//        buildings.put("DESN.2", "Design");
-//        buildings.put("ED2", "Education 2");
-//        buildings.put("EED", "Bob and Barbara Ellis Education Building");
-//        buildings.put("EED.2", "Bob and Barbara Ellis Education Building");
-//        buildings.put("EN2", "Engineering 2");
-//        buildings.put("EN3", "Engineering 3");
-//        buildings.put("EN4", "Engineering 4");
-//        buildings.put("ECS", "Engineering and Computer Science");
-//        buildings.put("ET", "Engineering Technology");
-//        buildings.put("ET.2", "Engineering Technology");
-//        buildings.put("FM", "Facilities Management");
-//        buildings.put("FO2", "Faculty Office 2");
-//        buildings.put("FO3", "Faculty Office 3");
-//        buildings.put("FO4", "Faculty Office 4");
-//        buildings.put("FO4.1", "Faculty Office 4");
-//        buildings.put("FO5`", "Faculty Office 5");
-//        buildings.put("FCS", "Family and Consumer Services");
-//        buildings.put("FA1", "Fine Arts 1");
-//        buildings.put("FA2", "Fine Arts 2");
-//        buildings.put("FA2.1", "Fine Arts 2");
-//        buildings.put("FA3", "Fine Arts 3");
-//        buildings.put("FA4", "Fine Arts 4");
-//        buildings.put("FA4.1", "Fine Arts 4");
-//        buildings.put("FND", "Foundation");
-//        buildings.put("FND.1", "Foundation");
-//        buildings.put("HSCI", "Hall of Science");
-//        buildings.put("HHS1", "Health & Human Services 1");
-//        buildings.put("HHS2", "Health & Human Services 2");
-//        buildings.put("HSC", "Hillside Service Center");
-//        buildings.put("HC", "Horn Center");
-//        buildings.put("HRL", "Housing & Residential Life Office");
-//        buildings.put("HSD", "Human Services & Design");
-//        buildings.put("IH", "International House");
-//        buildings.put("IH.1", "International House");
-//        buildings.put("JG", "Japanses Garden");
-//        buildings.put("KCAM", "Kleefeld Contemporary Art Museum");
-//        buildings.put("KCAM.1", "Kleefeld Contemporary Art Museum");
-//        buildings.put("IH", "International House");
-//        buildings.put("JG", "Japanses Garden");
-//        buildings.put("KCAM", "Kleefeld Contemporary Art Museum");
-//        buildings.put("KIN", "Kinesiology");
-//        buildings.put("LAB", "Language Arts");
-//        buildings.put("LH", "Lecture Hall 150-151");
-//        buildings.put("LA1", "Liberal Arts 1");
-//        buildings.put("LA2", "Liberal Arts 2");
-//        buildings.put("LA3", "Liberal Arts 3");
-//        buildings.put("LA4", "Liberal Arts 4");
-//        buildings.put("LA5", "Liberal Arts 5");
-//        buildings.put("LIB", "Library");
-//        buildings.put("LAH", "Los Alamitos Hall");
-//        buildings.put("LCH", "Los Cerritos Hall");
-//        buildings.put("MHB", "McIntosh Humanities Building");
-//        buildings.put("MIC", "Microbiology");
-//        buildings.put("MLSC", "Molecular & Life Sciences Center");
-//        buildings.put("MMC", "Multimedia Center");
-//        buildings.put("NUR", "Nursing");
-//        buildings.put("OP", "Outpost");
-//        buildings.put("PTS", "Parking and Transportation Services");
-//        buildings.put("PSC", "Parkside College");
-//        buildings.put("PH1", "Peterson Hall 1");
-//        buildings.put("PSY", "Psychology");
-//        buildings.put("PYR", "Pyramid");
-//        buildings.put("RC", "Recycling Center");
-//        buildings.put("REPR", "Reprographics");
-//        buildings.put("SSPA", "Social Science/Public Affairs");
-//        buildings.put("SOR", "Soroptimist House");
-//        buildings.put("SHS", "Student Health Services");
-//        buildings.put("SHS.1", "Student Health Services");
-//        buildings.put("SRWC", "Student Recreation and Wellness Center");
-//        buildings.put("SSC", "Student Success Center");
-//        buildings.put("SSCH", "Soccer and Softball Clubhouse");
-//        buildings.put("TA", "Theatre Arts");
-//        buildings.put("UMC", "University Music Center");
-//        buildings.put("UP", "University Police BLDG");
-//        buildings.put("USU", "University Student Union");
-//        buildings.put("USU.1", "University Student Union");
-//        buildings.put("UTC", "University Telecommunications Center");
-//        buildings.put("UT", "University Theatre");
-//        buildings.put("VIC", "Visitor Information Center");
-//        buildings.put("VEC", "Vivian Engineering Center");
-//        buildings.put("VEC.1", "Vivian Engineering Center");
-//        buildings.put("PSD", "Parkside Dining");
-//        buildings.put("PSG", "Parkside Dorm G");
-//        buildings.put("PSH", "Parkside Dorm H");
-//        buildings.put("PSJ", "Parkside Dorm J");
-//        buildings.put("PSK", "Parkside Dorm K");
-//        buildings.put("PSL", "Parkside Dorm L");
-//        buildings.put("PSM", "Parkside Dorm M");
-//        buildings.put("PSN", "Parkside Dorm N");
-//        buildings.put("PSP", "Parkside Dorm P");
-//        buildings.put("PSQ", "Parkside Dorm Q");
-//        buildings.put("PSC", "Parkside Service Center");
-//        buildings.put("HSDA", "Hillside Dorm A");
-//        buildings.put("HSDB", "Hillside Dorm B");
-//        buildings.put("HSDC", "Hillside Dorm C");
-//        buildings.put("HSDD", "Hillside Dorm D");
-//        buildings.put("HSCN", "Hillside Commons");
-//        buildings.put("HD", "Hillside Dining");
-//        buildings.put("HD.1", "Hillside Dining");
-//        buildings.put("HSDE", "Hillside Dorm E");
-//        buildings.put("HSDF", "Hillside Dorm F");
-//    }
-//        pointsDB.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                if(task.isSuccessful()){
-//                    for(QueryDocumentSnapshot document : task.getResult())
-//                    {
-//                        Map<String, Object> hmap = document.getData();
-//                        point2 p;
-//                        String name = buildings.get(hmap.get("name"));
-//                        String abbr = (String) hmap.get("name");
-////                        Object X = hmap.get("x");
-//                        Double x = document.getDouble("x");
-////                        if(X.getClass() == Long.class)
-////                            x = Double.longBitsToDouble((long) X);
-////                        else
-////                            x = (Double) X;
-////                        Object Y = hmap.get("y");
-//                        Double y = document.getDouble("y");
-////                        if(Y.getClass() == Long.class)
-////                            y = Double.longBitsToDouble((long) Y);
-////                        else
-////                            y = (Double) Y;
-//                        ArrayList<String> neighbors = (ArrayList<String>) hmap.get("neighbors");
-//                        ArrayList<String> utilities = (ArrayList<String>) hmap.get("utilities");
-//                        if(neighbors.size() ==0)
-//                            Log.d("ken4", "point " + abbr + "has 0 neighbors!");
-//                        if(hmap.size() == 6)
-//                            p = new Building2(abbr, x, y, neighbors, utilities, name);
-//                        else
-//                            p = new point2(abbr, x, y, neighbors, utilities);
-//                        points2.add(p);
-//                    }
-//                } else {
-//                    Log.d("ken", "Error getting documents: ", task.getException());
-//                }
-//                for(point2 p : points2)
-//                {
-//                    String str = " ";
-//                    if(p.getClass() == Building2.class)
-//                    {
-//
-//                        str = p.getAbbr() + " " +  ((Building2) p).getName();
-//                    }else
-//                        str = p.getAbbr();
-//                    str += " " + p.getX() + ", " + p.getY();
-//                    Log.d("ken2", str);
-//                    points2DB.document(p.getAbbr()).set(p);
-//
-//                }
-//                Log.d("ken3", "points2 size = " + points2.size());
-//            }
-//        });
-    }
 }

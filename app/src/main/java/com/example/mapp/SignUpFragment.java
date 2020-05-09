@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 
 public class SignUpFragment extends Fragment {
 
+    /* Variables needed for the Ui elements of the sign up page */
     private EditText email;
     private EditText password;
     private EditText rePassword;
@@ -35,7 +36,6 @@ public class SignUpFragment extends Fragment {
     private TextView emailTxt;
     private TextView passwordTxt;
     private TextView rePasswordTxt;
-    private FirebaseAuth.AuthStateListener mAuthListener;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {

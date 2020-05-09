@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+/* Adapter class needed for recycler view of the reports page */
 public class reportAdapter extends RecyclerView.Adapter<reportAdapter.MyViewHolder>{
     private ArrayList<HashMap<String, String>> reports = new ArrayList<>();
     private Context context;

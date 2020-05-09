@@ -1,6 +1,5 @@
 package com.example.mapp;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -57,7 +56,6 @@ public class LoginFragment extends Fragment {
         menuItem.setVisible(false);
 
         final FirebaseAuth mAuth = FirebaseAuth.getInstance();
-
 
         /* Sets the click functionality of the forgot password text*/
         forgotPass.setOnClickListener(new View.OnClickListener() {
@@ -159,6 +157,4 @@ public class LoginFragment extends Fragment {
 
         return root;
     }
-
-
 }
